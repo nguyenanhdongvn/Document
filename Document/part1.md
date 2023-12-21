@@ -9,3 +9,8 @@
 | gitlab  |192.168.10.18| 2GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | Gitlab                                         |
 | rancher |192.168.10.19| 2GB | 2vCPU | - sda 50GB<br>- sdb 20GB<br>- sbc 40GB | - Rancher<br>- Harbor-Registry<br>- NFS-Server |
 | cicd    |192.168.10.20| 2GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | - Jenkins<br>- kubespray                       |
+
+
+sudo yum update -y
+sudo yum install vim git telnet net-tools bind-utils ntp bash-completion bash-completion-extras -y
+source /etc/profile.d/bash_completion.sh
