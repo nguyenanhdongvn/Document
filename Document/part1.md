@@ -11,6 +11,24 @@
 | cicd    |192.168.10.20| 2GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | - Jenkins<br>- kubespray                       |
 
 
+```
 sudo yum update -y
 sudo yum install vim git telnet net-tools bind-utils ntp bash-completion bash-completion-extras -y
 source /etc/profile.d/bash_completion.sh
+```
+Disable SELinux
+```
+sudo setenforce 0
+sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+```
+
+Turn off firewalld
+```
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+```
+
+Configure ip_forward
+```
+sudo sysctl -w net.ipv4.ip_forward=1
+```
