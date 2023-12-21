@@ -1,19 +1,19 @@
-Tạo folder chứa kubespray
+* Tạo folder chứa kubespray
 ```
  mkdir /home/sysadmin/kubernetes_installation/ && cd /home/sysadmin/kubernetes_installation/
 ```
 
-Clone kubesrpay
+* Clone kubesrpay
 ```
 git clone https://github.com/kubernetes-sigs/kubespray.git --branch release-2.16
 ```
 
-Copy folder `sample` ra folder `dongna-cluster`
+* Copy folder `sample` ra folder `dongna-cluster`
 ```
 cp -rf /home/sysadmin/kubernetes_installation/kubespray/inventory/sample /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster
 ```
 
-Cấu hình file inventory `host.yaml` cho Ansible
+* Cấu hình file inventory `host.yaml` cho Ansible
 ```
 vim /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/host.yaml
 ```
@@ -57,7 +57,7 @@ worker2
 worker3
 ```
 
-Đổi CNI (Container Network Interface) 
+* Đổi CNI (Container Network Interface) 
 ```
 vim /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/group_vars/k8s_cluster/k8s-cluster.yml
 ```
@@ -69,7 +69,7 @@ Thành
 kube_network_plugin: flannel
 ```
 
-Cài Docker lên `cicd` server để chạy Ansible bằng container
+* Cài Docker lên `cicd` server để chạy Ansible bằng container
 ```
 curl -fsSL https://get.docker.com/ | sh
 sudo usermod -aG docker sysadmin
@@ -78,7 +78,7 @@ sudo systemctl start docker
 sudo systemctl enable docker
 ```
 
-Chạy container đã cài Ansible
+* Chạy container đã cài Ansible
 ```
 docker run --rm -it --mount type=bind,source=/home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster,dst=/inventory \
   --mount type=bind,source=/home/sysadmin/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
@@ -86,19 +86,19 @@ docker run --rm -it --mount type=bind,source=/home/sysadmin/kubernetes_installat
   quay.io/kubespray/kubespray:v2.16.0 bash
 ```
 
-Trong container chạy ansible command để cài đặt K8S cluster
+* Trong container chạy ansible command để cài đặt K8S cluster
 ```
 ansible-playbook -i /inventory/host.yaml cluster.yml --user=sysadmin --ask-pass --become --ask-become-pass
 ```
 
-Cấu hình kube config trên 3 Master Node để connect được đến K8S cluster
+* Cấu hình kube config trên 3 Master Node để connect được đến K8S cluster
 ```
 mkdir -p $HOME/.kube
 sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-Kiểm tra kết quả sau khi cấu hình kube config
+* Kiểm tra kết quả sau khi cấu hình kube config
 ```
 kubectl get nodes -o wide
 NAME      STATUS   ROLES                  AGE     VERSION   INTERNAL-IP     EXTERNAL-IP   OS-IMAGE                KERNEL-VERSION                 CONTAINER-RUNTIME
@@ -111,7 +111,7 @@ worker3   Ready    <none>                 8m12s   v1.20.7   192.168.10.16   <non
 ```
 
 # Cài đặt Rancher để quản lý K8S Cluster
-- Trên `rancher` server, cài đặt Rancher bằng cách chạy Rancher container:
+* Trên `rancher` server, cài đặt Rancher bằng cách chạy Rancher container:
 ```
 docker run --name rancher-server -d --restart=unless-stopped -p 6860:80 -p 6868:443 --privileged rancher/rancher:v2.5.7 
 ```
@@ -119,18 +119,18 @@ _**Note:**_<br>
 Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher. Ví dụ: Kubernetes v1.20.7 tương thích với Rancher v2.5.7 <br>
 Expose Rancher bằng port 6860 cho HTTP và 6868 cho HTTPS để sau này sẽ cho các connection này đi qua HAproxy
 
-- Truy cập Rancher tại:
+* Truy cập Rancher tại:
 ```
 https://192.168.10.19:6868
 ```
 ![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/3a704e7a-602e-4a18-86e1-a2aea4cb9ce8)
 
-- Thêm K8S cluster vào Rancher
+* Thêm K8S cluster vào Rancher
 ```
 Add cluster -> Other Cluster -> nhập Cluster Name -> Create
 ```
 
-- Sau khi create, sẽ mất vài phút để add K8S Cluster vào Rancher, Rancher sẽ hiện ra cluster registration command, ta sẽ chạy command đó trên 1 node Master bất kỳ
+* Sau khi create, sẽ mất vài phút để add K8S Cluster vào Rancher, Rancher sẽ hiện ra cluster registration command, ta sẽ chạy command đó trên 1 node Master bất kỳ
 ```
 curl --insecure -sfL https://192.168.10.19:6868/v3/import/fqskn9m6v9s5jgfvhl79qf7hcwdbd7khrdcpxqqmwz6pfpkrmwzbm7_c-tw6bv.yaml | kubectl apply -f -
 ```
