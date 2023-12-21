@@ -115,10 +115,9 @@ worker3   Ready    <none>                 8m12s   v1.20.7   192.168.10.16   <non
 ```
 docker run --name rancher-server -d --restart=unless-stopped -p 6860:80 -p 6868:443 --privileged rancher/rancher:v2.5.7 
 ```
-_**Note:**_
-Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher. Ví dụ: Kubernetes v1.20.7 tương thích với Rancher v2.5.7.
+_**Note:**_<br>
+Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher. Ví dụ: Kubernetes v1.20.7 tương thích với Rancher v2.5.7 <br>
 Expose Rancher bằng port 6860 cho HTTP và 6868 cho HTTPS để sau này sẽ cho các connection này đi qua HAproxy
-
 
 - Truy cập Rancher tại:
 ```
@@ -137,7 +136,7 @@ curl --insecure -sfL https://192.168.10.19:6868/v3/import/fqskn9m6v9s5jgfvhl79qf
 ```
 ![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/4cf1b815-f479-4b57-a180-b0dc6633cb31)
 
-_**Note:**_
+_**Note:**_ <br>
 Rancher UI báo Controller Manager unhealthy ta cần thêm các bước sau:
 ```
 sudo sed -i 's|- --port=0|#- --port=0|' /etc/kubernetes/manifests/kube-scheduler.yaml
