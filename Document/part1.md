@@ -1,6 +1,6 @@
 | Server  | IP          | RAM | CPU   | DISK                                   | Service                                        |
 |---------|-------------|-----|-------|----------------------------------------|------------------------------------------------|
-| master1 |192.168.10.11| 3GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | K8S master - Lon                                  |
+| master1 |192.168.10.11| 3GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | K8S master - Longhorn                          |
 | master2 |192.168.10.12| 3GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | K8S master                                     |
 | master3 |192.168.10.13| 3GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | K8S master                                     |
 | worker1 |192.168.10.14| 4GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | K8S worker                                     |
