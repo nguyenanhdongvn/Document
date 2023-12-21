@@ -1,8 +1,12 @@
+Tạo folder chứa kubespray
 ```
- mkdir kubernetes_installation/ && cd kubernetes_installation/
+ mkdir /home/sysadmin/kubernetes_installation/ && cd /home/sysadmin/kubernetes_installation/
 ```
 
+Clone kubesrpay
+```
 git clone https://github.com/kubernetes-sigs/kubespray.git --branch release-2.16
+```
 
 Copy folder `sample` ra folder `dongna-cluster`
 ```
