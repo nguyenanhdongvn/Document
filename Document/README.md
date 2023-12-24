@@ -14,3 +14,5 @@
 `Worker Node`: các POD sẽ được điều phối lên Worker Node để host application
 - `Kubelet`: là 1 agent chạy trên từng `Woker Node` trong K8s Cluster, lắng nghe các chỉ thị từ `Kube-Apiserver` để deploy/destroy POD trên `Worker Node`, theo dõi và báo cáo status của các Worker Node và POD cho Kube-Apiserver một các định kỳ
 - `Kube-proxy`: đảm bảo các POD trong K8s Cluster có thể giao tiếp được với nhau
+
+![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/6239ae16-fd81-4c26-ae8a-4ff43da170e4)
