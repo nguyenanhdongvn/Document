@@ -230,7 +230,7 @@ spec:
 
 Tạo PVC bằng yaml file
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/nfs-storage/test-pod-pvc-delete.yaml
+kubectl apply -f /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-delete.yaml
 ```
 
 ```
