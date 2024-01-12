@@ -89,9 +89,11 @@ Export list for 192.168.10.19:
 ## Cài đặt kubectl và helm trên server `cicd`
 Do phiên bản Kubernetes đang cài trong series LAB này là v1.20.7 nên ta cũng sẽ cài kubectl cùng phiên bản:
 
+```
 curl -LO https://dl.k8s.io/release/v1.20.7/bin/linux/amd64/kubectl
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 kubectl version --client
+```
 
 Cấu hình kubectl để kết nối tới cụm K8S của mình:
 ```
