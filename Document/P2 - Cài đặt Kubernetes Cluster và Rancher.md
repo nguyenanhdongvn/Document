@@ -1,4 +1,4 @@
-* Tạo folder chứa kubespray
+* Tạo folder chứa kubespray trên `cicd` server
 ```
  mkdir /home/sysadmin/kubernetes_installation/ && cd /home/sysadmin/kubernetes_installation/
 ```
@@ -111,6 +111,16 @@ worker3   Ready    <none>                 8m12s   v1.20.7   192.168.10.16   <non
 ```
 
 # Cài đặt Rancher để quản lý K8S Cluster
+
+* Cài Docker lên `rancher` server
+```
+curl -fsSL https://get.docker.com/ | sh
+sudo usermod -aG docker sysadmin
+sudo newgrp docker
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
 * Trên `rancher` server, cài đặt Rancher bằng cách chạy Rancher container:
 ```
 docker run --name rancher-server -d --restart=unless-stopped -p 6860:80 -p 6868:443 --privileged rancher/rancher:v2.5.7 
