@@ -228,6 +228,7 @@ spec:
   resources:
     requests:
       storage: 10Mi
+EOF
 ```
 
 Tạo PVC bằng yaml file
@@ -302,6 +303,7 @@ spec:
   resources:
     requests:
       storage: 10Mi
+EOF
 ```
 
 Giờ tạo 2 PVC, một qua SC có relaim policy là `delete`, một qua SC có reclaim policy là `retain`:
