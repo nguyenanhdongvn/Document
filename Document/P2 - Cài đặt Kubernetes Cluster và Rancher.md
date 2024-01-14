@@ -1,3 +1,19 @@
+# Tạo SSH keys và cấu hình SSH 
+* Thực hiện tạo ssh key trên tất cả các node (Master Node/Worker Node và CICD-node) với tùy chọn mặc định
+```
+ssh-keygen
+```
+
+* Thực hiện copy ssh-key từ CICD-node tới các node sẽ cài K8S (nhập mật khẩu của node đích khi được hỏi):
+```
+ssh-copy-id master1 
+ssh-copy-id master2
+ssh-copy-id master3
+ssh-copy-id worker1
+ssh-copy-id worker2
+ssh-copy-id worker3
+```
+
 * Tạo folder chứa kubespray trên `cicd` server
 ```
  mkdir /home/sysadmin/kubernetes_installation/ && cd /home/sysadmin/kubernetes_installation/
