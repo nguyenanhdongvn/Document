@@ -1,10 +1,10 @@
 # Tạo SSH keys và cấu hình SSH 
-* Thực hiện tạo ssh key trên tất cả các server (Master Nodes/Worker Nodes và `cicd` sever) với tùy chọn mặc định
+* Tạo ssh key trên tất cả các server (Master Nodes/Worker Nodes và `cicd` sever) với tùy chọn mặc định
 ```
 ssh-keygen
 ```
 
-* Thực hiện copy ssh key từ `cicd` server tới các server sẽ cài K8S (nhập mật khẩu của server đích khi được hỏi):
+* Từ `cicd` server, copy ssh key tới các server sẽ cài K8S (nhập mật khẩu của server đích khi được hỏi):
 ```
 ssh-copy-id master1 
 ssh-copy-id master2
