@@ -163,6 +163,7 @@ curl --insecure -sfL https://192.168.10.19:6868/v3/import/fqskn9m6v9s5jgfvhl79qf
 ![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/4cf1b815-f479-4b57-a180-b0dc6633cb31)
 
 * Giao diện Cluster Explorer:
+
 ![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/1f3068d3-a34a-41af-9b38-0e4ffee8648f)
 
 
