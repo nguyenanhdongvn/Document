@@ -231,7 +231,7 @@ spec:
 EOF
 ```
 
-Tạo PVC bằng yaml file
+Tạo PVC bằng yaml file ở trên vừa tạo
 ```
 kubectl apply -f /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-delete.yaml
 ```
@@ -245,9 +245,8 @@ NAME              STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS     
 test-pvc-delete   Pending                                      dongna-nfs-delete   6s
 ```
 
-Rồi tới đây bắt đầu có vấn đề, mọi thứ đã làm đúng hết thì thằng PVC này phải được gán PV cho nó chứ, tức là phải ở trạng thái "Bound" chứ sao lại Pending mãi vậy?
-
-Đây là một known-issue của Kubernetes phiên bản v1.20.7 này, cách xử lý là: update lại file /etc/kubernetes/manifests/kube-apiserver.yaml trên tất cả các Master Node, thêm một config như sau `- --feature-gates=RemoveSelfLink=false`:
+Rồi tới đây bắt đầu có vấn đề, mọi thứ đã làm đúng hết thì thằng PVC này phải được gán PV cho nó chứ, tức là phải ở trạng thái "Bound" chứ sao lại Pending mãi vậy? => Đây là một known-issue của Kubernetes phiên bản v1.20.7 này
+Solution: Trên 3 Master Node, thêm một dòng như sau `- --feature-gates=RemoveSelfLink=false` trong file `/etc/kubernetes/manifests/kube-apiserver.yaml` 
 ```
 ...
     - --tls-cert-file=/etc/kubernetes/ssl/apiserver.crt
