@@ -246,6 +246,7 @@ test-pvc-delete   Pending                                      dongna-nfs-delete
 ```
 
 Rồi tới đây bắt đầu có vấn đề, mọi thứ đã làm đúng hết thì thằng PVC này phải được gán PV cho nó chứ, tức là phải ở trạng thái "Bound" chứ sao lại Pending mãi vậy? => Đây là một known-issue của Kubernetes phiên bản v1.20.7 này
+
 Solution: Trên 3 Master Node, thêm một dòng như sau `- --feature-gates=RemoveSelfLink=false` trong file `/etc/kubernetes/manifests/kube-apiserver.yaml` 
 ```
 ...
