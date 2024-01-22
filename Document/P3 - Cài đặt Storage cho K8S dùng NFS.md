@@ -136,7 +136,7 @@ NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 
 Kết quả như trên là helm kết nối K8S ok
 
-## Cài đặt NFS Storage
+## Cài đặt NFS Storage Class
 Tạo thư mục cài đặt để lưu helm-chart và các file config:
 ```
 mkdir /home/sysadmin/kubernetes_installation/nfs-storage
