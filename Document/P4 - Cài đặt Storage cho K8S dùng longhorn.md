@@ -72,9 +72,9 @@ ingress:
 
 namespaceOverride: "storage"
 ```
-NOTE: 
-- Ở đây mình chưa động gì tới haproxy với nginx-ingress nên để expose service ra bên ngoài thì trước mắt tạm thời sẽ dùng Node Port
-- Phải cài thêm open-iscsi cho các Worker Node để nó có thể mount được phân vùng từ longhorn storage
+**NOTE: <br>
+Ở đây mình chưa động gì tới haproxy với nginx-ingress nên để expose service ra bên ngoài thì trước mắt tạm thời sẽ dùng Node Port<br>
+Phải cài thêm open-iscsi cho các Worker Node để nó có thể mount được phân vùng từ longhorn storage**
 ```
 sudo yum -y install iscsi-initiator-utils
 ```
