@@ -97,7 +97,7 @@ docker run --rm -it --mount type=bind,source=/home/sysadmin/kubernetes_installat
 
 * Trong container chạy ansible command để cài đặt K8S cluster
 ```
-ansible-playbook -i /inventory/host.yaml cluster.yml --user=sysadmin --ask-pass --become --ask-become-pass
+ansible-playbook -i /inventory/inventory.ini cluster.yml --user=sysadmin --ask-pass --become --ask-become-pass
 ```
 
 * Cấu hình kube config trên 3 Master Node để connect được đến K8S cluster
