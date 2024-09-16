@@ -31,7 +31,7 @@ cp -rf /home/sysadmin/kubernetes_installation/kubespray/inventory/sample /home/s
 
 * Cấu hình file inventory `host.yaml` cho Ansible
 ```
-vim /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/host.yaml
+vim /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/inventory.ini
 ```
 
 ```
@@ -43,7 +43,7 @@ worker1  ansible_host=192.168.10.14      ip=192.168.10.14
 worker2  ansible_host=192.168.10.15      ip=192.168.10.15
 worker3  ansible_host=192.168.10.16      ip=192.168.10.16
 
-[kube-master]
+[kube_control_plane]
 master1
 master2
 master3
@@ -53,24 +53,17 @@ master1
 master2
 master3
 
-[kube-node]
+[kube_node]
 worker1
 worker2
 worker3
 
-[k8s-cluster:children]
-kube-node
-kube-master
+[calico_rr]
 
-[calico-rr]
-
-[vault]
-master1
-master2
-master3
-worker1
-worker2
-worker3
+[k8s_cluster:children]
+kube_control_plane
+kube_node
+calico_rr
 ```
 
 * Đổi CNI (Container Network Interface) 
