@@ -48,15 +48,15 @@ master1
 master2
 master3
 
-[kube-node]
-worker1
-worker2
-worker3
-
 [etcd]
 master1
 master2
 master3
+
+[kube-node]
+worker1
+worker2
+worker3
 
 [k8s-cluster:children]
 kube-node
