@@ -10,7 +10,30 @@
 | rancher |192.168.10.19| 2GB | 2vCPU | - sda 50GB<br>- sdb 20GB<br>- sbc 40GB | - Rancher<br>- Harbor-Registry<br>- NFS-Server    |
 | cicd    |192.168.10.20| 2GB | 2vCPU | - sda 50GB<br>- sdb 20GB               | - Jenkins<br>- kubespray<br>- Helm<br>- kubectl   |
 
+Configure DNS server on all nodes
+```
+cat <<EOF > /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+EOF
+```
 
+Configure hosts file on all nodes
+```
+cat <<EOF >> /etc/hosts
+192.168.10.11   master1
+192.168.10.12   master2
+192.168.10.13   master3
+192.168.10.14   worker1
+192.168.10.15   worker2
+192.168.10.16   worker3
+192.168.10.18   gitlab
+192.168.10.19   rancher
+192.168.10.20   cicd
+EOF
+```
+
+Update and Install the needed tools for the servers
 ```
 sudo yum update -y
 sudo yum install vim git telnet net-tools bind-utils ntp bash-completion bash-completion-extras -y
