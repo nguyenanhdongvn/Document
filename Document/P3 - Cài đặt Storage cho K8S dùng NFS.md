@@ -183,8 +183,8 @@ Tạo một namespace riêng cho phần storage để dễ quản lý rồi cài
 
 ```
 kubectl create namespace "storage"
-helm install nfs-storage-retain --namespace storage -f /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml nfs-client-provisioner
-helm install nfs-storage-delete --namespace storage -f /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml nfs-client-provisioner
+helm install nfs-storage-delete --namespace storage -f /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml nfs-client-provisioner
+helm install nfs-storage-retain --namespace storage -f /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml nfs-client-provisioner
 ```
 
 Kết quả:
