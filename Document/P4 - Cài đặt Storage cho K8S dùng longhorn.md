@@ -74,9 +74,11 @@ namespaceOverride: "storage"
 ```
 **NOTE: <br>
 Ở đây mình chưa động gì tới haproxy với nginx-ingress nên để expose service ra bên ngoài thì trước mắt tạm thời sẽ dùng Node Port<br>
-Phải cài thêm open-iscsi cho các Worker Node để nó có thể mount được phân vùng từ longhorn storage**
+Phải cài thêm và start open-iscsi cho các Worker Node để nó có thể mount được phân vùng từ longhorn storage**
 ```
 sudo yum -y install iscsi-initiator-utils
+sudo systemctl start iscsid.service
+sudo systemctl enable iscsid.service
 ```
 
 Config đã xong, chạy helm install để cài đặt Longhorn:
