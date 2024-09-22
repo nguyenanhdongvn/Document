@@ -6,7 +6,7 @@ ssh-keygen
 
 * Từ `cicd` server, copy ssh key tới các server sẽ cài K8S (nhập mật khẩu của server đích khi được hỏi):
 ```
-ssh-copy-id master1 
+ssh-copy-id master1
 ssh-copy-id master2
 ssh-copy-id master3
 ssh-copy-id worker1
