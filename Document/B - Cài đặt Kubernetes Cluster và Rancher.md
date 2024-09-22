@@ -143,7 +143,7 @@ _**Note:**_<br>
 Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher tại [đây](https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/) . Ví dụ: Kubernetes v1.30.2 tương thích với Rancher v2.9.2 <br>
 Expose Rancher bằng port 6860 cho HTTP và 6868 cho HTTPS để sau này sẽ cho các connection này đi qua HAproxy
 
-Khi gặp phải error sau
+Khi gặp phải error sau [error](https://github.com/rancher/rancher/issues/44279#issuecomment-1993796373)
 ```
 2024/09/22 12:12:33 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
 2024/09/22 12:12:35 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
