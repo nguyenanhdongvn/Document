@@ -153,8 +153,8 @@ tar -xzf nfs-client-provisioner-1.2.11.tgz
 
 Trước khi cài đặt cần thay đổi tham số mặc định của helm chart này. Mình sẽ tạo 2 storage class khác nhau tương ứng với `reclaim policy` là `delete` và `retain`--> Cần 2 file value tương ứng để cài đặt 2 storage class này. Tạo file value cho storage class có `reclaim policy` là `delete` và `retain`:
 ```
-cp /home/sysadmin/kubernetes_installation/nfs-client-provisioner/values.yaml /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
-cp /home/sysadmin/kubernetes_installation/nfs-client-provisioner/values.yaml /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
+cp /home/sysadmin/kubernetes_installation/nfs-storage/nfs-client-provisioner/values.yaml /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
+cp /home/sysadmin/kubernetes_installation/nfs-storage/nfs-client-provisioner/values.yaml /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
 ```
 
 Thay đổi các tham số trong file `values-nfs-delete.yaml` như sau:
