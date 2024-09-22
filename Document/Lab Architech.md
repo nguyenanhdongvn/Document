@@ -52,7 +52,7 @@ EOF
 * Patching và cài đặt các package tool cần thiết cho tất cả node
 ```
 sudo yum update -y
-sudo yum install vim git telnet net-tools bind-utils ntp bash-completion bash-completion-extras -y
+sudo yum install vim git telnet net-tools bind-utils bash-completion -y
 source /etc/profile.d/bash_completion.sh
 ```
 
