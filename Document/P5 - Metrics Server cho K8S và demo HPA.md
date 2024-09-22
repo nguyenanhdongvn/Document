@@ -40,8 +40,7 @@ Sau đó sửa các tham số dưới session "args" như sau:
 ...
 ```
 Lưu lại và chờ Pod được update lại. Các bạn có thể tham khảo thêm về issue này ở topic trên Github và StackOverFlow:<br>
-https://github.com/kubernetes-sigs/metrics-server/issues/278<br>
-https://stackoverflow.com/questions/68648198/metrics-service-in-kubernetes-not-working
+https://github.com/kubernetes-sigs/metrics-server/issues/91
 
 Output
 ```
