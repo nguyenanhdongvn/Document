@@ -87,10 +87,10 @@ Export list for 192.168.10.19:
 **_NOTE_: ban đầu ta cài đặt Kubernetes Cluster bằng Kubespray từ server `cicd`. Toàn bộ phần cài đặt khác cho cụm K8s ta cũng sẽ cài từ server `cicd` để quản lý tập trung cấu hình cài đặt dễ dàng hơn. Mình sẽ cài đặt NFS Storage Class qua helm chart, do đó cũng cần phải cài helm lên server `cicd`**
 
 ## Cài đặt kubectl và helm trên server `cicd`
-Do phiên bản Kubernetes đang cài trong series LAB này là v1.20.7 nên ta cũng sẽ cài kubectl cùng phiên bản:
+Do phiên bản Kubernetes đang cài trong series LAB này là v1.30.4 nên ta cũng sẽ cài kubectl cùng phiên bản:
 
 ```
-curl -LO https://dl.k8s.io/release/v1.20.7/bin/linux/amd64/kubectl
+curl -LO https://dl.k8s.io/release/v1.30.4/bin/linux/amd64/kubectl
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 kubectl version --client
 ```
