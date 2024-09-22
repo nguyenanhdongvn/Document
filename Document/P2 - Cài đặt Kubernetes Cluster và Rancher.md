@@ -91,7 +91,8 @@ docker run --rm -it --mount type=bind,source=/home/sysadmin/kubernetes_installat
 ansible-playbook -i /inventory/inventory.ini cluster.yml --user=sysadmin --ask-pass --become --ask-become-pass
 ```
 
-NOTE: khi gặp phải lỗi như sau
+**NOTE:**
+Khi gặp phải lỗi như sau
 ```
 TASK [container-engine/runc : Download_file | Download item] *************************************************************************************************************************************************
 fatal: [worker2]: FAILED! => {"attempts": 4, "censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
@@ -107,10 +108,11 @@ fatal: [worker3]: FAILED! => {"attempts": 4, "censored": "the output has been hi
 
 NO MORE HOSTS LEFT *******************************************************************************************************************************************************************************************
 ```
-Vào các K8s Nodes và comment lại dòng "search default.svc.cluster.local svc.cluster.local" trong file /etc/resolv.conf
+Thì ta login các K8s Nodes và comment lại dòng "search default.svc.cluster.local svc.cluster.local" trong file /etc/resolv.conf
 ```
 sudo sed -e '/search/s/^/#/g' -i /etc/resolv.conf
 ```
+Sau đó chạy lại ansible command trong container để cài đặt lại K8s cluster
 
 * Cấu hình kube config trên 3 Master Node để connect được đến K8S cluster
 ```
