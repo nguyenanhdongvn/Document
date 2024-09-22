@@ -181,24 +181,14 @@ https://192.168.10.19:6868
 
 * Thêm K8S cluster vào Rancher
 ```
-Add cluster -> Other Cluster -> nhập Cluster Name -> Create
+Add cluster -> Generic -> nhập Cluster Name -> Create
 ```
 
 * Sau khi create, sẽ mất vài phút để add K8S Cluster vào Rancher, Rancher sẽ hiện ra cluster registration command, ta sẽ chạy command đó trên 1 node Master bất kỳ
 ```
-curl --insecure -sfL https://192.168.10.19:6868/v3/import/fqskn9m6v9s5jgfvhl79qf7hcwdbd7khrdcpxqqmwz6pfpkrmwzbm7_c-tw6bv.yaml | kubectl apply -f -
+curl --insecure -sfL https://192.168.10.19:6868/v3/import/lsp8hpdkcdjb4ws592vr4vd9m8hgdjjg2gqhxswvznwhzc5qm6r8mr_c-m-9wr7j9ks.yaml | kubectl apply -f -
 ```
-![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/4cf1b815-f479-4b57-a180-b0dc6633cb31)
+![image](https://github.com/user-attachments/assets/9e3c076a-9eb5-422d-9c7e-5b5cf63f3daf)
 
-* Giao diện Cluster Explorer:
-
-![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/1f3068d3-a34a-41af-9b38-0e4ffee8648f)
-
-
-_**Note:**_ <br>
-Rancher UI báo Controller Manager unhealthy ta cần thêm các bước sau:
-```
-sudo sed -i 's|- --port=0|#- --port=0|' /etc/kubernetes/manifests/kube-scheduler.yaml
-sudo sed -i 's|- --port=0|#- --port=0|' /etc/kubernetes/manifests/kube-controller-manager.yaml
-sudo systemctl restart kubelet
-```
+* Cluster Dashboard
+![image](https://github.com/user-attachments/assets/af679057-6fe9-4794-9794-c42458d5cb4e)
