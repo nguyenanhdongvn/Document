@@ -96,3 +96,26 @@ sudo systemctl disable firewalld
 ```
 sudo sysctl -w net.ipv4.ip_forward=1
 ```
+
+* Cấu hình Alias cho tất cả node
+```
+cat <<EOF >> $HOME/.bashrc
+
+# Shell Prompt Color
+export PS1="\[\033[01;33m\]\u\[\033[01;30m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+
+# Custom Alias by Dong
+alias cicd='ssh sysadmin@192.168.10.20'
+alias rancher='ssh sysadmin@192.168.10.19'
+alias gitlab='ssh sysadmin@192.168.10.18'
+alias master1='ssh sysadmin@192.168.10.11'
+alias master2='ssh sysadmin@192.168.10.12'
+alias master3='ssh sysadmin@192.168.10.13'
+alias worker1='ssh sysadmin@192.168.10.14'
+alias worker2='ssh sysadmin@192.168.10.15'
+alias worker3='ssh sysadmin@192.168.10.16'
+alias k='kubectl'
+EOF
+
+source $HOME/.bashrc
+```
