@@ -177,7 +177,7 @@ Sau đó xoá và chạy lại container
 ```
 https://192.168.10.19:6868
 ```
-![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/3a704e7a-602e-4a18-86e1-a2aea4cb9ce8)
+![image](https://github.com/user-attachments/assets/9b7add7f-1f70-4ca5-992d-c6273c6c9f99)
 
 * Thêm K8S cluster vào Rancher
 ```
