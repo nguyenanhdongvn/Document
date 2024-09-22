@@ -152,6 +152,36 @@ _**Note:**_<br>
 Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher tại https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/ . Ví dụ: Kubernetes v1.30.2 tương thích với Rancher v2.9.2 <br>
 Expose Rancher bằng port 6860 cho HTTP và 6868 cho HTTPS để sau này sẽ cho các connection này đi qua HAproxy
 
+Khi gặp phải error sau
+```
+2024/09/22 12:12:33 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:35 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:37 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:39 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:41 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:43 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:45 [INFO] Waiting for server to become available: Get "https://127.0.0.1:6444/version?timeout=15m0s": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:47 [INFO] Running in single server mode, will not peer connections
+2024/09/22 12:12:47 [INFO] Applying CRD features.management.cattle.io
+2024/09/22 12:12:47 [INFO] Waiting for CRD features.management.cattle.io to become available
+2024/09/22 12:12:48 [INFO] Done waiting for CRD features.management.cattle.io to become available
+2024/09/22 12:12:49 [ERROR] unable to create feature rke1-ui in initialize features: Post "https://127.0.0.1:6444/apis/management.cattle.io/v3/features": unexpected EOF
+2024/09/22 12:12:49 [ERROR] unable to retrieve feature embedded-cluster-api in initialize features: Get "https://127.0.0.1:6444/apis/management.cattle.io/v3/features/embedded-cluster-api": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:49 [ERROR] unable to retrieve feature rke2 in initialize features: Get "https://127.0.0.1:6444/apis/management.cattle.io/v3/features/rke2": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:49 [ERROR] unable to create feature rke2 in initialize features: Post "https://127.0.0.1:6444/apis/management.cattle.io/v3/features": dial tcp 127.0.0.1:6444: connect: connection refused
+2024/09/22 12:12:49 [FATAL] k3s exited with: exit status 1
+INFO: Running k3s server --cluster-init --cluster-reset
+ERROR:
+```
+
+Chạy 3 lệnh sau để fix
+```
+sudo modprobe iptable_filter
+sudo modprobe iptable_nat
+sudo modprobe iptable_mangle
+```
+
+Sau đó xoá và chạy lại container
 * Truy cập Rancher tại:
 ```
 https://192.168.10.19:6868
