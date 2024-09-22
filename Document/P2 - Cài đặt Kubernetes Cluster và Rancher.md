@@ -146,10 +146,10 @@ sudo systemctl enable docker
 
 * Trên `rancher` server, cài đặt Rancher bằng cách chạy Rancher container:
 ```
-docker run --name rancher-server -d --restart=unless-stopped -p 6860:80 -p 6868:443 --privileged rancher/rancher:v2.5.7 
+docker run --name rancher-server -d --restart=unless-stopped -p 6860:80 -p 6868:443 --privileged rancher/rancher:v2.9.2 
 ```
 _**Note:**_<br>
-Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher. Ví dụ: Kubernetes v1.20.7 tương thích với Rancher v2.5.7 <br>
+Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher tại https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/ . Ví dụ: Kubernetes v1.30.2 tương thích với Rancher v2.9.2 <br>
 Expose Rancher bằng port 6860 cho HTTP và 6868 cho HTTPS để sau này sẽ cho các connection này đi qua HAproxy
 
 * Truy cập Rancher tại:
