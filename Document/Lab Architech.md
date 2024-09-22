@@ -1,14 +1,14 @@
 | Server  | IP          | RAM | CPU   | DISK                                   | Service                                           |
 |---------|-------------|-----|-------|----------------------------------------|---------------------------------------------------|
-| master1 |192.168.10.11| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | K8S master<br> - Keepalived<br> - HAproxy                 |
-| master2 |192.168.10.12| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | K8S master<br> - Keepalived<br> - HAproxy                 |
-| master3 |192.168.10.13| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | K8S master<br> - Keepalived<br> - HAproxy         |
-| worker1 |192.168.10.14| 4GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | K8S worker                                        |
-| worker2 |192.168.10.15| 4GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | K8S worker                                        |
-| worker3 |192.168.10.16| 4GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | K8S worker                                        |
-| gitlab  |192.168.10.18| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | Gitlab                                            |
-| rancher |192.168.10.19| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB<br>- sbc 45GB | - Rancher<br>- Harbor-Registry<br>- NFS-Server    |
-| cicd    |192.168.10.20| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB               | - Jenkins<br>- kubespray<br>- Helm<br>- kubectl   |
+| master1 |192.168.10.11| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S master<br> - Keepalived<br> - HAproxy        |
+| master2 |192.168.10.12| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S master<br> - Keepalived<br> - HAproxy        |
+| master3 |192.168.10.13| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S master<br> - Keepalived<br> - HAproxy        |
+| worker1 |192.168.10.14| 4GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S worker                                       |
+| worker2 |192.168.10.15| 4GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S worker                                       |
+| worker3 |192.168.10.16| 4GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S worker                                       |
+| gitlab  |192.168.10.18| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- Gitlab                                           |
+| rancher |192.168.10.19| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB<br>- sbc 45GB |- Rancher<br>- Harbor-Registry<br>- NFS-Server     |
+| cicd    |192.168.10.20| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- Jenkins<br>- kubespray<br>- Helm<br>- kubectl    |
 
 Configure DNS server on all nodes
 ```
