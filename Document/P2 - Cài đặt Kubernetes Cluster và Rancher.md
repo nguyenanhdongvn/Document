@@ -29,7 +29,7 @@ git clone https://github.com/kubernetes-sigs/kubespray.git --branch release-2.26
 cp -rf /home/sysadmin/kubernetes_installation/kubespray/inventory/sample /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster
 ```
 
-* Cấu hình file inventory `host.yaml` cho Ansible
+* Cấu hình file inventory `inventory.ini` cho Ansible
 ```
 vim /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/inventory.ini
 ```
