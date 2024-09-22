@@ -119,3 +119,23 @@ EOF
 
 source $HOME/.bashrc
 ```
+
+* Tạo welcome message cho tất cả server
+```
+cat <<EOF > /etc/profile.d/motd.sh
+#!/bin/bash
+#
+echo -e "
+###############################################
+
+             Welcome to \"`hostname`\"
+
+       OS:     `cat /etc/redhat-release`
+       Kernel: `uname -r`
+
+       You are logged in as \"`whoami`\"
+
+###############################################
+"
+EOF
+```
