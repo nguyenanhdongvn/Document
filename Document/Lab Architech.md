@@ -39,6 +39,16 @@ sudo yum update -y
 sudo yum install vim git telnet net-tools bind-utils ntp bash-completion bash-completion-extras -y
 source /etc/profile.d/bash_completion.sh
 ```
+
+* Cài Docker lên các servers
+```
+curl -fsSL https://get.docker.com/ | sh
+sudo usermod -aG docker sysadmin
+sudo newgrp docker
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
 Disable SELinux
 ```
 sudo setenforce 0
