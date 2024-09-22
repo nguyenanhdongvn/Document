@@ -29,11 +29,7 @@ Sau đó sửa các tham số dưới session "args" như sau:
     spec:
       containers:
       - args:
-        - --secure-port=4443
-        - --cert-dir=/tmp
-        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
-        - --kubelet-insecure-tls=true
-        - --kubelet-use-node-status-port
+        ...
         - --metric-resolution=15s
         image: k8s.gcr.io/metrics-server/metrics-server:v0.6.1
         imagePullPolicy: IfNotPresent
