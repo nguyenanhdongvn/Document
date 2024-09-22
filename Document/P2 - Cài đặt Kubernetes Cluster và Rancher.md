@@ -21,7 +21,7 @@ ssh-copy-id worker3
 
 * Clone kubesrpay
 ```
-git clone https://github.com/kubernetes-sigs/kubespray.git --branch release-2.16
+git clone https://github.com/kubernetes-sigs/kubespray.git --branch release-2.26
 ```
 
 * Copy folder `sample` ra folder `dongna-cluster`
@@ -92,7 +92,7 @@ sudo systemctl enable docker
 docker run --rm -it --mount type=bind,source=/home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster,dst=/inventory \
   --mount type=bind,source=/home/sysadmin/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
   --mount type=bind,source=/home/sysadmin/.ssh/id_rsa,dst=/home/sysadmin/.ssh/id_rsa \
-  quay.io/kubespray/kubespray:v2.16.0 bash
+  quay.io/kubespray/kubespray:v2.26.0 bash
 ```
 
 * Trong container chạy ansible command để cài đặt K8S cluster
