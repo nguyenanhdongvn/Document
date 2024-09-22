@@ -1,3 +1,4 @@
+# Servers Specification
 | Server  | IP          | RAM | CPU   | DISK                                   | Service                                           |
 |---------|-------------|-----|-------|----------------------------------------|---------------------------------------------------|
 | master1 |192.168.10.11| 3GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- K8S master<br> - Keepalived<br> - HAproxy        |
@@ -9,6 +10,20 @@
 | gitlab  |192.168.10.18| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- Gitlab                                           |
 | rancher |192.168.10.19| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB<br>- sbc 45GB |- Rancher<br>- Harbor-Registry<br>- NFS-Server     |
 | cicd    |192.168.10.20| 2GB | 2vCPU | - sda 50GB<br>- sdb 25GB               |- Jenkins<br>- kubespray<br>- Helm<br>- kubectl    |
+
+# Pre-configure the servers
+add `sysadmin` user to sudoer file
+```
+sudo su -
+vi +108 /etc/sudoers
+sysadmin    ALL=(ALL) NOPASSWD: ALL
+```
+
+Make NetworkManager not generate the /etc/resolv.conf
+```
+sed -i 's/#plugins=keyfile,ifcfg-rh/dns=none/g' /etc/NetworkManager/NetworkManager.conf
+systemctl restart NetworkManager
+```
 
 Configure DNS server on all nodes
 ```
