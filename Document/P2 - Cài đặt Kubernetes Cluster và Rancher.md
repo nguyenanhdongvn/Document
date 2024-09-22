@@ -135,21 +135,12 @@ worker3   Ready    <none>                 8m12s   v1.20.7   192.168.10.16   <non
 
 # Cài đặt Rancher để quản lý K8S Cluster
 
-* Cài Docker lên `rancher` server
-```
-curl -fsSL https://get.docker.com/ | sh
-sudo usermod -aG docker sysadmin
-sudo newgrp docker
-sudo systemctl start docker
-sudo systemctl enable docker
-```
-
 * Trên `rancher` server, cài đặt Rancher bằng cách chạy Rancher container:
 ```
 docker run --name rancher-server -d --restart=unless-stopped -p 6860:80 -p 6868:443 --privileged rancher/rancher:v2.9.2 
 ```
 _**Note:**_<br>
-Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher tại https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/ . Ví dụ: Kubernetes v1.30.2 tương thích với Rancher v2.9.2 <br>
+Giữa Rancher và Kubernetes có bảng tương thích, ta có thể check trên trang chủ của Rancher tại [đây](https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/) . Ví dụ: Kubernetes v1.30.2 tương thích với Rancher v2.9.2 <br>
 Expose Rancher bằng port 6860 cho HTTP và 6868 cho HTTPS để sau này sẽ cho các connection này đi qua HAproxy
 
 Khi gặp phải error sau
