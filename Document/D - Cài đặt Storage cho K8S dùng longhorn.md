@@ -311,5 +311,7 @@ pod-longhorn-retain            1/1     Running   0          81s
 ```
 
 Check trên Longhorn UI để thấy phân vùng được tạo và replicas theo cấu hình đã tạo (2 replicas):
-![image](https://github.com/nguyenanhdongvn/Document/assets/90097692/6419d361-d5f1-46b1-9df6-1231fb022e8d)
+![image](https://github.com/user-attachments/assets/c8b408f9-e72e-4188-89a1-315e61190231)
 
+**NOTE:**<br>
+Để pod trên các worker node có thể mount được longhorn thì các worker node phải cài nfs-client
