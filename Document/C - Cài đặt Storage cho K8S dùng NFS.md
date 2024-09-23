@@ -240,14 +240,15 @@ NAME              STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS     
 test-pvc-delete   Pending                                      dongna-nfs-delete   6s
 ```
 
-Rồi tới đây bắt đầu có vấn đề, mọi thứ đã làm đúng hết thì thằng PVC này phải được gán PV cho nó chứ, tức là phải ở trạng thái "Bound" chứ sao lại Pending mãi vậy? => Đây là một known-issue của Kubernetes phiên bản v1.20.7 này
-Bạn có thể tham khảo thêm về solution tại [đây](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner/pull/26#issuecomment-743745469)
+**NOTE:**<br>
+Tại sao PVC vẫn ở trạng thái `Pending` mà không phải là `Bound`? <br> 
+=> Đây là một known-issue của Kubernetes từ các phiên bản 1.20 trở về sau, bạn có thể tham khảo thêm về solution tại [đây](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner/pull/26#issuecomment-743745469)
 
-
-
-
+**Solution:** <br>
+Chỉnh sửa 2 file value `values-nfs-delete.yaml` và `values-nfs-retain.yaml`
 ```
 vim /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
+vim /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
 ```
 
 Thay thế value của repository và tag như sau
