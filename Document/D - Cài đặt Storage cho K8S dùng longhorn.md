@@ -79,7 +79,7 @@ sudo systemctl start iscsid.service
 sudo systemctl enable iscsid.service
 ```
 
-Config đã xong, chạy helm install để cài đặt Longhorn:
+Trở lại `cicd` server, chạy helm install để cài đặt Longhorn:
 ```
 helm install longhorn-storage -f values-longhorn.yaml longhorn --namespace storage
 ```
@@ -230,8 +230,8 @@ EOF
 
 Tạo 2 PVC bằng yaml file bên trên
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-delete.yaml
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-retain.yaml
+kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-delete.yaml
+kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-retain.yaml
 ```
 
 Output
