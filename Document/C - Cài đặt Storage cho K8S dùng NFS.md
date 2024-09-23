@@ -1,6 +1,6 @@
 # Giới thiệu
-Như đã trình bày trong các phần trước, Ta sẽ cài NFS-Server lên server `rancher` (vì server `rancher` load khá thấp và đỡ phải tạo một server riêng cho NFS). Ta cũng đã tạo sẵn phân vùng /data2 để dành cho NFS-Server.<br>
-Thêm một ý nữa, về reclaim policy có 2 loại là delete và retain, hiểu đơn giản đó là cấu hình chính sách xử lý các phân vùng lưu trữ khi xóa PVC.
+Như đã nói trong các phần trước, Ta sẽ cài NFS-Server lên server `rancher` (vì server `rancher` load khá thấp và đỡ phải tạo một server riêng cho NFS). Ta cũng đã tạo sẵn phân vùng /data2 để dành cho NFS-Server.<br>
+Reclaim policy có 2 loại là delete và retain, hiểu đơn giản đó là cấu hình chính sách xử lý các phân vùng lưu trữ khi sau khi xóa PVC.
 - `delete`: Khi xóa PVC trên K8s thì hệ thống cũng tự động xóa PV tương ứng và đồng thời hỗ trợ xóa luôn phân vùng lưu trên thiết bị lưu trữ mà gán với PV đó
 - `retain`: Khi xóa PVC trên K8s thì phân vùng lữu trữ trên thiết bị lưu trữ sẽ không tự động bị xóa đi.
 
