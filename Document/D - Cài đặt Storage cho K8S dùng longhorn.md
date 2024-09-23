@@ -35,11 +35,11 @@ cd /home/sysadmin/kubernetes_installation/longhorn-storage
 helm repo add longhorn https://charts.longhorn.io
 helm repo update
 helm search repo longhorn
-helm pull longhorn/longhorn --version 1.2.2
-tar -xzf longhorn-1.2.2.tgz
+helm pull longhorn/longhorn --version 1.7.1
+tar -xzf longhorn-1.7.1.tgz
 ```
 
-Ở đây mình đang dùng bản 1.2.2 nhé, các bạn nếu cài version khác nên chú ý xem cấu hình có khác thì update tương ứng <br>
+Ở đây mình đang dùng bản 1.7.1, các bạn nếu cài version khác nên chú ý xem cấu hình có khác thì update tương ứng <br>
 Sau bước trên mình đã down về và giải nén thư mục helm chart của longhorn ở thư mục `/home/sysadmin/kubernetes_installation/longhorn-storage` <br>
 Copy file value mặc định của helmchart ra ngoài để tùy biến theo môi trường của mình: <br>
 ```
@@ -49,26 +49,24 @@ Sửa file values-longhorn.yaml và cập nhật một số tham số như sau:
 ```
 service:
   ui:
-    #type: ClusterIP
     type: NodePort
     nodePort: 30888
   manager:
     type: ClusterIP
-    
-defaultDataPath: /data/longhorn-storage/
-replicaSoftAntiAffinity: true
-storageMinimalAvailablePercentage: 15
-upgradeChecker: false
-defaultReplicaCount: 2
-backupstorePollInterval: 500
-nodeDownPodDeletionPolicy: do-nothing
-guaranteedEngineManagerCPU: 15
-guaranteedReplicaManagerCPU: 15
+defaultSettings:    
+  defaultDataPath: /data/longhorn-storage/
+  replicaSoftAntiAffinity: true
+  storageMinimalAvailablePercentage: 15
+  upgradeChecker: false
+  defaultReplicaCount: 2
+  backupstorePollInterval: 500
+  nodeDownPodDeletionPolicy: do-nothing
+  guaranteedInstanceManagerCPU: 15
 
 ingress:  
   enabled: true
   ingressClassName: longhorn-storage-ingress
-  host: longhorn-ui.viettq.com
+  host: longhorn-ui.dongna.com
 
 namespaceOverride: "storage"
 ```
