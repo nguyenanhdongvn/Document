@@ -352,7 +352,5 @@ tree
 ```
 
 Giờ thì các bạn đã rõ sự khác biệt.<br>
-Nếu reclaim policy là `delete`, khi xóa PVC, PV cũng sẽ bị xóa => Phân vùng lưu trữ trên thiết bị storage cũng sẽ bị xóa luôn. <br>
-Nếu reclaim policy là `retain`, khi xoá PVC, phân vùng sẽ vẫn còn lưu trên thiết bị lưu trữ.
-
-Trong bài sau ta sẽ tiếp tục cài đặt `longhorn storage` cho K8S
+* Reclaim policy là `delete`, khi xóa PVC, PV cũng sẽ bị xóa => Phân vùng lưu trữ trên thiết bị storage cũng sẽ bị xóa luôn. <br>
+* Reclaim policy là `retain`, khi xoá PVC => Phân vùng sẽ vẫn còn lưu trên thiết bị lưu trữ.
