@@ -241,35 +241,33 @@ test-pvc-delete   Pending                                      dongna-nfs-delete
 ```
 
 Rồi tới đây bắt đầu có vấn đề, mọi thứ đã làm đúng hết thì thằng PVC này phải được gán PV cho nó chứ, tức là phải ở trạng thái "Bound" chứ sao lại Pending mãi vậy? => Đây là một known-issue của Kubernetes phiên bản v1.20.7 này
+Bạn có thể tham khảo thêm về solution tại [đây](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner/pull/26#issuecomment-743745469)
 
-Solution: Trên 3 Master Node, thêm một dòng như sau `- --feature-gates=RemoveSelfLink=false` trong file `/etc/kubernetes/manifests/kube-apiserver.yaml` 
+
+
+
 ```
-...
-    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.crt
-    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver.key
-    #fix nfs-storageclass issue
-    - --feature-gates=RemoveSelfLink=false
-    image: k8s.gcr.io/kube-apiserver:v1.20.7
-    imagePullPolicy: IfNotPresent
-...
+vim /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
 ```
 
-Sau đó chờ kube-apiserver tự động restart để update config mới:
+Thay thế value của repository và tag như sau
 ```
-kubectl get pods -A
+image:
+  #  repository: quay.io/external_storage/nfs-client-provisioner
+  #  tag: v3.1.0-k8s1.11
+  repository: rkevin/nfs-subdir-external-provisioner
+  tag: fix-k8s-1.20
+  pullPolicy: IfNotPresent
 ```
-Output
+Sau đó upgrade lại helm chart `nfs-storage-delete` và `nfs-storage-retain` với 2 file value đã được chỉnh sửa
+
 ```
-NAMESPACE       NAME                                                         READY   STATUS      RESTARTS   AGE
-kube-system     coredns-657959df74-929nv                                     1/1     Running     0          21h
-kube-system     coredns-657959df74-v5fns                                     1/1     Running     0          21h
-kube-system     dns-autoscaler-b5c786945-wlnl2                               1/1     Running     0          21h
-kube-system     kube-apiserver-dongna-master1                                1/1     Running     0          88s
-kube-system     kube-apiserver-dongna-master2                                1/1     Running     0          68s
-kube-system     kube-apiserver-dongna-master3                                1/1     Running     0          48s
+helm upgrade nfs-storage-delete stable/nfs-client-provisioner -f values-nfs-delete.yaml -n storage
+helm upgrade nfs-storage-retain stable/nfs-client-provisioner -f values-nfs-retain.yaml -n storage
 ```
 
-Sau khi kube-apiserver đã up trở lại, ta check xem PVC đã được gán PV chưa nhé:
+Sau khi upgrade 2 helm chart `nfs-storage-delete` và `nfs-storage-retain` ta check lại xem pvc đã được bound chưa
+
 ```
 kubectl get pvc
 ```
