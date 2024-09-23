@@ -27,17 +27,12 @@ mkdir -p /data2/retain
 
 #Change folder
 chmod -R 755 /data2
-chown -R nfsnobody:nfsnobody /data2
  
 systemctl enable rpcbind
 systemctl enable nfs-server
-systemctl enable nfs-lock
-systemctl enable nfs-idmap
 
 systemctl start rpcbind
 systemctl start nfs-server
-systemctl start nfs-lock
-systemctl start nfs-idmap 
 #stat service
 systemctl restart nfs-server
 ```
