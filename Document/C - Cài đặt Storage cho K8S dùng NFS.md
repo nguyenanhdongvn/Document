@@ -316,19 +316,20 @@ test-pvc-delete   Bound    pvc-96f5330a-c141-4623-b8c6-e56e05ff1832   10Mi      
 test-pvc-retain   Bound    pvc-228aa21d-a480-4d4c-aa90-1329026ee8fe   10Mi       RWO            dongna-nfs-retain   6s
 ```
 
-Như vậy PVC `test-pvc-delete` bound vào PV `pvc-96f5330a-c141-4623-b8c6-e56e05ff1832`, PVC `test-pvc-retain` bound vào PV `pvc-228aa21d-a480-4d4c-aa90-1329026ee8fe`.
-2 PV này tương ứng là 2 phân vùng được tạo trên NFS-Server. Ta sẽ kiểm tra phân vùng tạo trên NFS-Server (server `rancher`) xem sao:
+Như vậy PVC `test-pvc-delete` và `test-pvc-retain đã được bound vào 2 PV như trên, 2 PV này tương ứng với 2 phân vùng được tạo trên NFS-Server. <br>
+Login vào `rancher` server (NFS-Server) để kiểm tra phân vùng tạo trên NFS-Server ra sao:
 
 ```
-tree
-.
+sysadmin@rancher:~$ tree /data2
+/data2
 ├── delete
-│   └── default-test-pvc-delete-pvc-96f5330a-c141-4623-b8c6-e56e05ff1832
+│   └── default-test-pvc-delete-pvc-81132005-b7c3-4fc2-a29f-c351ab5dbc9c
 └── retain
-    └── default-test-pvc-retain-pvc-228aa21d-a480-4d4c-aa90-1329026ee8fe
+    └── default-test-pvc-retain-pvc-edeaadf9-29ad-4186-9193-fe052a73449e
 ```
 
-Như vậy ta thấy các phân vùng được tạo ở đúng các thư mục như cấu hình SC. Giờ xóa cả 2 PVC xem chuyện gì xảy ra:
+Như vậy ta thấy các phân vùng được tạo ở đúng các thư mục như cấu hình SC<br>
+Login vào `cicd` server, thử xóa cả 2 PVC xem chuyện gì xảy ra:
 ```
 kubectl delete pvc test-pvc-delete
 kubectl delete pvc test-pvc-retain
@@ -339,16 +340,18 @@ kubectl get pv,pvc
 ```
 Output
 ```
-No resources found
+sysadmin@cicd:~/kubernetes_installation/nfs-storage$ kubectl get pv,pvc
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS     CLAIM                     STORAGECLASS        VOLUMEATTRIBUTESCLASS   REASON   AGE
+persistentvolume/pvc-edeaadf9-29ad-4186-9193-fe052a73449e   10Mi       RWO            Retain           Released   default/test-pvc-retain   dongna-nfs-retain   <unset>                          5m56s
 ```
 
-Quay trở lại NFS-Server (server `rancher`) để kiểm tra:
+Login vào `rancher` server (NFS-Server) để kiểm tra:
 ```
-tree
-.
+sysadmin@rancher:~$ tree /data2
+/data2
 ├── delete
 └── retain
-    └── default-test-pvc-retain-pvc-228aa21d-a480-4d4c-aa90-1329026ee8fe
+    └── default-test-pvc-retain-pvc-edeaadf9-29ad-4186-9193-fe052a73449e
 ```
 
 Giờ thì các bạn đã rõ sự khác biệt.<br>
