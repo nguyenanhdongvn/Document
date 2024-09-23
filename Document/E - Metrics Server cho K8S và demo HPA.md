@@ -13,8 +13,8 @@ Add repo và download helm chart của Metrics Server về folder đã tạo:
 cd /home/sysadmin/kubernetes_installation/metric-server/
 helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
 helm search repo metrics-server
-helm pull metrics-server/metrics-server --version 3.8.2
-tar -xzf metrics-server-3.8.2.tgz
+helm pull metrics-server/metrics-server --version 3.12.1
+tar -xzf metrics-server-3.12.1.tgz
 helm install metric-server metrics-server -n kube-system
 ```
 
@@ -23,20 +23,19 @@ Tới đây cần edit lại deployment của Metrics Server để fix lỗi li�
 kubectl -n kube-system edit deploy metric-server-metrics-server
 ```
 
-Sau đó sửa các tham số dưới session "args" như sau:
+Sau đó thêm vào tham số dưới session "args" như sau:
 ```
 ...
     spec:
       containers:
       - args:
         ...
-        - --metric-resolution=15s
+        - --kubelet-insecure-tls
         image: k8s.gcr.io/metrics-server/metrics-server:v0.6.1
         imagePullPolicy: IfNotPresent
 ...
 ```
-Lưu lại và chờ Pod được update lại. Các bạn có thể tham khảo thêm về issue này ở topic trên Github và StackOverFlow:<br>
-https://github.com/kubernetes-sigs/metrics-server/issues/91
+Lưu lại và chờ Pod được update lại. Các bạn có thể tham khảo thêm về issue này tại [đây](https://github.com/kubernetes-sigs/metrics-server/issues/278)
 
 Output
 ```
@@ -44,7 +43,7 @@ kubectl -n kube-system get pods |grep metric
 metric-server-metrics-server-67d444b447-llgnc   1/1     Running   0          57s
 ```
 
-Kiểm tra thử load của các Node trong Cluster xem
+Sau khi cài metric server cho k8s ta có thể check được load của các Node trong Cluster
 ```
 kubectl top nodes
 NAME      CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
