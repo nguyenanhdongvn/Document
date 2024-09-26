@@ -169,6 +169,14 @@ sudo modprobe iptable_filter
 sudo modprobe iptable_nat
 sudo modprobe iptable_mangle
 ```
+**NOTE:** Sau khi reboot thì 3 modules này sẽ bị mất, để 3 modules này loaded on boot thì ta cần config (tham khảo thêm tại [đây](https://unix.stackexchange.com/questions/71064/systemd-automate-modprobe-command-at-boot-time))
+```
+cat << EOF > /etc/modules-load.d/iptable.conf
+iptable_filter
+iptable_nat
+iptable_mangle
+EOF
+```
 
 Sau đó xoá và chạy lại container
 * Truy cập Rancher tại:
