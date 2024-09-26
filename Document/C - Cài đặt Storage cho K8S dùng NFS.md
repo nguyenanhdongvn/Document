@@ -153,24 +153,170 @@ cp /home/sysadmin/kubernetes_installation/nfs-storage/nfs-client-provisioner/val
 
 Thay đổi các tham số trong file `values-nfs-delete.yaml` như sau:
 ```
+# Default values for nfs-client-provisioner.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
 replicaCount: 3
-server: 192.168.10.19
-path: /data2/delete
-provisionerName: dongna-nfs-storage-delete-provisioner
-name: dongna-nfs-delete
-reclaimPolicy: Delete
-archiveOnDelete: false
+strategyType: Recreate
+
+image:
+  #repository: quay.io/external_storage/nfs-client-provisioner
+  #tag: v3.1.0-k8s1.11
+  repository: rkevin/nfs-subdir-external-provisioner
+  tag: fix-k8s-1.20
+  pullPolicy: IfNotPresent
+
+nfs:
+  server: 192.168.10.19
+  path: /data2/delete
+  mountOptions:
+
+# For creating the StorageClass automatically:
+storageClass:
+  create: true
+
+  # Set a provisioner name. If unset, a name will be generated.
+  provisionerName: dongna-nfs-storage-delete-provisioner
+
+  # Set StorageClass as the default StorageClass
+  # Ignored if storageClass.create is false
+  defaultClass: false
+
+  # Set a StorageClass name
+  # Ignored if storageClass.create is false
+  name: dongna-nfs-delete
+
+  # Allow volume to be expanded dynamically
+  allowVolumeExpansion: true
+
+  # Method used to reclaim an obsoleted volume
+  reclaimPolicy: Delete
+
+  # When set to false your PVs will not be archived by the provisioner upon deletion of the PVC.
+  archiveOnDelete: false
+
+  # Set access mode - ReadWriteOnce, ReadOnlyMany or ReadWriteMany
+  accessModes: ReadWriteOnce
+
+## For RBAC support:
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+# If true, create & use Pod Security Policy resources
+# https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+podSecurityPolicy:
+  enabled: false
+
+## Set pod priorityClassName
+# priorityClassName: ""
+
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
 ```
 
 Thay đổi các tham số trong file `values-nfs-retain.yaml` như sau:
 ```
+# Default values for nfs-client-provisioner.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
 replicaCount: 3
-server: 192.168.10.19
-path: /data2/retain
-provisionerName: dongna-nfs-storage-retain-provisioner
-name: dongna-nfs-retain
-reclaimPolicy: Retain
-archiveOnDelete: true
+strategyType: Recreate
+
+image:
+  #repository: quay.io/external_storage/nfs-client-provisioner
+  #tag: v3.1.0-k8s1.11
+  repository: rkevin/nfs-subdir-external-provisioner
+  tag: fix-k8s-1.20
+  pullPolicy: IfNotPresent
+
+nfs:
+  server: 192.168.10.19
+  path: /data2/retain
+  mountOptions:
+
+# For creating the StorageClass automatically:
+storageClass:
+  create: true
+
+  # Set a provisioner name. If unset, a name will be generated.
+  provisionerName: dongna-nfs-storage-retain-provisioner
+
+  # Set StorageClass as the default StorageClass
+  # Ignored if storageClass.create is false
+  defaultClass: false
+
+  # Set a StorageClass name
+  # Ignored if storageClass.create is false
+  name: dongna-nfs-retain
+
+  # Allow volume to be expanded dynamically
+  allowVolumeExpansion: true
+
+  # Method used to reclaim an obsoleted volume
+  reclaimPolicy: Retain
+
+  # When set to false your PVs will not be archived by the provisioner upon deletion of the PVC.
+  archiveOnDelete: true
+
+  # Set access mode - ReadWriteOnce, ReadOnlyMany or ReadWriteMany
+  accessModes: ReadWriteOnce
+
+## For RBAC support:
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+# If true, create & use Pod Security Policy resources
+# https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+podSecurityPolicy:
+  enabled: false
+
+## Set pod priorityClassName
+# priorityClassName: ""
+
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
 ```
 
 Tạo một namespace riêng cho phần storage để dễ quản lý rồi cài 2 Storage Class bằng helm
