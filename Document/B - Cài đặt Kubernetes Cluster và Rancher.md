@@ -197,4 +197,5 @@ curl --insecure -sfL https://192.168.10.19:6868/v3/import/lsp8hpdkcdjb4ws592vr4v
 ![image](https://github.com/user-attachments/assets/9e3c076a-9eb5-422d-9c7e-5b5cf63f3daf)
 
 * Cluster Dashboard
+
 ![image](https://github.com/user-attachments/assets/af679057-6fe9-4794-9794-c42458d5cb4e)
