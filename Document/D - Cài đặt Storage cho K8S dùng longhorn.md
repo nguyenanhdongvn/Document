@@ -25,7 +25,7 @@ sudo mkdir -p /data/longhorn-storage
 
 ## Cài đặt Longhorn Storage
 Tạo folder lưu helm chart và các file cấu hình Longhorn:
-```
+```bash
 mkdir /home/sysadmin/kubernetes_installation/longhorn-storage
 ```
 
