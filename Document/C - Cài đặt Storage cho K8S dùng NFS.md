@@ -17,8 +17,9 @@ Trong môi trường Production thì một số loại storage đã hỗ trợ s
 # Cài đặt NFS-Server trên server `rancher`
 Việc cài đặt này khá đơn giản, mình sẽ cài trên OS là Centos. Đầu tiên cần tạo thư mục để share và cài NFS Server:
 ```
+sudo su -
+
 #NFS Server installation
-sudo -s
 yum install nfs-utils -y
 
 #Create shared folder
@@ -33,8 +34,6 @@ systemctl enable nfs-server
 
 systemctl start rpcbind
 systemctl start nfs-server
-#stat service
-systemctl restart nfs-server
 ```
 
 Cấu hình file /etc/exports để share quyền cho các node theo format sau mục đích là để cho phép các server trong dải ip 192.168.10.0/24 có quyền Read/Write vào 2 thư mục /data2/delete và /data2/retain:
