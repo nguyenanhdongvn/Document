@@ -31,10 +31,7 @@ cp -rf /home/sysadmin/kubernetes_installation/kubespray/inventory/sample /home/s
 
 * Cấu hình file inventory `inventory.ini` cho Ansible
 ```
-vim /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/inventory.ini
-```
-
-```
+cat <<EOF > /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/inventory.ini
 [all]
 master1  ansible_host=192.168.10.11      ip=192.168.10.11
 master2  ansible_host=192.168.10.12      ip=192.168.10.12
@@ -64,6 +61,7 @@ worker3
 kube_control_plane
 kube_node
 calico_rr
+EOF
 ```
 
 * Đổi CNI (Container Network Interface) (Optional)
