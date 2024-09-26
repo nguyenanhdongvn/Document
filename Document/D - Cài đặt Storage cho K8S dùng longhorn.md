@@ -19,13 +19,13 @@ Các bước thực hiện trong bài lab này như sau:
 # Cài đặt Longhorn Storage
 ## Tạo phân vùng lưu trữ
 Ta sẽ tạo folder lưu dữ liệu của Longhorn là `/data/longhorn-storage` trên các Worker Node:
-```
+```bash
 sudo mkdir -p /data/longhorn-storage
 ```
 
 ## Cài đặt Longhorn Storage
 Tạo folder lưu helm chart và các file cấu hình Longhorn:
-```bash
+```
 mkdir /home/sysadmin/kubernetes_installation/longhorn-storage
 ```
 
