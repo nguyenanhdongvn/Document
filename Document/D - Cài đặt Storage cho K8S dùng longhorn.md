@@ -19,7 +19,7 @@ Các bước thực hiện trong bài lab này như sau:
 # Cài đặt Longhorn Storage
 ## Tạo phân vùng lưu trữ
 Ta sẽ tạo folder lưu dữ liệu của Longhorn là `/data/longhorn-storage` trên các Worker Node:
-```bash
+```
 sudo mkdir -p /data/longhorn-storage
 ```
 
