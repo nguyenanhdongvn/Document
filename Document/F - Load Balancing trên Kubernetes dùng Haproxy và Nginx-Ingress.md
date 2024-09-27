@@ -202,12 +202,64 @@ systemctl status keepalived
 
 Output
 ```
+systemctl status keepalived
+● keepalived.service - LVS and VRRP High Availability Monitor
+     Loaded: loaded (/usr/lib/systemd/system/keepalived.service; disabled; preset: disabled)
+     Active: active (running) since Fri 2024-09-27 17:13:46 +07; 13ms ago
+   Main PID: 25388 (keepalived)
+      Tasks: 2 (limit: 17318)
+     Memory: 5.1M
+        CPU: 17ms
+     CGroup: /system.slice/keepalived.service
+             ├─25388 /usr/sbin/keepalived --dont-fork -D
+             └─25389 /usr/sbin/keepalived --dont-fork -D
 
+Sep 27 17:13:46 master1 Keepalived_vrrp[25389]: Assigned address 192.168.10.11 for interface ens160
+Sep 27 17:13:46 master1 Keepalived_vrrp[25389]: Assigned address fe80::20c:29ff:fe8b:933d for interface ens160
+Sep 27 17:13:46 master1 Keepalived_vrrp[25389]: Registering gratuitous ARP shared channel
+Sep 27 17:13:46 master1 Keepalived_vrrp[25389]: (kubernetes) removing VIPs.
+Sep 27 17:13:46 master1 Keepalived[25388]: Startup complete
+Sep 27 17:13:46 master1 Keepalived_vrrp[25389]: (kubernetes) Entering BACKUP STATE (init)
+Sep 27 17:13:46 master1 Keepalived_vrrp[25389]: VRRP sockpool: [ifindex(  2), family(IPv4), proto(51), fd(12,13) multicast, address(224.0.0.18)]
+Sep 27 17:13:46 master1 systemd[1]: Started LVS and VRRP High Availability Monitor.
+Sep 27 17:13:47 master1 Keepalived_vrrp[25389]: Script `haproxy-check` now returning 1
+Sep 27 17:13:47 master1 Keepalived_vrrp[25389]: VRRP_Script(haproxy-check) failed (exited with status 1)
+```
+```
+● keepalived.service - LVS and VRRP High Availability Monitor
+     Loaded: loaded (/usr/lib/systemd/system/keepalived.service; disabled; preset: disabled)
+     Active: active (running) since Fri 2024-09-27 17:13:46 +07; 30s ago
+   Main PID: 25388 (keepalived)
+      Tasks: 2 (limit: 17318)
+     Memory: 5.1M
+        CPU: 69ms
+     CGroup: /system.slice/keepalived.service
+             ├─25388 /usr/sbin/keepalived --dont-fork -D
+             └─25389 /usr/sbin/keepalived --dont-fork -D
+
+Sep 27 17:13:53 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:53 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:53 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:53 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: (kubernetes) Sending/queueing gratuitous ARPs on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
 ```
 
 Lúc này check lại IP của node sẽ thấy VIP 192.168.10.10 mới được tạo ra:
 ```
-
+2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:8b:93:3d brd ff:ff:ff:ff:ff:ff
+    altname enp3s0
+    inet 192.168.10.11/24 brd 192.168.10.255 scope global noprefixroute ens160
+       valid_lft forever preferred_lft forever
+    inet 192.168.10.10/32 scope global ens160
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fe8b:933d/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
 ```
 
 Cấu hình keepalived trên `master2`
@@ -390,9 +442,15 @@ C:\Windows\System32\drivers\etc\hosts (window)
 ```
 
 # Kiểm tra tính sẵn sàng (High Availability)
-Hiện tại `master1` đang là master của cụm VIP và đang nhận VIP, cũng là server đang thực hiện load balancing cho hệ thống.
+Hiện tại `master1` đang là master của cụm VIP và đang nhận VIP là 192.168.10.10, cũng là server đang thực hiện load balancing cho hệ thống.
 ```
-
+[root@master1 ~]# ip a |grep 192.168.10.11 -A3 -B2
+    link/ether 00:0c:29:8b:93:3d brd ff:ff:ff:ff:ff:ff
+    altname enp3s0
+    inet 192.168.10.11/24 brd 192.168.10.255 scope global noprefixroute ens160
+       valid_lft forever preferred_lft forever
+    inet 192.168.10.10/32 scope global ens160
+       valid_lft forever preferred_lft forever
 ```
 
 Stop Haproxy trên `master1` xem điều gì sẽ xảy ra
@@ -407,6 +465,28 @@ systemctl status keepalived
 
 Output
 ```
+[root@master1 ~]# systemctl status keepalived
+● keepalived.service - LVS and VRRP High Availability Monitor
+     Loaded: loaded (/usr/lib/systemd/system/keepalived.service; disabled; preset: disabled)
+     Active: active (running) since Fri 2024-09-27 17:13:46 +07; 13min ago
+   Main PID: 25388 (keepalived)
+      Tasks: 2 (limit: 17318)
+     Memory: 5.1M
+        CPU: 1.389s
+     CGroup: /system.slice/keepalived.service
+             ├─25388 /usr/sbin/keepalived --dont-fork -D
+             └─25389 /usr/sbin/keepalived --dont-fork -D
+
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 27 17:21:59 master1 Keepalived_vrrp[25389]: Script `haproxy-check` now returning 0
+Sep 27 17:21:59 master1 Keepalived_vrrp[25389]: VRRP_Script(haproxy-check) succeeded
+Sep 27 17:21:59 master1 Keepalived_vrrp[25389]: (kubernetes) Changing effective priority from 100 to 110
+Sep 27 17:27:09 master1 Keepalived_vrrp[25389]: Script `haproxy-check` now returning 1
+Sep 27 17:27:09 master1 Keepalived_vrrp[25389]: VRRP_Script(haproxy-check) failed (exited with status 1)
+Sep 27 17:27:09 master1 Keepalived_vrrp[25389]: (kubernetes) Changing effective priority from 110 to 100
 ```
 
 Ta thấy output gồm "VRRP_Script(haproxy-check) failed" và "VRRP_Instance(kubernetes) Changing effective priority from 110 to 100".<br>
@@ -416,6 +496,7 @@ Khi Haproxy trên `master1` bị down, thì priority chỉ còn 100, lúc này `
 
 Check status Keepalived trên `master2`
 ```
+
 ```
 
 Check IP trên `master2`
