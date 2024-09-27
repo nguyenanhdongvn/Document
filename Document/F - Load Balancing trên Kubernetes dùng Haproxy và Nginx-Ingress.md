@@ -62,11 +62,14 @@ cp nginx-ingress/values.yaml value-nginx-ingress.yaml
 Ta sửa lại các parameter của file value mặc định như sau để cho nó chạy Node Port ra 2 port là 30080 và 30443:
 
 ```
+  service:
     type: NodePort
-    ## The custom NodePort for the HTTP port. Requires controller.service.type set to NodePort.
-    nodePort: 30080
-    ## The custom NodePort for the HTTPS port. Requires controller.service.type set to NodePort.
-    nodePort: 30443
+    httpPort:
+      ## The custom NodePort for the HTTP port. Requires controller.service.type set to NodePort.
+      nodePort: 30080
+    httpsPort:
+      ## The custom NodePort for the HTTPS port. Requires controller.service.type set to NodePort.
+      nodePort: 30443
 ```
 
 Tạo namespace dành riêng cho nginx-ingress và cài đặt
