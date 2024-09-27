@@ -96,7 +96,12 @@ scp master1:~/.kube/config  $HOME/.kube/
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-Sửa file config, tham số "server: https://127.0.0.1:6443" thành "server: https://192.168.10.11:6443" và lưu lại. Giờ thử kiếm tra kết nối bằng lệnh kubect get node xem đã kết nối ok hay chưa:
+Sửa file config, tham số "server: https://127.0.0.1:6443" thành "server: https://192.168.10.11:6443"
+```
+sed -i 's/127.0.0.1/192.168.10.11/g' $HOME/.kube/config
+```
+
+Giờ thử kiếm tra kết nối bằng lệnh kubect get node xem đã kết nối ok hay chưa:
 
 ```
 kubectl get node
