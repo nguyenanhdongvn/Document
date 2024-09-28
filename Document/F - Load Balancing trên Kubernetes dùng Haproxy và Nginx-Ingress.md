@@ -334,7 +334,17 @@ systemctl status keepalived
 
 Ta đã cấu hình 3 Master Node có chung VIP 192.168.10.10, khi Haproxy trên keepalived-master bị down (hoặc node keepalived-master bị down) thì VIP sẽ được chuyển sang keepalived-backup (dựa vào tham số priority trong cấu hình keepalived).
 
-## Cấu hình Haproxy
+
+
+
+
+
+
+
+
+
+
+## Cấu hình Haproxy làm SSL Termination (SSL Offload)
 Để cấu hình LB cho các Master Node trong K8s cluster thì ta tạo rule để round-robin các request tới các Master Node tại Node Port của Nginx-Ingress. Phần còn lại Nginx-Ingress sẽ phân tích URL của request và forward tiếp tới các service bên trong K8s dựa vào các ingress-rule.
 
 Ta cấu hình Haproxy cho cả 3 Master Node giống nhau vì chỉ node nào đang nhận VIP sẽ làm nhiệm vụ LB, còn các node còn lại ở trạng thái Backup sẵn sàng thay khi Master Node down.
@@ -420,6 +430,88 @@ backend backend_rancher
         server  rancher 192.168.10.19:6860 cookie p1 weight 1 check inter 2000
 EOF
 ```
+
+
+
+
+
+
+Ta sẽ giải thích chi tiết config của haproxy
+```
+...
+frontend frontend_ssl_443
+        bind :80
+        bind *:443 ssl crt /etc/haproxy/ssl/dongna_app.pem
+        mode http
+        option httpclose
+        option forwardfor
+        reqadd X-Forwarded-Proto:\ https        
+        cookie  SRVNAME insert indirect nocache
+        default_backend backend_ingress        
+
+        acl rancher hdr_dom(host) -i rancher.monitor.viettq.com
+        use_backend backend_rancher if rancher
+...
+```
+Trong đó:
+- **frontend frontend_ssl_443**: Chỉ ra một frontend có tên là frontend_ssl_443
+- **bind :80**: Chỉ ra frontend sẽ listen ở port 80
+- **bind *:443 ssl crt /etc/haproxy/ssl/viettq_app.pem**:
+  - **bind *:443**: Chỉ ra frontend sẽ listen ở port 443 ở tất cả các network interface (chú ý dấu * trước port 443)
+  - **SSL**: là bật tính năng SSL Termination cho listener này.
+  - **CRT**: chỉ ra đường dẫn tới file SSL-Certificate, ta đã thực hiện tạo ở bước trước cần copy lên máy chủ cài haproxy và cấu hình đường dẫn vào đây.
+- **reqadd X-Forwarded-Proto:\ https**: Thêm https header và cuối HTTPS request
+- **default_backend backend_ingress**: Cấu hình mặc định request nếu ko match với rule ALC nào thì sẽ vào backend là backend_ingress, đây là rule để mặc định sẽ kết nối tới các app trên K8S thông qua Nginx-Ingress
+- **acl rancher hdr_dom(host) -i rancher.monitor.dongna.com**: Tạo điều kiện check rancher nếu host request tới trùng với địa chỉ "rancher.monitor.dongna.com"
+- **use_backend backend_rancher if rancher**: Nếu điều kiện rancher là đúng thì trỏ tới backend là backend_rancher
+
+Cấu hình backend_ingress: Thực hiện load balancing request tới 3 k8s master node, port 30080 là Node Port của Nginx-Ingress
+
+```
+backend backend_ingress
+        mode    http
+        stats   enable
+        stats   auth username:password
+        balance roundrobin
+        server  master1 192.168.10.11:30080 cookie p1 weight 1 check inter 2000
+        server  master2 192.168.10.12:30080 cookie p1 weight 1 check inter 2000
+        server  master3 192.168.10.13:30080 cookie p1 weight 1 check inter 2000
+```
+
+Cấu hình backend_rancher: Thực hiện forward kết nối tới rancher-server cài trên trên rancher ở địa chỉ IP 192.168.10.19 và port là 6860 (lưu ý đây là port HTTP của rancher)
+```
+backend backend_rancher
+        mode    http
+        stats   enable
+        stats   auth username:password
+        balance roundrobin
+        server  rancher 192.168.10.19:6860 cookie p1 weight 1 check inter 2000
+```
+
+Khai báo host trên client (local host)
+Trong bài viết trước mình đã mô tả bước này, cần khai host cho ứng dụng ở client như sau:
+```
+192.168.10.10 apple.demo.dongna.com
+192.168.10.10 rancher.monitor.dongna.com
+```
+
+Đồng thời phải khai ingress rule trên K8S để forward từ host apple.demo.viettq.com tới service apple-service như sau:
+![image](https://github.com/user-attachments/assets/b0a6ac80-8cbd-4f76-b015-b9a79356972e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Kiểm tra syntax và restart Haproxy
 ```
