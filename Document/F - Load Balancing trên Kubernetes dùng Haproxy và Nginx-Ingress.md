@@ -20,11 +20,12 @@ Như trong mô hình lab này, nếu mình chỉ cài Haproxy trên `master1` đ
 ## Cài đặt Haproxy và KeepAlived
 Trên 3 Master Node, chạy lệnh:
 ```
-sudo yum install haproxy keepalived -y
+yum install haproxy keepalived -y
 ```
 
 Cấu hình rsyslog cho haproxy tại /etc/rsyslog.d/haproxy.conf để tiện cho việc debug sau này
 ```
+cat <<EOF > /etc/rsyslog.d/haproxy.conf
 # Collect log with UDP
 $ModLoad imudp
 $UDPServerAddress 127.0.0.1
@@ -33,6 +34,7 @@ $UDPServerRun 514
 # Creating separate log files based on the severity
 local0.* /var/log/haproxy-traffic.log
 local0.notice /var/log/haproxy-admin.log
+EOF
 ```
 
 Restart rsyslog để apply config
@@ -54,8 +56,8 @@ cd /home/sysadmin/kubernetes_installation/nginx-ingress
 helm repo add  nginx-stable https://helm.nginx.com/stable
 helm repo update
 helm search repo nginx
-helm pull nginx-stable/nginx-ingress --version 0.13.0
-tar -xzf nginx-ingress-0.13.0.tgz
+helm pull nginx-stable/nginx-ingress --version 1.3.2
+tar -xzf nginx-ingress-1.3.2.tgz
 cp nginx-ingress/values.yaml value-nginx-ingress.yaml
 ```
 
@@ -63,6 +65,7 @@ Ta sửa lại các parameter của file value mặc định như sau để cho 
 
 ```
   service:
+    ## The type of service to create for the Ingress Controller.
     type: NodePort
     httpPort:
       ## The custom NodePort for the HTTP port. Requires controller.service.type set to NodePort.
@@ -79,9 +82,13 @@ kubectl create ns nginx-ingress
 helm -n nginx-ingress install nginx-ingress -f value-nginx-ingress.yaml nginx-ingress
 ```
 
+Kiểm tra pod vừa tạo trong namespace "nginx-ingress"
+```
+kubectl get pods -n nginx-ingress
+```
+
 Output
 ```
-[sysadmin@cicd nginx-ingress]$  kubectl -n nginx-ingress get pods
 NAME                                          READY   STATUS    RESTARTS   AGE
 nginx-ingress-nginx-ingress-f5b87cc54-hs2lp   1/1     Running   0          7m39s
 ```
