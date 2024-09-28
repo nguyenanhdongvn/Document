@@ -34,18 +34,10 @@ total 8
 -rw-------. 1 sysadmin sysadmin 1862 Sep 23 22:33 rootCA.key
 -rw-r--r--. 1 sysadmin sysadmin 1354 Sep 23 22:35 rootCA.pem
 ```
-
-# Import CA vừa tạo vào trình duyệt web(client)
-Trước hết các bạn tải file rootCA.pem đã tạo ở trên về máy client.
-
-Sau đó mở Chrome và vào địa chỉ này để vào mục setting: chrome://settings/security --> Chọn vào Manage certificates Trong hộp thoại hiện ra bạn vào tab Trusted Root Certification Authorities --> Import --> Next --> Browse --> Chọn file rootCA.pem --> Next --> Next --> Finish.
-![image](https://github.com/user-attachments/assets/1ae34569-2817-4d4c-b366-164d72908fc6)
-
-Như vậy là ta đã tự trở thành một CA và được 2 trình duyệt trên máy client tin tương như các CA "Auth" khác.
-
 # Tạo SSL Certificate cho ứng dụng web ở local
 Đầu tiên ta tạo một file openssl.cnf để cấu hình thêm thông tin SAN như sau:
 ```
+cat <<EOF > /home/sysadmin/ssl/openssl.cnf
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -69,17 +61,18 @@ subjectAltName = @alt_names
 DNS.1 = *.monitor.dongna.com
 DNS.2 = *.prod.dongna.com
 DNS.3 = *.demo.dongna.com
+EOF
 ```
 Ở đây mình sẽ tạo SSL Certcificate cho các app của mình sử dụng 3 subdomain là *.monitor.dongna.com, *.prod.dongna.com và *.demo.dongna.com <br>
 
 Tiếp theo ta tạo file key:
 ```
-sudo openssl genrsa -out dongna_app.key 2048
+openssl genrsa -out dongna_app.key 2048
 ```
 
 Sau đó ta tạo file Sigining Request từ file key và file config trên:
 ```
-sudo openssl req -new -out dongna_app.csr -key dongna_app.key -config openssl.cnf
+openssl req -new -out dongna_app.csr -key dongna_app.key -config openssl.cnf
 ```
 
 Kết quả sinh ra file dongna_app.csr
@@ -93,21 +86,28 @@ total 20
 -rw-r--r--. 1 sysadmin sysadmin 1354 Sep 23 22:35 rootCA.pem
 ```
 
-Rồi tới bước quan trọng nhất là mang đơn đi đóng dấu. File .csr (Certificate Siging Request) giống như tờ đơn xin xác nhận của bạn, phải bạn cần mang đi xin ông CA đóng dấu cho. Và vì mình đã tự đóng vai trò CA (với 2 file .key và .pem đã tạo ở bước trước) thì mình sẽ tự đóng dấu cho yêu cầu này:
+Rồi tới bước quan trọng nhất là mang đơn đi đóng dấu. File .csr (Certificate Signing Request) giống như tờ đơn xin xác nhận của bạn, phải bạn cần mang đi xin ông CA đóng dấu cho. Và vì mình đã tự đóng vai trò CA (với 2 file .key và .pem đã tạo ở bước trước) thì mình sẽ tự đóng dấu cho yêu cầu này:
 
 ```
-sysadmin@master1:~/ssl$ openssl x509 -req -days 3650 -in dongna_app.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out dongna_app.crt -extensions v3_req -extfile openssl.cnf
-Certificate request self-signature ok
-subject=C=VN, ST=HCM, L=HCM, OU=DongNA_DEVOPS
-Enter pass phrase for rootCA.key:
+openssl x509 -req -days 3650 -in dongna_app.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out dongna_app.crt -extensions v3_req -extfile openssl.cnf
 ```
 
 Kết quả sẽ sinh ra file dongna_app.crt. Bây giờ ta sẽ tạo file dongna_app.pem từ 3 file dongna_app.key, dongna_app.csr và dongna_app.crt
 ```
-sudo cat dongna_app.key > dongna_app.pem
-sudo cat dongna_app.csr >> dongna_app.pem
-sudo cat dongna_app.crt >> dongna_app.pem
+cat dongna_app.key > dongna_app.pem
+cat dongna_app.csr >> dongna_app.pem
+cat dongna_app.crt >> dongna_app.pem
 ```
+
+# Import CA vừa tạo vào trình duyệt web(client)
+Trước hết các bạn tải file rootCA.pem đã tạo ở trên về máy client.
+
+Sau đó mở Chrome và vào địa chỉ này để vào mục setting: chrome://settings/security --> Chọn vào Manage certificates Trong hộp thoại hiện ra bạn vào tab Trusted Root Certification Authorities --> Import --> Next --> Browse --> Chọn file rootCA.pem --> Next --> Next --> Finish.
+![image](https://github.com/user-attachments/assets/1ae34569-2817-4d4c-b366-164d72908fc6)
+
+Như vậy là ta đã tự trở thành một CA và được 2 trình duyệt trên máy client tin tương như các CA "Auth" khác.
+
+
 
 # Cấu hình Haproxy làm SSL Termination (SSL Offload)
 
