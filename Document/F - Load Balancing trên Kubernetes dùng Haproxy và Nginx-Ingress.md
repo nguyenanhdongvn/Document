@@ -421,7 +421,7 @@ backend per_ip_rates
 
 frontend frontend_ssl_443
         bind :80
-        bind *:443 ssl crt /etc/haproxy/ssl/server.pem
+        bind *:443 ssl crt /home/sysadmin/ssl/server.pem
         mode http
         option httpclose
         option forwardfor
@@ -457,36 +457,36 @@ EOF
 
 
 
-Ta sẽ giải thích chi tiết config của haproxy
+## Giải thích chi tiết config của Haproxy
 ```
 ...
 frontend frontend_ssl_443
         bind :80
-        bind *:443 ssl crt /etc/haproxy/ssl/dongna_app.pem
+        bind *:443 ssl crt /home/sysadmin/ssl/server.pem
         mode http
         option httpclose
         option forwardfor
-        reqadd X-Forwarded-Proto:\ https        
+        http-request add-header X-Forwarded-Proto https
         cookie  SRVNAME insert indirect nocache
-        default_backend backend_ingress        
+        default_backend backend_ingress
 
-        acl rancher hdr_dom(host) -i rancher.monitor.viettq.com
+        acl rancher hdr_dom(host) -i rancher.monitor.dongna.com
         use_backend backend_rancher if rancher
 ...
 ```
 Trong đó:
 - **frontend frontend_ssl_443**: Chỉ ra một frontend có tên là frontend_ssl_443
 - **bind :80**: Chỉ ra frontend sẽ listen ở port 80
-- **bind *:443 ssl crt /etc/haproxy/ssl/viettq_app.pem**:
+- **bind *:443 ssl crt /home/sysadmin/ssl/server.pem**:
   - **bind *:443**: Chỉ ra frontend sẽ listen ở port 443 ở tất cả các network interface (chú ý dấu * trước port 443)
   - **SSL**: là bật tính năng SSL Termination cho listener này.
   - **CRT**: chỉ ra đường dẫn tới file SSL-Certificate, ta đã thực hiện tạo ở bước trước cần copy lên máy chủ cài haproxy và cấu hình đường dẫn vào đây.
-- **reqadd X-Forwarded-Proto:\ https**: Thêm https header và cuối HTTPS request
+- **http-request add-header X-Forwarded-Proto https**: Thêm https header và cuối HTTPS request
 - **default_backend backend_ingress**: Cấu hình mặc định request nếu ko match với rule ALC nào thì sẽ vào backend là backend_ingress, đây là rule để mặc định sẽ kết nối tới các app trên K8S thông qua Nginx-Ingress
 - **acl rancher hdr_dom(host) -i rancher.monitor.dongna.com**: Tạo điều kiện check rancher nếu host request tới trùng với địa chỉ "rancher.monitor.dongna.com"
 - **use_backend backend_rancher if rancher**: Nếu điều kiện rancher là đúng thì trỏ tới backend là backend_rancher
 
-Cấu hình backend_ingress: Thực hiện load balancing request tới 3 k8s master node, port 30080 là Node Port của Nginx-Ingress
+Cấu hình backend_ingress: Thực hiện load balancing request tới 3 k8s worker node, port 30080 là Node Port của Nginx-Ingress
 
 ```
 backend backend_ingress
@@ -494,9 +494,9 @@ backend backend_ingress
         stats   enable
         stats   auth username:password
         balance roundrobin
-        server  master1 192.168.10.11:30080 cookie p1 weight 1 check inter 2000
-        server  master2 192.168.10.12:30080 cookie p1 weight 1 check inter 2000
-        server  master3 192.168.10.13:30080 cookie p1 weight 1 check inter 2000
+        server  worker1 192.168.10.14:30080 cookie p1 weight 1 check inter 2000
+        server  worker2 192.168.10.15:30080 cookie p1 weight 1 check inter 2000
+        server  worker3 192.168.10.16:30080 cookie p1 weight 1 check inter 2000
 ```
 
 Cấu hình backend_rancher: Thực hiện forward kết nối tới rancher-server cài trên trên rancher ở địa chỉ IP 192.168.10.19 và port là 6860 (lưu ý đây là port HTTP của rancher)
@@ -515,10 +515,6 @@ Trong bài viết trước mình đã mô tả bước này, cần khai host cho
 192.168.10.10 apple.demo.dongna.com
 192.168.10.10 rancher.monitor.dongna.com
 ```
-
-Đồng thời phải khai ingress rule trên K8S để forward từ host apple.demo.viettq.com tới service apple-service như sau:
-![image](https://github.com/user-attachments/assets/b0a6ac80-8cbd-4f76-b015-b9a79356972e)
-
 
 
 
@@ -545,7 +541,7 @@ Ta cũng sẽ tạo SSL certificate cho các application bên trong K8s tại [�
 Kết quả sinh ra lưu vào file /etc/haproxy/ssl/server.pem để dùng cho cấu hình haproxy.
 
 # Cấu hình ở user (local host) và kiểm tra truy cập
-Để truy cập được vào Rancher (rancher.monitor.dongna.com/) và Apple app (apple.prod.viettq.com/), user sẽ chỉ quan tâm tới VIP chứ ko cần biết IP của 3 Master Node
+Để truy cập được vào Rancher (rancher.monitor.dongna.com/) và Apple app (apple.prod.dongna.com/), user sẽ chỉ quan tâm tới VIP chứ ko cần biết IP của 3 Master Node
 
 User sẽ cần cấu hình file host trên máy user<br>
 C:\Windows\System32\drivers\etc\hosts (window)
