@@ -452,10 +452,11 @@ backend backend_rancher
 EOF
 ```
 
-
-
-
-
+Kiểm tra syntax và restart Haproxy trên 3 Master Node
+```
+haproxy -c -f /etc/haproxy/haproxy.cfg
+systemctl restart haproxy.service
+```
 
 ## Giải thích chi tiết config của Haproxy
 ```
@@ -530,15 +531,9 @@ Trong bài viết trước mình đã mô tả bước này, cần khai host cho
 
 
 
-Kiểm tra syntax và restart Haproxy
-```
-haproxy -c -f /etc/haproxy/haproxy.cfg
-systemctl restart haproxy.service
-```
 
-Ta cũng sẽ tạo SSL certificate cho các application bên trong K8s tại [đây](https://github.com/nguyenanhdongvn/Document/blob/main/Document/G%20-%20H%C6%B0%E1%BB%9Bng%20d%E1%BA%ABn%20t%E1%BA%A1o%20certificate%20cho%20%E1%BB%A9ng%20d%E1%BB%A5ng%20tr%C3%AAn%20K8S%20d%C3%B9ng%20OpenSSL.md)
 
-Kết quả sinh ra lưu vào file /etc/haproxy/ssl/server.pem để dùng cho cấu hình haproxy.
+Ta cũng đã tạo SSL certificate cho các application bên trong K8s tại [đây](https://github.com/nguyenanhdongvn/Document/blob/main/Document/G%20-%20H%C6%B0%E1%BB%9Bng%20d%E1%BA%ABn%20t%E1%BA%A1o%20certificate%20cho%20%E1%BB%A9ng%20d%E1%BB%A5ng%20tr%C3%AAn%20K8S%20d%C3%B9ng%20OpenSSL.md)
 
 # Cấu hình ở user (local host) và kiểm tra truy cập
 Để truy cập được vào Rancher (rancher.monitor.dongna.com/) và Apple app (apple.prod.dongna.com/), user sẽ chỉ quan tâm tới VIP chứ ko cần biết IP của 3 Master Node
@@ -553,13 +548,8 @@ C:\Windows\System32\drivers\etc\hosts (window)
 # Kiểm tra tính sẵn sàng (High Availability)
 Hiện tại `master1` đang là master của cụm VIP và đang nhận VIP là 192.168.10.10, cũng là server đang thực hiện load balancing cho hệ thống.
 ```
-[root@master1 ~]# ip a |grep 192.168.10.11 -A3 -B2
-    link/ether 00:0c:29:8b:93:3d brd ff:ff:ff:ff:ff:ff
-    altname enp3s0
-    inet 192.168.10.11/24 brd 192.168.10.255 scope global noprefixroute ens160
-       valid_lft forever preferred_lft forever
+[root@master1 ssl]# ip a |grep 192.168.10.10
     inet 192.168.10.10/32 scope global ens160
-       valid_lft forever preferred_lft forever
 ```
 
 Stop Haproxy trên `master1` xem điều gì sẽ xảy ra
@@ -605,11 +595,38 @@ Khi Haproxy trên `master1` bị down, thì priority chỉ còn 100, lúc này `
 
 Check status Keepalived trên `master2`
 ```
+systemctl status keepalived
+```
 
+Output
+```
+● keepalived.service - LVS and VRRP High Availability Monitor
+     Loaded: loaded (/usr/lib/systemd/system/keepalived.service; disabled; preset: disabled)
+     Active: active (running) since Sun 2024-09-29 03:27:26 +07; 41min ago
+   Main PID: 158745 (keepalived)
+      Tasks: 2 (limit: 17318)
+     Memory: 2.2M
+        CPU: 9.558s
+     CGroup: /system.slice/keepalived.service
+             ├─158745 /usr/sbin/keepalived --dont-fork -D
+             └─158746 /usr/sbin/keepalived --dont-fork -D
+
+Sep 29 04:08:06 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:06 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:06 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:06 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: (kubernetes) Sending/queueing gratuitous ARPs on ens160 for 192.168.10.10
+Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
+Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
 ```
 
 Check IP trên `master2`
 ```
+[root@master2 ssl]# ip a |grep 192.168.10.10
+    inet 192.168.10.10/32 scope global ens160
 ```
 
 Lúc này user truy cập vào VIP và vẫn truy cập application bình thường
