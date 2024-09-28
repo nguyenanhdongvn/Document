@@ -1,15 +1,19 @@
-# Tạo Certificate Authority
+# Tạo Certificate Authority trên "cicd" node
 Để có Certificate xịn thì bạn phải mua của các CA. Ta cũng có thể tự tạo một CA ở trên Local và import vào trình duyệt để trình duyệt hiểu là CA (mà chúng ta tạo ra) là một nhà cung cấp CA tin cậy. Sau đó, các Certificate được cấp bởi CA này sẽ được coi là validate.
 
-# Tạo private key cho CA (bắt buộc phải nhập pass phrase)
+## Tạo private key cho CA (bắt buộc phải nhập pass phrase)
+Trên `cicd` server tạo private key cho CA tại /home/sysadmin/ssl/
 ```
+mkdir /home/sysadmin/ssl && cd /home/sysadmin/ssl
 openssl genrsa -des3 -out rootCA.key 2048
 ```
 
-# Tạo file pem từ file private key (nhập pass của rootCA đã tạo bên trên)
+## Tạo file pem từ file private key (nhập pass của rootCA đã tạo bên trên)
 ```
 openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1825 -out rootCA.pem
 ```
+
+Output
 ```
 Enter pass phrase for rootCA.key:
 You are about to be asked to enter information that will be incorporated
@@ -27,9 +31,9 @@ Organizational Unit Name (eg, section) []:DongNA_CA_Unit
 Common Name (eg, your name or your server's hostname) []:*.dongna.com
 Email Address []:
 ```
-Ta sẽ có 2 file .key và .pem cho rootCA
+Ta sẽ có 2 file .key và .pem cho rootCA 
 ```
-sysadmin@master1:~/ssl$ ll
+sysadmin@cicd:~$ ll /home/sysadmin/ssl/
 total 8
 -rw-------. 1 sysadmin sysadmin 1862 Sep 23 22:33 rootCA.key
 -rw-r--r--. 1 sysadmin sysadmin 1354 Sep 23 22:35 rootCA.pem
@@ -86,7 +90,7 @@ total 20
 -rw-r--r--. 1 sysadmin sysadmin 1354 Sep 23 22:35 rootCA.pem
 ```
 
-Rồi tới bước quan trọng nhất là mang đơn đi đóng dấu. File .csr (Certificate Signing Request) giống như tờ đơn xin xác nhận của bạn, phải bạn cần mang đi xin ông CA đóng dấu cho. Và vì mình đã tự đóng vai trò CA (với 2 file .key và .pem đã tạo ở bước trước) thì mình sẽ tự đóng dấu cho yêu cầu này:
+Rồi tới bước quan trọng nhất là mang CSR đi đăng ký. File .csr (Certificate Signing Request) giống như tờ đơn xin xác nhận của bạn, phải bạn cần mang đi xin ông CA đóng dấu cho. Và vì mình đã tự đóng vai trò CA (với 2 file .key và .pem đã tạo ở bước trước) thì mình sẽ tự đóng dấu cho yêu cầu này:
 
 ```
 openssl x509 -req -days 3650 -in dongna_app.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out dongna_app.crt -extensions v3_req -extfile openssl.cnf
@@ -97,6 +101,25 @@ Kết quả sẽ sinh ra file dongna_app.crt. Bây giờ ta sẽ tạo file dong
 cat dongna_app.key > dongna_app.pem
 cat dongna_app.csr >> dongna_app.pem
 cat dongna_app.crt >> dongna_app.pem
+```
+
+Kiểm tra lại các file cert xem đã tạo đủ chưa
+
+```
+sysadmin@cicd:~$ ll /home/sysadmin/ssl/
+total 36
+-rw-r--r-- 1 sysadmin sysadmin 1403 Sep 29 01:58 dongna_app.crt
+-rw-r--r-- 1 sysadmin sysadmin 1102 Sep 29 00:56 dongna_app.csr
+-rw------- 1 sysadmin sysadmin 1704 Sep 29 00:55 dongna_app.key
+-rw-r--r-- 1 sysadmin sysadmin 4209 Sep 29 01:59 dongna_app.pem
+-rw-r--r-- 1 sysadmin sysadmin  645 Sep 29 00:54 openssl.cnf
+-rw------- 1 sysadmin sysadmin 1862 Sep 29 00:50 rootCA.key
+-rw-r--r-- 1 sysadmin sysadmin 1354 Sep 29 00:52 rootCA.pem
+-rw-r--r-- 1 sysadmin sysadmin   41 Sep 29 01:58 rootCA.srl
+```
+Từ local host, copy toàn bộ các file vừa tạo trong /home/sysadmin/ssl/ ở `cicd` server về
+```
+scp sysadmin@192.168.10.20:/home/sysadmin/ssl/* /home/dong/ssl
 ```
 
 # Import CA vừa tạo vào trình duyệt web(client)
