@@ -17,6 +17,20 @@ Ta có 3 server cùng có chạy một service, khi 1 server bị down thì user
 Như trong mô hình lab này, nếu mình chỉ cài Haproxy trên `master1` để làm LB. Khi đó user sẽ cần kết nối tới IP của `master1` để truy cập service. Nếu `master1` down thì service cũng down. Để giải quyết, ta sẽ cài Keepalive trên cả 3 master node và cấu hình một VIP (Virtual IP), tại một thời điểm sẽ chỉ có 1 trong 3 node đứng lên nhận VIP. User sẽ chỉ biết VIP để truy cập service mà không cần quan tâm tới 3 IP của 3 node phía sau là gì. Khi 1 node bị down thì KeepAlived sẽ tự động kiểm tra và chuyển VIP sang một node khác còn active. Như vậy thì Haproxy sẽ cần được cài và cấu hình trên tất cả các node cài keepalive.
 
 # Cài đặt
+
+## Chuẩn bị file server.pem để cấu hình cho haproxy
+Tạo folder chứa file `server.pem` trêm 3 Master Node để cấu hình cho haproxy
+```
+su - sysadmin -c "mkdir /home/sysadmin/ssl/"
+```
+
+Từ `cicd` server Copy file `dongna_app.pem`  sang 3 Master Node và đổi tên thành `server.pem`
+```
+scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.11:/home/sysadmin/ssl/server.pem
+scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.12:/home/sysadmin/ssl/server.pem
+scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.13:/home/sysadmin/ssl/server.pem
+```
+
 ## Cài đặt Haproxy và KeepAlived
 Trên 3 Master Node, chạy lệnh:
 ```
