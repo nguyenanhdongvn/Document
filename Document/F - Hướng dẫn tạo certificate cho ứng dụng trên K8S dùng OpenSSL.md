@@ -117,10 +117,7 @@ total 36
 -rw-r--r-- 1 sysadmin sysadmin 1354 Sep 29 00:52 rootCA.pem
 -rw-r--r-- 1 sysadmin sysadmin   41 Sep 29 01:58 rootCA.srl
 ```
-Từ local host, copy toàn bộ các file vừa tạo trong /home/dong/ssl/ ở `cicd` server về
-```
-scp sysadmin@192.168.10.20:/home/dong/ssl/* /home/dong/ssl
-```
+
 
 # Import CA vừa tạo vào trình duyệt web(client)
 Trước hết các bạn tải file rootCA.pem đã tạo ở trên về máy client.
