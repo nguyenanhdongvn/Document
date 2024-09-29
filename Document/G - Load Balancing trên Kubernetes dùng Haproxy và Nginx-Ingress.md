@@ -173,6 +173,22 @@ kubectl -n nginx-ingress apply -f app.ingress.yaml
 
 Như vậy, khi user truy cập tới URL http://apple.prod.dongna.com/ thì nó sẽ kết nối tới Apple app qua service `apple-service`
 
+
+Từ local host, copy toàn bộ các file vừa tạo trong /home/dong/ssl/ lên các Master Node và `cicd` server
+```
+ssh sysadmin@cicd 'sudo mkdir /etc/haproxy/ssl/'
+ssh sysadmin@master1 'sudo mkdir /etc/haproxy/ssl/'
+ssh sysadmin@master2 'sudo mkdir /etc/haproxy/ssl/'
+ssh sysadmin@master3 'sudo mkdir /etc/haproxy/ssl/'
+
+scp /home/dong/ssl/* sysadmin@cicd:/etc/haproxy/ssl/*
+scp /home/dong/ssl/dongna_app.pem sysadmin@master1:/etc/haproxy/ssl/server.pem
+scp /home/dong/ssl/dongna_app.pem sysadmin@master2:/etc/haproxy/ssl/server.pem
+scp /home/dong/ssl/dongna_app.pem sysadmin@master3:/etc/haproxy/ssl/server.pem
+```
+
+
+
 # Cấu hình
 ## Cấu hình VIP cho Keepalived
 Cấu hình 1 VIP cho cả 3 Master Node, mỗi node sẽ có 1 giá trị priority khác nhau và Keepalived sẽ định kỳ check Haproxy trên từng Master Node xem có bị down không, nếu Haproxy trên Master Node đang làm VIP bị down thì giá trị priority sẽ bị giảm xuống => Master Node khác sẽ đứng lên làm VIP
