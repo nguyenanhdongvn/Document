@@ -60,7 +60,7 @@ Export list for 192.168.10.19:
 /data2/retain 192.168.10.0/24
 ```
 
-# Cài đặt NFS Client trên K8S (Worker và Master)
+# Cài đặt NFS Client trên các Worker Node
 Cài đặt NFS Client trên tất cả các Worker Node để khi POD được tạo trên Worker Node có sử dụng NFS Storage Class thì Worker Node đó có thể mount được phân vùng NFS đã được share bởi NFS Server.
 ```
 sudo yum install nfs-utils -y
