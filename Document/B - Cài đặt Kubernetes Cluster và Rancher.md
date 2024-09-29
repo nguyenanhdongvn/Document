@@ -66,7 +66,7 @@ EOF
 
 * Đổi CNI từ Calico sang Flannel (Optional)
 ```
-sed -i 's/kube_network_plugin: calico/kube_network_plugin: flannel/g' /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/group_vars/k8s_cluster/k8s-cluster.yml```
+sed -i 's/kube_network_plugin: calico/kube_network_plugin: flannel/g' /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/group_vars/k8s_cluster/k8s-cluster.yml
 ```
 
 * Chạy container đã cài sẵn Ansible để chạy Kubespray
