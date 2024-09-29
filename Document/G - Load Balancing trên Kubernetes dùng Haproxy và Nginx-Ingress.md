@@ -174,19 +174,27 @@ kubectl -n nginx-ingress apply -f app.ingress.yaml
 Như vậy, khi user truy cập tới URL http://apple.prod.dongna.com/ thì nó sẽ kết nối tới Apple app qua service `apple-service`
 
 
-Từ local host, copy toàn bộ các file vừa tạo trong /home/dong/ssl/ lên các Master Node và `cicd` server
+# Copy Certificate trong /home/dong/ssl/ từ Local Host lên các Master Node và `cicd` server
+Từ Local Host
 ```
-ssh sysadmin@cicd 'sudo mkdir /etc/haproxy/ssl/'
+# Create /home/sysadmin/ssl/ folder
+ssh sysadmin@cicd 'sudo mkdir /home/sysadmin/ssl/'
 ssh sysadmin@master1 'sudo mkdir /etc/haproxy/ssl/'
 ssh sysadmin@master2 'sudo mkdir /etc/haproxy/ssl/'
 ssh sysadmin@master3 'sudo mkdir /etc/haproxy/ssl/'
 
-scp /home/dong/ssl/* sysadmin@cicd:/etc/haproxy/ssl/*
+# Add permission to write in /home/sysadmin/ssl/ folder
+ssh sysadmin@cicd 'sudo chmod o+w /home/sysadmin/ssl/'
+ssh sysadmin@master1 'sudo chmod o+w /etc/haproxy/ssl/'
+ssh sysadmin@master2 'sudo chmod o+w /etc/haproxy/ssl/'
+ssh sysadmin@master3 'sudo chmod o+w /etc/haproxy/ssl/'
+
+# Copy Certificates from Local Host to cicd and Master Node
+scp /home/dong/ssl/* sysadmin@cicd:/home/sysadmin/ssl/*
 scp /home/dong/ssl/dongna_app.pem sysadmin@master1:/etc/haproxy/ssl/server.pem
 scp /home/dong/ssl/dongna_app.pem sysadmin@master2:/etc/haproxy/ssl/server.pem
 scp /home/dong/ssl/dongna_app.pem sysadmin@master3:/etc/haproxy/ssl/server.pem
 ```
-
 
 
 # Cấu hình
