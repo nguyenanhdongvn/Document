@@ -65,6 +65,7 @@ subjectAltName = @alt_names
 DNS.1 = *.monitor.dongna.com
 DNS.2 = *.prod.dongna.com
 DNS.3 = *.demo.dongna.com
+DNS.4 = *.dongna.com
 EOF
 ```
 Ở đây mình sẽ tạo SSL Certcificate cho các app của mình sử dụng 3 subdomain là *.monitor.dongna.com, *.prod.dongna.com và *.demo.dongna.com <br>
