@@ -2,9 +2,9 @@
 Để có Certificate xịn thì bạn phải mua của các CA. Ta cũng có thể tự tạo một CA ở trên Local và import vào trình duyệt để trình duyệt hiểu là CA (mà chúng ta tạo ra) là một nhà cung cấp CA tin cậy. Sau đó, các Certificate được cấp bởi CA này sẽ được coi là validate.
 
 ## Tạo private key cho CA (bắt buộc phải nhập pass phrase)
-Trên `cicd` server tạo private key cho CA tại /home/sysadmin/ssl/
+Trên `cicd` server tạo private key cho CA tại /home/dong/ssl/
 ```
-mkdir /home/sysadmin/ssl && cd /home/sysadmin/ssl
+mkdir /home/dong/ssl && cd /home/dong/ssl
 openssl genrsa -des3 -out rootCA.key 2048
 ```
 
@@ -33,7 +33,7 @@ Email Address []:
 ```
 Ta sẽ có 2 file .key và .pem cho rootCA 
 ```
-sysadmin@cicd:~$ ll /home/sysadmin/ssl/
+sysadmin@cicd:~$ ll /home/dong/ssl/
 total 8
 -rw-------. 1 sysadmin sysadmin 1862 Sep 23 22:33 rootCA.key
 -rw-r--r--. 1 sysadmin sysadmin 1354 Sep 23 22:35 rootCA.pem
@@ -41,7 +41,7 @@ total 8
 # Tạo SSL Certificate cho ứng dụng web ở local
 Đầu tiên ta tạo một file openssl.cnf để cấu hình thêm thông tin SAN như sau:
 ```
-cat <<EOF > /home/sysadmin/ssl/openssl.cnf
+cat <<EOF > /home/dong/ssl/openssl.cnf
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -106,7 +106,7 @@ cat dongna_app.crt >> dongna_app.pem
 Kiểm tra lại các file cert xem đã tạo đủ chưa
 
 ```
-sysadmin@cicd:~$ ll /home/sysadmin/ssl/
+sysadmin@cicd:~$ ll /home/dong/ssl/
 total 36
 -rw-r--r-- 1 sysadmin sysadmin 1403 Sep 29 01:58 dongna_app.crt
 -rw-r--r-- 1 sysadmin sysadmin 1102 Sep 29 00:56 dongna_app.csr
@@ -117,9 +117,9 @@ total 36
 -rw-r--r-- 1 sysadmin sysadmin 1354 Sep 29 00:52 rootCA.pem
 -rw-r--r-- 1 sysadmin sysadmin   41 Sep 29 01:58 rootCA.srl
 ```
-Từ local host, copy toàn bộ các file vừa tạo trong /home/sysadmin/ssl/ ở `cicd` server về
+Từ local host, copy toàn bộ các file vừa tạo trong /home/dong/ssl/ ở `cicd` server về
 ```
-scp sysadmin@192.168.10.20:/home/sysadmin/ssl/* /home/dong/ssl
+scp sysadmin@192.168.10.20:/home/dong/ssl/* /home/dong/ssl
 ```
 
 # Import CA vừa tạo vào trình duyệt web(client)
