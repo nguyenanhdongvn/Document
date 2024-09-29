@@ -445,7 +445,7 @@ backend per_ip_rates
 
 frontend frontend_ssl_443
         bind :80
-        bind *:443 ssl crt /home/sysadmin/ssl/server.pem
+        bind *:443 ssl crt /etc/haproxy/ssl/server.pem
         mode http
         option httpclose
         option forwardfor
