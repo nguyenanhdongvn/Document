@@ -139,3 +139,131 @@ Object serviceMonitor tên `minio-monitor` đã được deploy vào namespace `
 
 Trong Object serviceMonitor này sẽ có session `spec` chính là cấu hình thông tin lấy Metric từ Target cần giám sát, gồm endpoints (port/metric_path) và thông tin object (namespaceSelector và selector)
 
+Chi tiết hơn, ta có thể get service ở namespace `monitor` với label là `app.kubernetes.io/instance=minio`
+
+```
+kubectl get service -n monitor -l "app.kubernetes.io/instance=minio"
+```
+
+**NOTE:** Target có 2 loại: Target hỗ trợ metric hoặc Target cần dùng exporter.
+
+Trong trường hợp này minio hỗ trợ sẵn metric nên Prometheus sẽ pull Metrics bằng cách trỏ tới application Minio ở port và path mà nó cung cấp metric (endpoint).
+
+Trường hợp application không hỗ trợ metric mà phải dùng exporter thì ta sẽ cần cấu hình phần endpoints và selector trỏ tới service exporter.
+
+
+## Cài đặt application hỗ trợ sẵn cả Metric và Service Monitor (Redis)
+Có nhiều open source cài qua helm-chart hỗ trợ cả Metric và template để tạo serviceMonitor + Prometheus Rule. <br>
+Ta sẽ cài thử redis bằng helm.
+
+```
+mkdir -p /home/sysadmin/open-sources
+cd /home/sysadmin/open-sources
+mkdir redis
+cd redis
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm search repo redis
+helm pull bitnami/redis-cluster --version 7.5.1
+tar -xzf redis-cluster-7.5.1.tgz
+cp redis-cluster/values.yaml values-redis.yaml
+vim values-redis.yaml
+```
+
+Chỉnh sửa file `value-redis.yaml`
+```
+usePassword: false
+redis: "30101"
+type: NodePort
+storageClass: "longhorn-storage-delete"
+size: 1Gi
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: "monitor"
+    labels:
+      app.kubernetes.io/instance: dongna-service-monitor
+```
+
+Cài redis helm chart lên namespace `prod`
+```
+helm install redis-cluster -f values-redis.yaml -n prod
+```
+
+Kiểm tra lại cài đặt
+```
+kubectl get pod -n prod -l "app.kubernetes.io/instance=redis-cluster"
+kubectl get servicemonitors.monitoring.coreos.com redis-cluster -n monitor
+```
+Ta đã có một cụm redis-cluster gồm 6 pods, 3 service ở namespace prod và một object serviceMonitor là `redis-cluster` được tạo ở namespace `monitor` (theo đúng những gì ta cấu hình ở file values-redis.yaml)<br>
+Kiểm ra xem serviceMonitor của redis có gì:
+
+```
+kubectl describe describe servicemonitors.monitoring.coreos.com redis-cluster -n monitor
+```
+Output
+```
+
+```
+
+Trong đó:<br>
+**Labels: app.kubernetes.io/instance=dongna-service-monitor:** Label để Prometheus lựa chọn đọc thông tin từ serviceMonitor này. Với mỗi serviceMonitor mới ta sẽ đều thêm label này vào để Prometheus tự động đọc.
+**Spec:** Spec của Target cần get Metric. Ở đây nó tự hiểu cần trỏ đến application ở namespace `prod` mà có gán các Label như bên dưới, ở port tên là metrics.
+```
+Spec:
+  Endpoints:
+    Port:  metrics
+  Namespace Selector:
+    Match Names:
+      prod
+  Selector:
+    Match Labels:
+      app.kubernetes.io/component:  metrics
+      app.kubernetes.io/instance:   redis-cluster
+      app.kubernetes.io/name:       redis-cluster
+```
+Verify lại thông tin service được chỉ định theo spec trên bằng lệnh:
+```
+kubectl get service -l "app.kubernetes.io/component=metrics" -l "app.kubernetes.io/instance=redis-cluster" -l "app.kubernetes.io/name=redis-cluster" -n prod
+```
+
+Quay lại trang Prometheus UI xem application redis-cluster đã được hiển thị trong phần Targets hay chưa:
+
+
+Tiếp theo, ta import dashboard cho redis-cluster lên Grafana
+
+
+
+Tương tự như redis, khi cài đặt NGINX-Ingress controller thì ta có thể enable metric và serviceMonitor cho nó (tuỳ chỉnh trong file value.yaml) sau đó cũng tạo dashboard trên Grafana để hiển thị metrics
+
+**Bonus:**
+Nếu sử dụng Longhorn storage cho K8s, có thể sẽ gặp phải vấn đề cấu hình scrapeConfig xong thì Prometheus sẽ chỉ lấy được Metrics của 1 node (trong 3 node mà ta config).<br>
+Muốn lấy Metrics của Longhorn thì buộc phải sử dụng serviceMonitor để Prometheus get Metrics đầy đủ từ tất cả các longhorn node
+
+```
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: longhorn-prometheus-servicemonitor
+  namespace: monitoring
+  labels:
+    name: longhorn-prometheus-servicemonitor
+    release:  prometheus-grafana-stack
+    k8s-app: longhorn
+    app: kube-prometheus-stack
+    app.kubernetes.io/instance: dongna-service-monitor
+spec:
+  selector:
+    matchLabels:
+      app: longhorn-manager
+  namespaceSelector:
+    matchNames:
+    - storage
+  endpoints:
+  - port: manager  
+```
+
+Sau đó tìm dashboard cho Grafana (keyword: longhorn example v1.1.0) để hiển thị thông tin lên dashboard:
+
