@@ -10,7 +10,7 @@
 
 ## Workflow của monitoring bằng Prometheus sẽ được mô tả như sau:
 - Prometheus pull Metrics từ các target cần được monitor, các target này có thể chia thành 2 loại:
-- - Target hỗ trợ Expose Metrics (nghĩa là các target cần được monitor đã có sẵn api để Prometheus có thể truy cập đến và pull Metrics)
+    - Target hỗ trợ Expose Metrics (nghĩa là các target cần được monitor đã có sẵn api để Prometheus có thể truy cập đến và pull Metrics)
 - - Target không hỗ trợ Expose Metrics (phải cài thêm exporter cho các target để exporter gửi Metrics về Prometheus)
 **Note:** Quá trình Prometheus pull Metric từ target được gọi là "Job". Các "Job" này chứa thông tin Target nó cần pull Metrics cũng như cách lấy Metric (Interval, Retention...). Và để tạo các "Job" này có 2 cách:<br>
 - - - Cấu hình "scrape-config" trong Prometheus: Cách này là cách truyền thống và thủ công, rất khó để quản lý nếu số lượng Job lớn thì file config sẽ rất dài và khó đọc. Hơn nữa, mỗi lần update config mới thì ta sẽ phải update lại Prometheus (helm upgreade release)
