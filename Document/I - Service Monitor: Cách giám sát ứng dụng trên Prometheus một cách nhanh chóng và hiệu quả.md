@@ -13,8 +13,8 @@
     - Target hỗ trợ Expose Metrics (nghĩa là các target cần được monitor đã có sẵn api để Prometheus có thể truy cập đến và pull Metrics)
     - Target không hỗ trợ Expose Metrics (phải cài thêm exporter cho các target để exporter gửi Metrics về Prometheus)
 **Note:** Quá trình Prometheus pull Metric từ target được gọi là "Job". Các "Job" này chứa thông tin Target nó cần pull Metrics cũng như cách lấy Metric (Interval, Retention...). Và để tạo các "Job" này có 2 cách:<br>
-- - - Cấu hình "scrape-config" trong Prometheus: Cách này là cách truyền thống và thủ công, rất khó để quản lý nếu số lượng Job lớn thì file config sẽ rất dài và khó đọc. Hơn nữa, mỗi lần update config mới thì ta sẽ phải update lại Prometheus (helm upgreade release)
-- - - Cấu hình "server monitor": Cách này hiệu quả hơn vì ta sẽ quản lý từng Target với từng file .yaml tương ứng. Hơn nữa, mỗi lần có config mới ta cũng sẽ không cần phải update lại Prometheus (ko cần helm upgrade release)
+        - Cấu hình "scrape-config" trong Prometheus: Cách này là cách truyền thống và thủ công, rất khó để quản lý nếu số lượng Job lớn thì file config sẽ rất dài và khó đọc. Hơn nữa, mỗi lần update config mới thì ta sẽ phải update lại Prometheus (helm upgreade release)
+        - Cấu hình "server monitor": Cách này hiệu quả hơn vì ta sẽ quản lý từng Target với từng file .yaml tương ứng. Hơn nữa, mỗi lần có config mới ta cũng sẽ không cần phải update lại Prometheus (ko cần helm upgrade release)
 - Khi Prometheus đã có được Metrics thì nó sẽ enrich Metrics bằng cách gán thêm các label như: namespace, jobname, servicename, ... để phân loại và ghi vào Time-Series Database của Prometheus
 - Prometheus đọc các Rule (các hàm so sánh giá trị Metrics với các Threshold) để quyết định những rule nào cần được raise alert để đẩy về Alert Manager
 - Alert Manager sẽ có config riêng để gửi Notification đến các Receiver khác nhau, quá trình này gọi là "route". Alert Manager hỗ trợ khá nhiều các Receiver như: Email, Slack, MsTeams, Telegram
