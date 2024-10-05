@@ -243,7 +243,7 @@ defaultRules
     - name: minio-rule
       rules:
       - alert: MinioBucketUsage
-        expr: minio_bucket_usage_object_total{bucket="dong", instance="minio.dongna-prod.svc.cluster.local:9000", job="minio-job"} > 1
+        expr: minio_cluster_usage_object_total{instance="minio.dongna-prod.svc.cluster.local:9000", job="minio-job", server="127.0.0.1:9000"} > 1
         for: 10s
         labels:
           severity: page
@@ -252,14 +252,15 @@ defaultRules
 ```
 
 Trong đó:
-- Rule trên thực hiện theo dõi bucket "dong" nếu có số lượng object > 1 trong 10s thì sẽ có alert.
+- Rule trên thực hiện theo dõi bucket nào có số lượng object > 1 trong 10s thì sẽ có alert.
 
 Helm upgrade để cập nhật các thay đổi của prometheus release
 ```
 helm upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
 ```
+![image](https://github.com/user-attachments/assets/10c2ace7-a9e4-4436-b985-b6946f3065f9)
 
-
-
+Trong bucket đang có 3 objects (Value đang là 3) do đó Prometheus đã raise Alert. Tiếp tục vào Alert Manager kiểm tra cảnh báo, filter bằng job="minio-job" để lọc đúng cảnh báo cần tìm
+![image](https://github.com/user-attachments/assets/21ea3d3c-c0ef-46be-8e6a-019d203d4e6f)
 
 
