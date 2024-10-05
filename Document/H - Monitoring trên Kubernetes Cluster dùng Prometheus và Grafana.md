@@ -17,9 +17,9 @@ cp kube-prometheus-stack/values.yaml values-prometheus.yaml
 ```
 
 - Chỉnh sửa qua file values mặc định của bộ helm-chart này sẽ thấy nó đã mặc định cấu hình Rule cho các thành phần của K8S từ etcd, kube-api.. Và Alert Manager cũng dc cài mặc định trong bộ này luôn.
--  - Cấu hình tạo ingress rule cho Alert Manager để point vào URL http://alertmanager.dongna.com/
-```
-alertmanager:
+  - Cấu hình tạo ingress rule cho Alert Manager để point vào URL http://alertmanager.dongna.com/  
+  ```
+  alertmanager:
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -27,35 +27,35 @@ alertmanager:
       - alertmanager.dongna.com
     paths:
       - /
-```
--  - Cấu hình password login vào Grafana UI là `P@ssw0rdP@ssw0rd`
-```
-grafana
-  adminPassword: P@ssw0rdP@ssw0rd
-```
--  - Cấu hình tạo ingress rule cho Grafana để point vào URL http://grafana.dongna.com/
-```
-grafana:
-  ingress:
-    enabled: true
-    ingressClassName: nginx
-    hosts:
-      - grafana.dongna.com
-    paths:
-      - /
-```
+  ```
+  - Cấu hình password login vào Grafana UI là `P@ssw0rdP@ssw0rd`
+  ```
+  grafana
+    adminPassword: P@ssw0rdP@ssw0rd
+  ```
+  - Cấu hình tạo ingress rule cho Grafana để point vào URL http://grafana.dongna.com/
+  ```
+  grafana:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - grafana.dongna.com
+      paths:
+        - /
+  ```
 
--  - Cấu hình tạo ingress rule cho Prometheus để point vào URL http://prometheus.dongna.com/
-```
-prometheus:
-  ingress:
-    enabled: true
-    ingressClassName: nginx
-    hosts:
-      - prometheus.dongna.com
-    paths:
-      - /
-```
+  - Cấu hình tạo ingress rule cho Prometheus để point vào URL http://prometheus.dongna.com/
+  ```
+  prometheus:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - prometheus.dongna.com
+      paths:
+        - /
+  ```
 
 Ta sẽ expose các ứng dụng này qua Nginx-Ingress nên tất cả các cấu hình service sẽ để mặc định là ClusterIP.
 
