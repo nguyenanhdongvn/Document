@@ -1,29 +1,29 @@
 # Giới thiệu
 ## Mục tiêu
-- Lấy Metrics của application bằng cách cấu hình Job trong scrapeConfig
+- Lấy Metrics của application bằng cách cấu hình Job trong Scrape Config
 - Lấy Metrics của application bằng cách cấu hình Service Monitor
-- Cài đặt một application hỗ trợ cả Metric và ServiceMonitor
+- Cài đặt một application hỗ trợ cả Metric và Service Monitor
 - Troubleshoot các issue trong khi cấu hình
 
 ## Kiến trúc
 ![image](https://github.com/user-attachments/assets/072f413f-af2d-4397-b9d2-05b9cabd445a)
 
-## Workflow của monitoring bằng Prometheus sẽ được mô tả như sau:
-- Prometheus pull Metrics từ các target cần được monitor, các target này có thể chia thành 2 loại:
-    - Target hỗ trợ Expose Metrics (nghĩa là các target cần được monitor đã có sẵn api để Prometheus có thể truy cập đến và pull Metrics)
-    - Target không hỗ trợ Expose Metrics (phải cài thêm exporter cho các target để exporter gửi Metrics về Prometheus)
-**Note:** Quá trình Prometheus pull Metric từ target được gọi là "Job". Các "Job" này chứa thông tin Target nó cần pull Metrics cũng như cách lấy Metric (Interval, Retention...). Và để tạo các "Job" này có 2 cách:<br>
-        - Cấu hình "scrape-config" trong Prometheus: Cách này là cách truyền thống và thủ công, rất khó để quản lý nếu số lượng Job lớn thì file config sẽ rất dài và khó đọc. Hơn nữa, mỗi lần update config mới thì ta sẽ phải update lại Prometheus (helm upgreade release)
-        - Cấu hình "server monitor": Cách này hiệu quả hơn vì ta sẽ quản lý từng Target với từng file .yaml tương ứng. Hơn nữa, mỗi lần có config mới ta cũng sẽ không cần phải update lại Prometheus (ko cần helm upgrade release)
-- Khi Prometheus đã có được Metrics thì nó sẽ enrich Metrics bằng cách gán thêm các label như: namespace, jobname, servicename, ... để phân loại và ghi vào Time-Series Database của Prometheus
-- Prometheus đọc các Rule (các hàm so sánh giá trị Metrics với các Threshold) để quyết định những rule nào cần được raise alert để đẩy về Alert Manager
-- Alert Manager sẽ có config riêng để gửi Notification đến các Receiver khác nhau, quá trình này gọi là "route". Alert Manager hỗ trợ khá nhiều các Receiver như: Email, Slack, MsTeams, Telegram
+## Monitoring Workflow của Prometheus sẽ được mô tả như sau:
+- Prometheus pull Metrics từ các Target cần được monitor, các Target này có thể chia thành 2 loại:
+    - Target hỗ trợ expose Metrics (nghĩa là các Target cần được monitor đã có sẵn API để Prometheus có thể trỏ đến và pull Metrics)
+    - Target không hỗ trợ expose Metrics (phải cài thêm Exporter cho Target để Exporter push Metrics về Prometheus)
+    - **Note: Quá trình Prometheus pull Metrics từ Target được gọi là "Job". Job chứa thông tin Target mà nó cần pull Metrics cũng như thời gian lấy Metrics (Interval, Retention...). Và có 2 cách tạo Job** <br>
+        - Cấu hình "Scrape Config" trong Prometheus config: Đây là cách thủ công, nếu số lượng Job lớn thì file config của Prometheus sẽ rất dài và rối, khó quản lý. Hơn nữa, mỗi lần update Scrape Config mới thì ta sẽ phải update lại Prometheus helm chart (helm upgrade)
+        - Cấu hình "Server Monitor": Đây là cách hiệu quả hơn, ta sẽ quản lý từng Target với từng yaml file tương ứng. Hơn nữa, mỗi lần có Service Monitor object mới, ta không cần phải update lại Prometheus helm chart (ko cần helm upgrade)
+- Khi Prometheus đã pull Metrics về thì nó sẽ enrich Metrics bằng cách gán thêm các Label như: namespace, jobname, servicename, ... rồi ghi vào Time-Series Database của Prometheus
+- Prometheus load các Alert Rule (các hàm so sánh giá trị Metrics với các Threshold) để quyết định những Alert Rule nào cần được raise Alert để đẩy về Alert Manager
+- Alert Manager sẽ có config riêng để route Notification đến các Receiver khác nhau. Alert Manager hỗ trợ khá nhiều Receiver như: Email, Slack, MsTeams, Telegram, ...
 
 # Prometheus Job và Service Monitor
 ## Prometheus Job
-Job là nơi cấu hình cách lấy Metrics của Target (Applications, Nodes), Cấu hình của Job được đặt trong "scrape_config" của Prometheus.
-Nếu không cấu hình Job tại scrape_config thì config sẽ được load mặc định từ global.
-Với "kube-prometheus-stack" helm chart thì việc khai báo Job trong scrape_config sẽ được khai báo ở dưới session `additionalScrapeConfigs`
+- Job là nơi cấu hình cách lấy Metrics của Target (Applications, Nodes), Cấu hình của Job được đặt trong Scrape Config của Prometheus.
+- Nếu không cấu hình Job trong Scrape Config thì cấu hình Job sẽ được load mặc định từ global.
+- Với "kube-prometheus-stack" helm chart thì việc khai báo Job trong Scrape Config sẽ được khai báo ở dưới session `additionalScrapeConfigs`
 ```
     additionalScrapeConfigs:
     - job_name: minio-job
@@ -36,7 +36,7 @@ Với "kube-prometheus-stack" helm chart thì việc khai báo Job trong scrape_
 ```
 
 Trong đó: <br>
-**job_name:** Prometheus Job
+**job_name:** Tên của Prometheus Job
 **scrape_interval:** Thời gian lấy Metrics là mỗi 30s (mỗi 30s, Prometheus gọi tới endpoint của application Minio để lấy Metrics)
 **scrape_timeout:** Thời gian timedout là 5s, (sau 5s, Prometheus sẽ tính là timeout nếu không có Metrics được trả về)
 **metrics_path:** đường dẫn để lấy Metrics
@@ -44,38 +44,35 @@ Trong đó: <br>
 
 **NOTE: với application cùng namespace với Prometheus thì chỉ cần trỏ đến tên application là đủ (minio), thay vì phải trỏ đến FQDN (minio.monitor.svc.cluster.local)**
 
-Upgrade lại `kube-prometheus-stack` helm chart để cập nhật config mới
+Update `kube-prometheus-stack` helm chart để Prometheus apply config mới
 ```
 helm upgrade prometheus-stack -f value-prometheus.yaml kube-prometheus-stack -n monitor
 ```
 
-Bài toán đặt ra là khi cần lấy Metric của 100 application, thì tương ứng mỗi application ta phải cấu hình một Job trong scrapeConfig này. Chưa kể sau khi viết thêm Job bạn sẽ phải update Prometheus để nó apply config mới bằng cách upgrade helm chart.
-Như vậy, mỗi khi có Job mới để lấy Metrics từ application mới thì ta phải chỉnh sửa file value.yaml của helm chart và upgrade helm chart để apply config mới
-
-Đây là lúc Service Monitor phát huy tác dụng
+- Bài toán đặt ra là khi cần lấy Metric của 100 application, thì tương ứng mỗi application ta phải thêm 1 Job trong Scrape Config. Chưa kể, sau khi thêm Job bạn sẽ phải update Prometheus helm chart để Prometheus apply config mới.
+- Như vậy, mỗi khi cấu hình thêm Job mới để pull Metrics từ application mới thì ta phải chỉnh sửa file value.yaml của Prometheus helm chart và update Prometheus helm chart để apply config mới. Đây là lúc Service Monitor phát huy tác dụng
 
 ## Service Monitor
-Service Monitor là một object của K8s giúp cho Prometheus có thể tự động nhận ra được các Target cần lấy Metric. Service Monitor object sẽ chứa các thông tin về Target giống như Prometheus Job trong scrape-config vậy.
+- Service Monitor là 1 Object của K8s giúp cho Prometheus có thể tự động detect các Target cần pull Metric. Service Monitor chứa các thông tin về Target giống như Job trong Scrape Config.
 ## Kiến trúc
 ![image](https://github.com/user-attachments/assets/3cc31bfe-b29b-4ad1-a7ef-8a7a48a202a9)
 
 ## Workflow của Service Monitor
-Prometheus sẽ apply config của Job từ scrapeConfig và từ ServiceMonitor, tất cả các đối tượng này sẽ hiển thị ở phần targets của Prometheus
+- Prometheus sẽ load config của Job trong Scrape Config và trong Service Monitor object, tất cả các Service Monitor object này sẽ hiển thị ở phần Targets của Prometheus
 
-Apply config từ scrapeConfig là quá rõ ràng rồi, nó được cấu hình ở file config của Prometheus
+- Prometheus load config từ Scrape Config nằm trong file config của Prometheus
 
-Apply config từ ServiceMonitor dựa vào cấu hình của Prometheus gồm 2 tham số:
+- Prometheus load config từ Service Monitor object dựa trên 2 tham số:
 
-serviceMonitorNamespaceSelector: Là cấu hình chỉ đọc các ServiceMonitor ở một số namespace nhất định, by default là đọc từ tất cả namespace
+    - **serviceMonitorNamespaceSelector:** Prometheus sẽ load các Service Monitor object ở namespace nhất định, by default là load từ tất cả namespace
 
-serviceMonitorSelector: Là cấu hình về cách chọn các ServiceMonitor sẽ được đọc để lưu cấu hình Prometheus Job. Ta có thể cấu hình theo nhiều rule khác nhau. Ở đây ta chọn cách cấu hình theo `label` của ServiceMonitor là cách đơn giản nhất
+    - **serviceMonitorSelector:** Chọn các Service Monitor sẽ được load để lưu cấu hình Prometheus Job. Ta có thể cấu hình theo nhiều cách khác nhau. Ở đây ta chọn cách cấu hình theo `label` của ServiceMonitor là cách đơn giản nhất
 
-Trong cấu hình của ServiceMonitor sẽ có thông tin label của nó (dùng cho Prometheus select như trên) và các thông tin về Target cần monitor (giống các thông tin khai báo cho Prometheus Job trong scrapeConfig vậy)
+- Config của Service Monitor sẽ có thông tin Label của nó (dùng để Prometheus select) và các thông tin về Target cần monitor (giống các thông tin khai báo cho Prometheus Job trong Scrape Config)
 
-Như vậy, ta cần cấu hình lại Prometheus để update lại cấu hình ServiceMonitor selector. Ở đây mình sẽ select từ tất cả namespace, và sẽ filter các ServiceMonitor có label là `app.kubernetes.io/instance` và value của label này là dongna-service-monitor.
+- Như vậy, ta cần cấu hình lại Prometheus để update lại cấu hình Service Monitor selector. Ở đây ta sẽ select từ tất cả namespace, và sẽ filter các Service Monitor có Label là `app.kubernetes.io/instance` và value của Label này là dongna-service-monitor.
 
-Ta sẽ sửa lại tham số "serviceMonitorSelector:" trong helm-value của kube-prometheus-stack (file values-prometheus.yaml) như sau:
-
+- Ta sẽ sửa lại tham số "serviceMonitorSelector:" trong file value.yaml của kube-prometheus-stack (file values-prometheus.yaml) như sau:
 ```
     serviceMonitorSelector:
       matchExpressions:
@@ -86,12 +83,17 @@ Ta sẽ sửa lại tham số "serviceMonitorSelector:" trong helm-value của k
           - nginx-ingress-controller          
           - prometheus-stack
 ```
-Như vậy, tất cả các serviceMonitor ở tất cả các namespace có label là `app.kubernetes.io/instance` và có 1 trong 3 value như trên thì sẽ được apply vào Prometheus config.<br>
 
-Đến đây thì việc monitor thêm 100 application mới đã không còn là vấn đề nữa. Ta chỉ cần gán 1 label cho toàn bộ các serviceMonitor mới sau này trùng với cấu hình serviceMonitorSelector trong Prometheus là nó sẽ tự động được đọc và không cần phải upgrade helm chart Prometheus. Ngoài ra, với cách tiếp cận này, mỗi service cần giám sát bạn sẽ tạo một file serviceMonitor .yaml để tiện lợi cho việc quản lý, cập nhật và tái sử dụng sau này.<br>
+- Update helm chart để Prometheus apply config mới
+```
+kubectl upgrade prometheus-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
+```
 
-Đây là cấu hình mẫu của ServiceMonitor để giám sát application Minio, khá giống với cấu hình scrapeConfig, ta tạo file serviceMonitor-minio.yaml với nội dung như sau:
+- Như vậy, các Service Monitor ở các namespace có Label là `app.kubernetes.io/instance` và có 1 trong 3 value này(dongna-service-monitor/nginx-ingress-controller/prometheus-stack) thì sẽ được apply vào Prometheus config.
+- Đến đây thì việc monitor thêm 100 application mới đã không còn là vấn đề nữa. Ta chỉ cần gán 1 Label cho toàn bộ các Service Monitor mới match với `serviceMonitorSelector` trong Prometheus config là Prometheus sẽ tự động load config của Service Monitor và không cần phải update lại Prometheus helm chart.
+- Với cách tiếp cận này, mỗi application cần monitor bạn sẽ tạo một yaml file cho Service Monitor để tiện lợi cho việc quản lý, cập nhật và tái sử dụng sau này.
 
+- Config mẫu của Service Monitor để giám sát application Minio khá giống với cấu hình Scrape Config, ta tạo file serviceMonitor-minio.yaml với nội dung như sau:
 ```
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -100,7 +102,7 @@ metadata:
   # Change this to the namespace the Prometheus instance is running in
   namespace: monitor
   labels:
-    app.kubernetes.io/instance: dongna-service-monitor    
+    app.kubernetes.io/instance: dongna-service-monitor
 spec:
   endpoints:
   - port: 9000
@@ -114,19 +116,17 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: minio
 ```
+- Trong đó:
+    - **namespace:** namespace mà Prometheus đang chạy
+    - **app.kubernetes.io/instance: dongna-service-monitor** match với 1 trong 3 serviceMonitorSelector đã khai báo trong Prometheus config
+    - **spec:** thông tin Target
 
-Trong đó:
-namespace: namespace mà Prometheus đang chạy
-app.kubernetes.io/instance: dongna-service-monitor match với 1 trong 3 serviceMonitorSelector đã khai báo trong Prometheus config
-spec: thông tin Target
-
-
-Tạo Service Monitor từ file .yaml
+- Tạo Service Monitor từ file .yaml
 ```
 kubectl apply -f serviceMonitor-minio.yaml
 ```
 
-Output
+- Output
 ```
 NAME                                 AGE
 fluentd                              6d17h
@@ -135,26 +135,25 @@ minio-monitor                        21d
 redis-cluster                        18d
 ```
 
-Object serviceMonitor tên `minio-monitor` đã được deploy vào namespace `monitor`, và gán key "app.kubernetes.io/instance: dongna-service-monitor" match với serviceMonitorSelector trong cấu hình của Prometheus nên Prometheus sẽ apply vào cấu hình của nó.
+- Object Service Monitor tên `minio-monitor` đã được tạo trong `monitor`, và gán Label "app.kubernetes.io/instance: dongna-service-monitor" match với serviceMonitorSelector trong Prometheus config nên Prometheus sẽ load config của Service Monitor này.
 
-Trong Object serviceMonitor này sẽ có session `spec` chính là cấu hình thông tin lấy Metric từ Target cần giám sát, gồm endpoints (port/metric_path) và thông tin object (namespaceSelector và selector)
+Trong Service Monitor object này sẽ có session `spec` chính là thông tin về Target cần monitor, gồm endpoints (port/metric_path), namespaceSelector và selector
 
-Chi tiết hơn, ta có thể get service ở namespace `monitor` với label là `app.kubernetes.io/instance=minio`
+Chi tiết hơn, ta có thể get application Minio ở namespace `monitor` với label là `app.kubernetes.io/instance=minio`
 
 ```
 kubectl get service -n monitor -l "app.kubernetes.io/instance=minio"
 ```
 
-**NOTE:** Target có 2 loại: Target hỗ trợ metric hoặc Target cần dùng exporter.
+**NOTE:** Target có 2 loại: Target hỗ trợ endpoint để pull Metric hoặc Target cần dùng Exporter để push Metrics.
 
-Trong trường hợp này minio hỗ trợ sẵn metric nên Prometheus sẽ pull Metrics bằng cách trỏ tới application Minio ở port và path mà nó cung cấp metric (endpoint).
+- Trong trường hợp này Minio hỗ trợ endpoint để pull Metric nên Prometheus sẽ pull Metrics bằng cách trỏ tới endpoint mà Minio cung cấp.
 
-Trường hợp application không hỗ trợ metric mà phải dùng exporter thì ta sẽ cần cấu hình phần endpoints và selector trỏ tới service exporter.
+- Trường hợp application không hỗ trợ endpoint để pull Metric mà phải dùng Exporter để push Metrics thì ta sẽ cần cấu hình phần endpoints và selector trỏ tới Exporter.
 
-
-## Cài đặt application hỗ trợ sẵn cả Metric và Service Monitor (Redis)
-Có nhiều open source cài qua helm-chart hỗ trợ cả Metric và template để tạo serviceMonitor + Prometheus Rule. <br>
-Ta sẽ cài thử redis bằng helm.
+## Cài đặt application hỗ trợ sẵn cả Endpoint Metric và Service Monitor (Redis)
+- Helm chart hỗ có nhiều open source application hỗ trợ cả Endpoint Metric và template để tạo Service Monitor + Prometheus Rule.
+- Ta sẽ cài thử Redis bằng Helm.
 
 ```
 mkdir -p /home/sysadmin/open-sources
@@ -170,7 +169,7 @@ cp redis-cluster/values.yaml values-redis.yaml
 vim values-redis.yaml
 ```
 
-Chỉnh sửa file `value-redis.yaml`
+- Cấu hình file `value-redis.yaml`
 ```
 usePassword: false
 redis: "30101"
@@ -187,19 +186,20 @@ metrics:
       app.kubernetes.io/instance: dongna-service-monitor
 ```
 
-Cài redis helm chart lên namespace `prod`
+- Cài Redis helm chart lên namespace `prod`
 ```
 helm install redis-cluster -f values-redis.yaml -n prod
 ```
 
-Kiểm tra lại cài đặt
+- Kiểm tra lại cài đặt
 ```
 kubectl get pod -n prod -l "app.kubernetes.io/instance=redis-cluster"
 kubectl get servicemonitors.monitoring.coreos.com redis-cluster -n monitor
 ```
-Ta đã có một cụm redis-cluster gồm 6 pods, 3 service ở namespace prod và một object serviceMonitor là `redis-cluster` được tạo ở namespace `monitor` (theo đúng những gì ta cấu hình ở file values-redis.yaml)<br>
-Kiểm ra xem serviceMonitor của redis có gì:
+- Output
 
+- Ta đã có một cụm Redis Cluster tên `redis-cluster` gồm 6 pods, 3 services trong namespace `prod` và 1 Service Monitor object là `redis-cluster` được tạo trong namespace `monitor` (theo đúng cấu hình ở file values-redis.yaml)
+- Kiểm ra xem Service Monitor `redis-cluster` có gì:
 ```
 kubectl describe describe servicemonitors.monitoring.coreos.com redis-cluster -n monitor
 ```
@@ -209,9 +209,10 @@ Output
 ```
 
 Trong đó:<br>
-**Labels: app.kubernetes.io/instance=dongna-service-monitor:** Label để Prometheus lựa chọn đọc thông tin từ serviceMonitor này. Với mỗi serviceMonitor mới ta sẽ đều thêm label này vào để Prometheus tự động đọc.
-**Spec:** Spec của Target cần get Metric. Ở đây nó tự hiểu cần trỏ đến application ở namespace `prod` mà có gán các Label như bên dưới, ở port tên là metrics.
+**Labels: app.kubernetes.io/instance=dongna-service-monitor:** Label để Prometheus lựa chọn load config từ Service Monitor nào. Mỗi Service Monitor mới ta sẽ đều thêm label này vào để Prometheus tự động load Service Monitor config.
+**Spec:** Spec của Target cần monitor. Ở đây nó tự hiểu cần trỏ đến application ở namespace `prod` mà có gán các Label như bên dưới, ở port tên là metrics.
 ```
+
 Spec:
   Endpoints:
     Port:  metrics
@@ -224,23 +225,23 @@ Spec:
       app.kubernetes.io/instance:   redis-cluster
       app.kubernetes.io/name:       redis-cluster
 ```
-Verify lại thông tin service được chỉ định theo spec trên bằng lệnh:
+- Verify lại thông tin application được config theo spec trên bằng lệnh:
 ```
 kubectl get service -l "app.kubernetes.io/component=metrics" -l "app.kubernetes.io/instance=redis-cluster" -l "app.kubernetes.io/name=redis-cluster" -n prod
 ```
 
-Quay lại trang Prometheus UI xem application redis-cluster đã được hiển thị trong phần Targets hay chưa:
+- Truy cập Prometheus UI xem application `redis-cluster` đã được hiển thị trong phần Targets hay chưa:
 
 
-Tiếp theo, ta import dashboard cho redis-cluster lên Grafana
+- Tiếp theo, ta import dashboard cho Redis lên Grafana
 
 
 
-Tương tự như redis, khi cài đặt NGINX-Ingress controller thì ta có thể enable metric và serviceMonitor cho nó (tuỳ chỉnh trong file value.yaml) sau đó cũng tạo dashboard trên Grafana để hiển thị metrics
+- Tương tự như Redis, khi cài đặt NGINX-Ingress Controller thì ta có thể enable endpoint Metrics và Service Monitor (tuỳ chỉnh trong file value.yaml) sau đó cũng tạo dashboard trên Grafana để hiển thị Metrics
 
-**Bonus:**
-Nếu sử dụng Longhorn storage cho K8s, có thể sẽ gặp phải vấn đề cấu hình scrapeConfig xong thì Prometheus sẽ chỉ lấy được Metrics của 1 node (trong 3 node mà ta config).<br>
-Muốn lấy Metrics của Longhorn thì buộc phải sử dụng serviceMonitor để Prometheus get Metrics đầy đủ từ tất cả các longhorn node
+**Bonus:
+- Nếu sử dụng Longhorn storage cho K8s, có thể sẽ gặp phải issue là cấu hình Scrape Config xong thì Prometheus sẽ chỉ lấy được Metrics của 1 node (trong 3 node mà ta config cho longhorn).<br>
+- Muốn lấy Metrics của cả Longhorn cluster thì buộc phải sử dụng Service Monitor để Prometheus pull Metrics đầy đủ từ tất cả các longhorn node**
 
 ```
 apiVersion: monitoring.coreos.com/v1
@@ -265,5 +266,5 @@ spec:
   - port: manager  
 ```
 
-Sau đó tìm dashboard cho Grafana (keyword: longhorn example v1.1.0) để hiển thị thông tin lên dashboard:
+- Sau đó tìm dashboard cho Grafana (keyword: longhorn example v1.1.0) để hiển thị thông tin lên dashboard:
 
