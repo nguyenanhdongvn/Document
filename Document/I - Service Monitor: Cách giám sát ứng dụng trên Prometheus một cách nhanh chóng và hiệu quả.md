@@ -27,10 +27,10 @@
 ```
     additionalScrapeConfigs:
     - job_name: minio-job
-        scrape_interval: 30s
-        scrape_timeout: 5s
-        metrics_path: /minio/v2/metrics/cluster
-        scheme: http
+      scrape_interval: 30s
+      scrape_timeout: 5s
+      metrics_path: /minio/v2/metrics/cluster
+      scheme: http
       static_configs:
       - targets: ['minio.monitor.svc.cluster.local:9000']
 ```
@@ -46,7 +46,7 @@ Trong đó: <br>
 
 Update `kube-prometheus-stack` helm chart để Prometheus apply config mới
 ```
-helm upgrade prometheus-stack -f value-prometheus.yaml kube-prometheus-stack -n monitor
+helm upgrade prometheus-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
 ```
 
 - Bài toán đặt ra là khi cần lấy Metric của 100 application, thì tương ứng mỗi application ta phải thêm 1 Job trong Scrape Config. Chưa kể, sau khi thêm Job bạn sẽ phải update Prometheus helm chart để Prometheus apply config mới.
