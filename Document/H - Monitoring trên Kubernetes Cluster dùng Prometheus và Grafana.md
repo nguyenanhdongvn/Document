@@ -258,6 +258,7 @@ Helm upgrade để cập nhật các thay đổi của prometheus release
 ```
 helm upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
 ```
+Sau khi apply Prometheus Rule, ta truy cập Prometheus UI để kiểm tra trong phần Alert xem đã có Alert của Minio chưa
 ![image](https://github.com/user-attachments/assets/10c2ace7-a9e4-4436-b985-b6946f3065f9)
 
 Trong bucket đang có 3 objects (Value đang là 3) do đó Prometheus đã raise Alert. Tiếp tục vào Alert Manager kiểm tra cảnh báo, filter bằng job="minio-job" để lọc đúng cảnh báo cần tìm
