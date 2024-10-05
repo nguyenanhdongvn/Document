@@ -86,7 +86,7 @@ helm upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-
 
 - Update helm chart để Prometheus apply config mới
 ```
-kubectl upgrade prometheus-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
+kubectl upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
 ```
 
 - Như vậy, các Service Monitor ở các namespace có Label là `app.kubernetes.io/instance` và có 1 trong 3 value này(dongna-service-monitor/nginx-ingress-controller/prometheus-stack) thì sẽ được apply vào Prometheus config.
