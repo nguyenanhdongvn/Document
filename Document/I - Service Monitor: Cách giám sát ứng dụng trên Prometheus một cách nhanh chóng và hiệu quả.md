@@ -46,7 +46,7 @@ Trong đó: <br>
 
 Update `kube-prometheus-stack` helm chart để Prometheus apply config mới
 ```
-helm upgrade prometheus-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
+helm upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
 ```
 
 - Bài toán đặt ra là khi cần lấy Metric của 100 application, thì tương ứng mỗi application ta phải thêm 1 Job trong Scrape Config. Chưa kể, sau khi thêm Job bạn sẽ phải update Prometheus helm chart để Prometheus apply config mới.
