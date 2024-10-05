@@ -105,10 +105,10 @@ metadata:
     app.kubernetes.io/instance: dongna-service-monitor
 spec:
   endpoints:
-  - port: 9000
+  - targetPort: 9000
     interval: 15s
     scheme: http
-    metrics_path: /minio/v2/metrics/cluster
+    path: /minio/v2/metrics/cluster
   namespaceSelector:
     matchNames:
     - monitor
