@@ -9,17 +9,17 @@ Monitoring workflow
 - Prometheus pull metric từ Targets rồi lưu vào Time-Series Database của Prometheus. 
 - Prometheus đọc các rule (là các regex so sánh Metric với các threshold) để quyết định những rule nào cần Alert để đẩy về Alert Manager.
   Có 2 cách để cấu hình rule cho Prometheus trong bộ kube-prometheus-stack này, đều bằng cách tùy biến file helm-value của stack này:
-- - Cấu hình trực tiếp vào tham số additionalPrometheusRules:
-```
-additionalPrometheusRules:
-- name: my-rule-file
-groups:
-  - name: my_group
-    rules:
-    - record: my_record
-      expr: 100 * my_record
-```
-- - Sử dụng đối tượng PrometheusRule để khai báo rule cho service. Để làm được việc này thì ta cần cấu hình tham số ruleNamespaceSelector và ruleSelector để chỉ định cách Prometheus đọc các Prometheus Rule của K8S.
+  - Cấu hình trực tiếp vào tham số additionalPrometheusRules:
+  ```
+  additionalPrometheusRules:
+  - name: my-rule-file
+  groups:
+    - name: my_group
+      rules:
+      - record: my_record
+        expr: 100 * my_record
+  ```
+  - Sử dụng đối tượng PrometheusRule để khai báo rule cho service. Để làm được việc này thì ta cần cấu hình tham số ruleNamespaceSelector và ruleSelector để chỉ định cách Prometheus đọc các Prometheus Rule của K8S.
 - Alert Manager sẽ có config riêng thực hiện việc route alert tới các receiver khác nhau. Receiver hỗ trợ khá đa dạng từ Email, Slack, MS Teams, Telegram...
 
 # Cấu hình rule trong file value.yaml của helm chart
