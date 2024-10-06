@@ -111,7 +111,7 @@ spec:
     path: /minio/v2/metrics/cluster
   namespaceSelector:
     matchNames:
-    - monitor
+    - dongna-prod
   selector:
     matchLabels:
       app.kubernetes.io/instance: minio
@@ -126,23 +126,22 @@ spec:
 kubectl apply -f serviceMonitor-minio.yaml
 ```
 
+- Kiểm tra service vừa tạo
+```
+kubectl get servicemonitors.monitoring.coreos.com -l "app.kubernetes.io/instance=dongna-service-monitor" -n monitor
+```
+
 - Output
 ```
-NAME                                 AGE
-fluentd                              6d17h
-longhorn-prometheus-servicemonitor   21d
-minio-monitor                        21d
-redis-cluster                        18d
+NAME            AGE
+minio-monitor   4m14s
 ```
 
-- Object Service Monitor tên `minio-monitor` đã được tạo trong `monitor`, và gán Label "app.kubernetes.io/instance: dongna-service-monitor" match với serviceMonitorSelector trong Prometheus config nên Prometheus sẽ load config của Service Monitor này.
+- Service Monitor object tên `minio-monitor` đã được tạo trong namespace `monitor`, và gán Label `app.kubernetes.io/instance: dongna-service-monitor` match với serviceMonitorSelector trong Prometheus config nên Prometheus sẽ load config của Service Monitor này.
 
-Trong Service Monitor object này sẽ có session `spec` chính là thông tin về Target cần monitor, gồm endpoints (port/metric_path), namespaceSelector và selector
-
-Chi tiết hơn, ta có thể get application Minio ở namespace `monitor` với label là `app.kubernetes.io/instance=minio`
-
+- Chi tiết hơn, ta có thể get application Minio ở namespace `dongna-prod` với label là `app.kubernetes.io/instance=minio`
 ```
-kubectl get service -n monitor -l "app.kubernetes.io/instance=minio"
+kubectl get service -l "app.kubernetes.io/instance=minio" -n dongna-prod
 ```
 
 **NOTE:** Target có 2 loại: Target hỗ trợ endpoint để pull Metric hoặc Target cần dùng Exporter để push Metrics.
@@ -267,4 +266,10 @@ spec:
 ```
 
 - Sau đó tìm dashboard cho Grafana (keyword: longhorn example v1.1.0) để hiển thị thông tin lên dashboard:
+
+
+
+
+
+![image](https://github.com/user-attachments/assets/fdc1ce62-cbe2-468a-8855-4848492c7712)
 
