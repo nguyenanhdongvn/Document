@@ -23,15 +23,14 @@ Monitoring workflow
 - Alert Manager sẽ có config riêng thực hiện việc route alert tới các receiver khác nhau. Receiver hỗ trợ khá đa dạng từ Email, Slack, MS Teams, Telegram...
 
 # Cấu hình rule trong file value.yaml của helm chart
-Cấu hình các rule và dưới session `additionalPrometheusRules`
-**Not recommend:**
+**Not recommend:** Cấu hình các rule và dưới session `additionalPrometheusRules`
 - Khi số lượng rule lớn, file value.yaml của helm chart sẽ trở nên dài và rối, khó quản lý
 - Mỗi khi tạo thêm rule thì phải chỉnh sửa bằng tay file value.yaml của helm chart và update lại helm chart bằng lệnh helm upgrade
 - Khó troubleshoot khi cấu hình bị sai syntax sẽ không update dc vào Prometheus sẽ mất thời gian debug
 
 
 # Cấu hình rule bằng Prometheus Rule
-Cách cấu hình Prometheus Rule cũng tương tự như cách cấu hình serviceMonitor:
+**Recommend:** Cách cấu hình Prometheus Rule cũng tương tự như cách cấu hình serviceMonitor:
 
 - Cấu hình Prometheus đọc các Prometheus Rule ở các namespace nhất định và match với các label nhất định
 - Với mỗi application cần khai báo rule, ta sẽ tạo một file Prometheus Rule .yaml, trong đó có 2 phần quan trọng:
