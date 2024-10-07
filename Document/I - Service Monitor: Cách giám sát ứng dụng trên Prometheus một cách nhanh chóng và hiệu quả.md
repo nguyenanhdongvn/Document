@@ -144,10 +144,8 @@ minio-monitor   4m14s
 kubectl get service -l "app.kubernetes.io/instance=minio" -n dongna-prod
 ```
 
-**NOTE:** Target có 2 loại: Target hỗ trợ endpoint để pull Metric hoặc Target cần dùng Exporter để push Metrics.
-
+**NOTE: Target có 2 loại: Target hỗ trợ endpoint để pull Metric hoặc Target cần dùng Exporter để push Metrics.**
 - Trong trường hợp này Minio hỗ trợ endpoint để pull Metric nên Prometheus sẽ pull Metrics bằng cách trỏ tới endpoint mà Minio cung cấp.
-
 - Trường hợp application không hỗ trợ endpoint để pull Metric mà phải dùng Exporter để push Metrics thì ta sẽ cần cấu hình phần endpoints và selector trỏ tới Exporter.
 
 ## Cài đặt application hỗ trợ sẵn cả Endpoint Metric và Service Monitor (Redis)
