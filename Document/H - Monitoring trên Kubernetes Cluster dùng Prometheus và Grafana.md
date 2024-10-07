@@ -11,8 +11,8 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add stable https://charts.helm.sh/stable
 helm repo update
 helm search repo prometheus |egrep "stack|CHART"
-helm pull prometheus-community/kube-prometheus-stack --version 63.1.0
-tar -xzf kube-prometheus-stack-63.1.0.tgz
+helm pull prometheus-community/kube-prometheus-stack --version 65.0.0
+tar -xzf kube-prometheus-stack-65.0.0.tgz
 cp kube-prometheus-stack/values.yaml values-prometheus.yaml
 ```
 
