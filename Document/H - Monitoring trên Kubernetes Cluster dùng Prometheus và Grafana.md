@@ -20,22 +20,19 @@ cp kube-prometheus-stack/values.yaml values-prometheus.yaml
   - Cấu hình tạo ingress rule cho Alert Manager để point vào URL http://alertmanager.dongna.com/  
   ```
   alertmanager:
-  ingress:
-    enabled: true
-    ingressClassName: nginx
-    hosts:
-      - alertmanager.dongna.com
-    paths:
-      - /
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - alertmanager.dongna.com
+      paths:
+        - /
   ```
-  - Cấu hình password login vào Grafana UI là `P@ssw0rdP@ssw0rd`
-  ```
-  grafana
-    adminPassword: P@ssw0rdP@ssw0rd
-  ```
+
   - Cấu hình tạo ingress rule cho Grafana để point vào URL http://grafana.dongna.com/
   ```
   grafana:
+    adminPassword: P@ssw0rdP@ssw0rd
     ingress:
       enabled: true
       ingressClassName: nginx
