@@ -185,31 +185,66 @@ metrics:
 
 - Cài Redis helm chart lên namespace `prod`
 ```
-helm install redis-cluster -f values-redis.yaml -n prod
+helm install redis-cluster -f values-redis.yaml -n dongna-prod
 ```
 
 - Kiểm tra lại cài đặt
 ```
-kubectl get pod -n prod -l "app.kubernetes.io/instance=redis-cluster"
+kubectl get pod -n dongna-prod -l "app.kubernetes.io/instance=redis-cluster"
 kubectl get servicemonitors.monitoring.coreos.com redis-cluster -n monitor
 ```
 - Output
-
+```
+NAME              READY   STATUS    RESTARTS   AGE
+redis-cluster-0   2/2     Running   0          23h
+redis-cluster-1   2/2     Running   0          23h
+redis-cluster-2   2/2     Running   0          23h
+redis-cluster-3   2/2     Running   0          23h
+redis-cluster-4   2/2     Running   0          23h
+redis-cluster-5   2/2     Running   0          23h
+NAME            AGE
+redis-cluster   28s
+```
 - Ta đã có một cụm Redis Cluster tên `redis-cluster` gồm 6 pods, 3 services trong namespace `prod` và 1 Service Monitor object là `redis-cluster` được tạo trong namespace `monitor` (theo đúng cấu hình ở file values-redis.yaml)
 - Kiểm ra xem Service Monitor `redis-cluster` có gì:
 ```
-kubectl describe describe servicemonitors.monitoring.coreos.com redis-cluster -n monitor
+kubectl describe servicemonitors.monitoring.coreos.com redis-cluster -n monitor
 ```
 Output
 ```
-
+Name:         redis-cluster
+Namespace:    monitor
+Labels:       app.kubernetes.io/instance=dongna-service-monitor
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=redis-cluster
+              app.kubernetes.io/version=7.4.1
+              helm.sh/chart=redis-cluster-11.0.6
+Annotations:  meta.helm.sh/release-name: redis-cluster
+              meta.helm.sh/release-namespace: dongna-prod
+API Version:  monitoring.coreos.com/v1
+Kind:         ServiceMonitor
+Metadata:
+  Creation Timestamp:  2024-10-07T03:26:13Z
+  Generation:          1
+  Resource Version:    3940356
+  UID:                 260d2f1e-bf7d-4cad-ac44-275bf752dde8
+Spec:
+  Endpoints:
+    Port:  metrics
+  Namespace Selector:
+    Match Names:
+      dongna-prod
+  Selector:
+    Match Labels:
+      app.kubernetes.io/component:  metrics
+      app.kubernetes.io/instance:   redis-cluster
+      app.kubernetes.io/name:       redis-cluster
+Events:                             <none>
 ```
-
 Trong đó:<br>
-**Labels: app.kubernetes.io/instance=dongna-service-monitor:** Label để Prometheus lựa chọn load config từ Service Monitor nào. Mỗi Service Monitor mới ta sẽ đều thêm label này vào để Prometheus tự động load Service Monitor config.
-**Spec:** Spec của Target cần monitor. Ở đây nó tự hiểu cần trỏ đến application ở namespace `prod` mà có gán các Label như bên dưới, ở port tên là metrics.
+- **Labels: app.kubernetes.io/instance=dongna-service-monitor:** Label để Prometheus lựa chọn load config từ Service Monitor nào. Mỗi Service Monitor mới ta sẽ đều thêm label này vào để Prometheus tự động load Service Monitor config.
+- **Spec:** Spec của Target cần monitor. Ở đây nó tự hiểu cần trỏ đến application ở namespace `prod` mà có gán các Label như bên dưới, ở port tên là metrics.
 ```
-
 Spec:
   Endpoints:
     Port:  metrics
@@ -224,14 +259,15 @@ Spec:
 ```
 - Verify lại thông tin application được config theo spec trên bằng lệnh:
 ```
-kubectl get service -l "app.kubernetes.io/component=metrics" -l "app.kubernetes.io/instance=redis-cluster" -l "app.kubernetes.io/name=redis-cluster" -n prod
+kubectl get service -l "app.kubernetes.io/component=metrics" -l "app.kubernetes.io/instance=redis-cluster" -l "app.kubernetes.io/name=redis-cluster" -n dongna-prod
 ```
 
 - Truy cập Prometheus UI xem application `redis-cluster` đã được hiển thị trong phần Targets hay chưa:
+![image](https://github.com/user-attachments/assets/e2b4a3af-9161-4c28-897f-fd9dcf5fd9a4)
 
 
-- Tiếp theo, ta import dashboard cho Redis lên Grafana
-
+- Tiếp theo, ta import dashboard cho Redis lên Grafana (dashboard ID: 11835)
+![image](https://github.com/user-attachments/assets/0d674721-2bc4-4e26-ad6d-061226610ca5)
 
 
 - Tương tự như Redis, khi cài đặt NGINX-Ingress Controller thì ta có thể enable endpoint Metrics và Service Monitor (tuỳ chỉnh trong file value.yaml) sau đó cũng tạo dashboard trên Grafana để hiển thị Metrics
@@ -264,9 +300,6 @@ spec:
 ```
 
 - Sau đó tìm dashboard cho Grafana (keyword: longhorn example v1.1.0) để hiển thị thông tin lên dashboard:
-
-
-
 
 
 ![image](https://github.com/user-attachments/assets/fdc1ce62-cbe2-468a-8855-4848492c7712)
