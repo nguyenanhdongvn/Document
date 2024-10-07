@@ -272,9 +272,9 @@ kubectl get service -l "app.kubernetes.io/component=metrics" -l "app.kubernetes.
 
 - Tương tự như Redis, khi cài đặt NGINX-Ingress Controller thì ta có thể enable endpoint Metrics và Service Monitor (tuỳ chỉnh trong file value.yaml) sau đó cũng tạo dashboard trên Grafana để hiển thị Metrics
 
-**Bonus:
-- Nếu sử dụng Longhorn storage cho K8s, có thể sẽ gặp phải issue là cấu hình Scrape Config xong thì Prometheus sẽ chỉ lấy được Metrics của 1 node (trong 3 node mà ta config cho longhorn).<br>
-- Muốn lấy Metrics của cả Longhorn cluster thì buộc phải sử dụng Service Monitor để Prometheus pull Metrics đầy đủ từ tất cả các longhorn node**
+**Bonus:**
+**- Nếu sử dụng Longhorn storage cho K8s, có thể sẽ gặp phải issue là cấu hình Scrape Config xong thì Prometheus sẽ chỉ lấy được Metrics của 1 node (trong 3 node mà ta config cho longhorn).<br>**
+**- Muốn lấy Metrics của cả Longhorn cluster thì buộc phải sử dụng Service Monitor để Prometheus pull Metrics đầy đủ từ tất cả các longhorn node**
 
 ```
 apiVersion: monitoring.coreos.com/v1
