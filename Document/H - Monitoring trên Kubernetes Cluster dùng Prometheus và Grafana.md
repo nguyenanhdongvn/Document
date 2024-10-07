@@ -189,7 +189,7 @@ C:\Windows\System32\drivers\etc
 
 Đăng nhập bằng user "admin" và password như đã cấu hình trong file value-minio.yaml. Tạo ra 3 bucket để check Dashboard trên Grafana có hiển thị chính xác không:
 
-Trở lại với file value-minio.yaml, ta sẽ thấy có tham số paths: - /minio/v2/metrics/cluster, đây là endpoint để Minio expose metric của nó cho Prometheus pull về
+Trở lại với file value-minio.yaml, ta sẽ thấy có tham số `paths: - /minio/v2/metrics/cluster`, đây là endpoint để Minio expose metric của nó cho Prometheus pull về
 ```
 metrics:
   serviceMonitor:
