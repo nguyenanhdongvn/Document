@@ -55,18 +55,18 @@ Giờ ta chỉnh sửa parameter trong file value.yaml của helm chart `kube-pr
 ruleNamespaceSelector: {}
 
 ruleSelector:
-      matchExpressions:
-      - key: app
-        operator: In
-        values:
-          - dongna-prometheus-rule
-          - kube-prometheus-stack  
+  matchExpressions:
+  - key: app
+    operator: In
+    values:
+    - dongna-prometheus-rule
+    - kube-prometheus-stack  
 ```
 
 Update lại helm chart
 
 ```
-helm upgrade prometheus-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
+helm upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
 ```
 
 Sau khi apply, Prometheus sẽ đọc tất cả các object Prometheus Rule ở tất cả các namespace có label là "app=kube-prometheus-stack hoặc "app=dongna-prometheus-rule"
