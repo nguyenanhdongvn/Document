@@ -95,6 +95,7 @@ kubectl upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-promethe
 
 - Config mẫu của Service Monitor để giám sát application Minio khá giống với cấu hình Scrape Config, ta tạo file serviceMonitor-minio.yaml với nội dung như sau:
 ```
+cat << EOF > /home/sysadmin/kubernetes_installation/prometheus/serviceMonitor-minio.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -115,6 +116,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/instance: minio
+EOF
 ```
 - Trong đó:
     - **namespace:** namespace mà Prometheus đang chạy
