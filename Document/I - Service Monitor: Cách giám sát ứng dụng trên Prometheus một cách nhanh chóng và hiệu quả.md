@@ -162,8 +162,8 @@ cd redis
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm search repo redis
-helm pull bitnami/redis-cluster --version 7.5.1
-tar -xzf redis-cluster-7.5.1.tgz
+helm pull bitnami/redis-cluster --version 11.0.6
+tar -xzf redis-cluster-11.0.6.tgz
 cp redis-cluster/values.yaml values-redis.yaml
 vim values-redis.yaml
 ```
