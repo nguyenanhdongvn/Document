@@ -180,7 +180,7 @@ alertmanager:
         smarthost: smtp.gmail.com:587
         auth_username: 'notificationlab.sender@gmail.com'
         auth_identity: 'notificationlab.sender@gmail.com'
-        auth_password: 'P@ssw0rdP@ssw0rd'
+        auth_password: 'jvsx helb hnsz iimv'
     templates:
     - '/etc/alertmanager/config/*.tmpl'
 ```
