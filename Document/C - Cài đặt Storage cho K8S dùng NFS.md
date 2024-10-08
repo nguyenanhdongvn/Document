@@ -244,6 +244,7 @@ EOF
 
 Thay đổi các tham số trong file `values-nfs-retain.yaml` như sau:
 ```
+cat << EOF > /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
 # Default values for nfs-client-provisioner.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -324,6 +325,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+EOF
 ```
 
 Tạo một namespace riêng cho phần storage để dễ quản lý rồi cài 2 Storage Class bằng helm
