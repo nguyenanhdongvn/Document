@@ -240,7 +240,7 @@ defaultRules
     - name: minio-rule
       rules:
       - alert: MinioBucketUsage
-        expr: minio_cluster_usage_object_total{instance="minio.dongna-prod.svc.cluster.local:9000", job="minio-job", server="127.0.0.1:9000"} > 1
+        expr: minio_cluster_usage_object_total > 1
         for: 10s
         labels:
           severity: page
