@@ -1,8 +1,8 @@
 # Giới thiệu
-Như đã nói trong các phần trước, Ta sẽ cài NFS-Server lên server `rancher` (vì server `rancher` load khá thấp và đỡ phải tạo một server riêng cho NFS). Ta cũng đã tạo sẵn phân vùng /data2 để dành cho NFS-Server.<br>
-Reclaim policy có 2 loại là delete và retain, hiểu đơn giản đó là cấu hình chính sách xử lý các phân vùng lưu trữ khi sau khi xóa PVC.
-- `delete`: Khi xóa PVC trên K8s thì hệ thống cũng tự động xóa PV tương ứng và đồng thời hỗ trợ xóa luôn phân vùng lưu trên thiết bị lưu trữ mà gán với PV đó
-- `retain`: Khi xóa PVC trên K8s thì phân vùng lữu trữ trên thiết bị lưu trữ sẽ không tự động bị xóa đi.
+- Ta cài NFS-Server lên server `rancher` (vì server `rancher` load khá thấp và đỡ phải tạo một server riêng cho NFS). Ta cũng đã tạo sẵn phân vùng `/data2` để dành cho NFS-Server.<br>
+- Reclaim policy có 2 loại là delete và retain, hiểu đơn giản đó là cấu hình chính sách xử lý các phân vùng lưu trữ khi sau khi xóa PVC.
+ - `delete`: Khi xóa PVC trên K8s thì hệ thống cũng tự động xóa PV tương ứng và đồng thời hỗ trợ xóa luôn phân vùng lưu trên thiết bị lưu trữ mà gán với PV đó
+ - `retain`: Khi xóa PVC trên K8s thì phân vùng lữu trữ trên thiết bị lưu trữ sẽ không tự động bị xóa đi.
 
 # Các bước cài đặt trong bài lab này có tóm tắt lại như sau:
 - Cài đặt NFS Server (trên server `rancher`)
@@ -12,10 +12,10 @@ Reclaim policy có 2 loại là delete và retain, hiểu đơn giản đó là 
 - Tạo PVC để test
 
 # Cài đặt NFS storage cho K8S
-Trong môi trường Production thì một số loại storage đã hỗ trợ sẵn NFS Server, nghĩa là có thể output ra cho bạn một phân vùng share để sử dụng. Việc quản lý lỗi, quản lý tính sẵn sàng sẽ được thực hiện trên thiết bị Storage này. Nhưng nếu bạn cài đặt NFS Server để share cho K8s sử dụng thì lúc đó nó sẽ là một NFS Server chạy standalone và được coi là single point of failure vì khi NFS Server này down thì gây ảnh hưởng dịch vụ. Trong phạm vi bài lab này do không có thiết bị Storage chuyên dụng do đó ta sẽ cài một NFS Server để sử dụng.
+- Trong môi trường Production thì một số loại storage đã hỗ trợ sẵn NFS Server, nghĩa là có thể output ra cho bạn một phân vùng share để sử dụng. Việc quản lý lỗi, quản lý tính sẵn sàng sẽ được thực hiện trên thiết bị Storage này. Nhưng nếu bạn cài đặt NFS Server để share cho K8s sử dụng thì lúc đó nó sẽ là một NFS Server chạy standalone và được coi là single point of failure vì khi NFS Server này down thì gây ảnh hưởng dịch vụ. Trong phạm vi bài lab này do không có thiết bị Storage chuyên dụng do đó ta sẽ cài một NFS Server để sử dụng.
 
 # Cài đặt NFS-Server trên server `rancher`
-Việc cài đặt này khá đơn giản, mình sẽ cài trên OS là Centos. Đầu tiên cần tạo thư mục để share và cài NFS Server:
+- Tạo share folder và cài NFS Server:
 ```
 sudo su -
 
@@ -36,7 +36,7 @@ systemctl start rpcbind
 systemctl start nfs-server
 ```
 
-Cấu hình file /etc/exports để share quyền cho các node theo format sau mục đích là để cho phép các server trong dải ip 192.168.10.0/24 có quyền Read/Write vào 2 thư mục /data2/delete và /data2/retain:
+- Cấu hình file `/etc/exports` để share quyền cho các node theo format dưới, mục đích là để cho phép các server trong dải ip `192.168.10.0/24` có quyền `Read/Write` vào 2 thư mục `/data2/delete` và `/data2/retain`:
 ```
 cat <<EOF >> /etc/exports
 /data2/retain    192.168.10.0/24(rw,sync,no_root_squash,no_all_squash)
