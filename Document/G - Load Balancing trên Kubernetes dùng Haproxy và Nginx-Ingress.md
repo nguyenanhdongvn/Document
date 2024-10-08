@@ -454,7 +454,7 @@ frontend frontend_ssl_443
         default_backend backend_ingress
         #default_backend backend_rancher
 
-        acl rancher hdr_dom(host) -i rancher.monitor.dongna.com
+        acl rancher hdr_dom(host) -i rancher.dongna.com
         use_backend backend_rancher if rancher
 
 backend backend_ingress
@@ -495,7 +495,7 @@ frontend frontend_ssl_443
         cookie  SRVNAME insert indirect nocache
         default_backend backend_ingress
 
-        acl rancher hdr_dom(host) -i rancher.monitor.dongna.com
+        acl rancher hdr_dom(host) -i rancher.dongna.com
         use_backend backend_rancher if rancher
 ...
 ```
@@ -538,7 +538,7 @@ Khai báo host trên client (local host)
 Trong bài viết trước mình đã mô tả bước này, cần khai host cho ứng dụng ở client như sau:
 ```
 192.168.10.10 apple.demo.dongna.com
-192.168.10.10 rancher.monitor.dongna.com
+192.168.10.10 rancher.dongna.com
 ```
 
 
@@ -565,7 +565,7 @@ Ta cũng đã tạo SSL certificate cho các application bên trong K8s tại [�
 User sẽ cần cấu hình file host trên máy user<br>
 C:\Windows\System32\drivers\etc\hosts (window)
 ```
-192.168.10.10 rancher.monitor.dongna.com
+192.168.10.10 rancher.dongna.com
 192.168.10.10 apple.prod.dongna.com
 ```
 
