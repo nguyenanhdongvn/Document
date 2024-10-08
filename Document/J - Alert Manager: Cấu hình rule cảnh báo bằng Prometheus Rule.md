@@ -116,16 +116,87 @@ dongna-minio-prometheus-rule                                      24h
 
 
 Kiểm tra trên Prometheus UI xem rule đã được load vào Prometheus chưa
+![image](https://github.com/user-attachments/assets/bdde58d8-a529-435f-b273-a4ffb0494094)
 
 Như vậy, Prometheus đã load rule thành công. Ta kiểm tra giá trị của metric `minio_cluster_nodes_offline_total` đang là bao nhiêu:
+![image](https://github.com/user-attachments/assets/90b90182-253d-4cfa-bc6c-cf967757035f)
 
 Giá trị `minio_cluster_nodes_offline_total=0` do đó về lý thuyết thì sau 1 phút sẽ có cảnh báo.
 
 Ta tiếp tục kiểm tra Alert Manager xem có xuất hiện cảnh báo hay chưa:
+![image](https://github.com/user-attachments/assets/178a9eda-f6ea-4bdc-bfba-d396d5609938)
 
-Như vậy là đã có cảnh báo. Việc cấu hình đang rất suôn sẻ.
-
-**Câu chuyện lại tiếp tục như sau. Khi bạn cấu hình rule và khi service cần giám sát có vấn đề và có cảnh báo thì bạn không thể nhìn vào màn hình của alert manager 24/7 được. Do đó bài toán đặt ra là cần phải gửi thông báo qua một kênh nào đó nhưng MS Teams, Telegram , Email mỗi khi có cảnh báo để người trực hệ thống nắm được vào vào xử lý một cách chủ động. Đó là lúc bạn tiếp tục phải cấu hình cho Alert Manager**
+**Khi ta cấu hình Alert Rule và khi application cần monitor có Alert thì ta không thể theo dõi dashboard của alert manager 24/7 được. Ta cần phải gửi Notification qua một kênh thông báo như: MS Teams, Telegram , Email để mỗi khi có Alert thì ta sẽ được báo về các kênh thông báo đó.**
 
 # Cấu hình Alert Manager gửi Notification qua Email
 ## Cấu hình Gmail
+Điều kiện là ta cầm có một account gmail dùng làm Notification Sender. Sau đó ta cần cấu hình App Password để sử dụng cho Alert Manager kết nối tới máy chủ Gmail để gửi email. Ngoài ra cũng cần đảm bảo Alert Manager của bạn phải có kết nối internet để thông kết nối với gmail.
+
+Để thực hiện cấu hình App Password các bạn làm theo các bước như sau: Đăng nhập vào gmail Notification Sender, chọn Settings -> Security -> Signing in to Google -> App password (trong trường hợp ko thấy mục App Password thì có thể do bạn chưa cấu hình 2-Step Verification. Bạn hãy cấu hình 2-Step Verification trước rồi quay lại thực hiện lại bước này).
+
+
+Sau khi thực hiện xong thì Copy password mới được tạo ra về để lát nữa sẽ dùng trong cấu hình của AlertManager.
+
+## Cấu hình Alert Manager
+Alert Manager có các parameter quan trọng như: Route và Receiver.
+
+Cấu hình Route có nhiệm vụ phân loại các Alert theo các Lable để route tới các Receiver khác nhau.
+
+Usecase cho cấu hình Route:
+
+  - Routing theo namespace để Route Alert đến người quản lý namespace tương ứng đó:
+    - Alert từ namespace "dev" thì gửi mail tới Receiver là "dev-team", Receiver này là gửi email tới alias mail của dev team
+    - Alert từ namespace "prod" thì gửi mail tới Receiver là "ope-team", Receiver này là gửi email tới alias mail của operation team
+  - Routing theo loại service để Route Alert đến người quản lý application tương ứng đó:
+    - Alert liên quan tới Database thì gửi mail tới Receiver là "dba-team", Receiver này là alias mail của dba team
+    - Alert liên quan tới opensource khác (ngoài DB) thì gửi mail tới Receiver là "devops-team", Receiver này là alias mail của devops team
+    - Alert liên quan tới inhouse application thì gửi mail tới Receiver là "dev-team",  Receiver này là alias mail của dev team
+
+Trong cấu hình Receiver thì tùy từng loại (email, webhook..) mà có các tham số cấu hình khác nhau nhưng nói chung nó chứa thông tin để gửi cảnh báo tới nơi nhận đó.
+
+Để cấu hình cho Alert Manager gửi Notification qua email thì ta cần update lại file value.yaml của Prometheus helm chart:
+```
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['namespace','job']
+      group_wait: 5s
+      group_interval: 5s
+      repeat_interval: 5m
+      receiver: 'gmail'
+      routes:
+      - receiver: 'gmail'
+        group_wait: 10s
+        matchers:
+        -  namespace="monitor"
+    receivers:
+    - name: 'gmail'
+      email_configs:
+      - to: notificationlab.receiver@gmail.com
+        from: notificationlab.sender@gmail.com
+        smarthost: smtp.gmail.com:587
+        auth_username: 'notificationlab.sender@gmail.com'
+        auth_identity: 'notificationlab.sender@gmail.com'
+        auth_password: 'P@ssw0rdP@ssw0rd'
+    templates:
+    - '/etc/alertmanager/config/*.tmpl'
+```
+
+Update Prometheus helm chart để apply config mới
+```
+helm upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack -n monitor
+```
+
+Giải thích cấu hình bên trên:
+
+- By default, Alert sẽ được gán vào Receiver là gmail, nếu nó match bất cứ Route nào tiếp theo thì nó sẽ được đổi sang cấu hình Receiver của Route đó
+- Ta có cấu hình một Route là với các cảnh báo đến từ namespace="monitor" sẽ được route tới receiver gmail 
+- Trong cấu hình Receiver thì ta cấu hình thông tin email gồm:
+- to: Địa chỉ email nhận Alert
+- from: địa chỉ email gửi Alert
+- smarthost: địa chỉ server mail
+- auth_username, auth_identity dùng luôn địa chỉ gmail
+- auth_password: Chính là thông tin app password đã tạo ở bước cấu hình gmail bên trên
