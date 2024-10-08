@@ -158,6 +158,7 @@ cp /home/sysadmin/kubernetes_installation/nfs-storage/nfs-client-provisioner/val
 
 Thay đổi các tham số trong file `values-nfs-delete.yaml` như sau:
 ```
+cat << EOF > /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
 # Default values for nfs-client-provisioner.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -238,6 +239,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+EOF
 ```
 
 Thay đổi các tham số trong file `values-nfs-retain.yaml` như sau:
