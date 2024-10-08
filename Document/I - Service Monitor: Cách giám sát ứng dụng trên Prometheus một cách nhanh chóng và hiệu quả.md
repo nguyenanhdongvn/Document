@@ -171,10 +171,13 @@ vim values-redis.yaml
 - Cấu hình file `value-redis.yaml`
 ```
 usePassword: false
-redis: "30101"
-type: NodePort
-storageClass: "longhorn-storage-delete"
-size: 1Gi
+service:
+  ports:
+    redis: "30101"
+  type: NodePort
+persistence:
+  storageClass: "longhorn-storage-delete"
+  size: 1Gi
 
 metrics:
   enabled: true
@@ -187,7 +190,7 @@ metrics:
 
 - Cài Redis helm chart lên namespace `prod`
 ```
-helm install redis-cluster -f values-redis.yaml -n dongna-prod
+helm install redis-cluster -f values-redis.yaml redis-cluster -n dongna-prod
 ```
 
 - Kiểm tra lại cài đặt
