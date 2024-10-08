@@ -5,7 +5,7 @@ Mục tiêu:<br>
 - Hiểu cách cấu hình AlertManager để gửi cảnh báo
 - Cách trouble-shoot các vấn đề phát sinh trong khi cấu hình
 - Trước hết các bạn hãy cùng review lại về workflow lấy metric và gửi cảnh báo của Prometheus và AlertManager như sau:
-Monitoring workflow
+Monitoring workflows
 - Prometheus pull metric từ Targets rồi lưu vào Time-Series Database của Prometheus. 
 - Prometheus đọc các rule (là các regex so sánh Metric với các threshold) để quyết định những rule nào cần Alert để đẩy về Alert Manager.
   Có 2 cách để cấu hình rule cho Prometheus trong bộ kube-prometheus-stack này, đều bằng cách tùy biến file helm-value của stack này:
