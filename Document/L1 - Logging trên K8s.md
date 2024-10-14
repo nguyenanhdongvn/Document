@@ -51,5 +51,5 @@
 ### Kibana:
 - Chịu trách nhiệm query data từ ElasticSearch và hiển thị theo các template một cách trực quan cho người dùng theo dạng list hoặc graph
 
-**NOTE: Trong trường hợp chỉ muốn lưu trữ log mà không cần parsing log, ta có thể bỏ qua Fluentd và lưu trực tiếp log từ Fluentbit đến ElasticSearch**
+**NOTE: Trong trường hợp chỉ muốn lưu trữ log mà không cần parsing log, ta có thể bỏ qua Fluentd và lưu trực tiếp log từ Fluentbit đến ElasticSearch** <br>
 ![image](https://github.com/user-attachments/assets/64583779-3a2d-48f0-ac75-4d54b854bbb0)
