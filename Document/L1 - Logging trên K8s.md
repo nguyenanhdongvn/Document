@@ -27,7 +27,7 @@
 ### Kibana
 - Chịu trách nhiệm query data từ ElasticSearch và hiển thị theo các template một cách trực quan cho người dùng theo dạng list hoặc graph
 
-**NOTE: Trong trường hợp chỉ muốn lưu trữ log mà không cần parsing log, ta có thể bỏ qua Logstash và lưu trực tiếp log từ Beat đến ElasticSearch**
+**NOTE: Trong trường hợp chỉ muốn lưu trữ log mà không cần parsing log, ta có thể bỏ qua Logstash và lưu trực tiếp log từ Beat đến ElasticSearch**<br>
 ![image](https://github.com/user-attachments/assets/73025db2-73f0-4ffd-b733-60f37ac6501d)
 
 # EFK (ElasticSearch - Fluentd - Kibana)
