@@ -40,9 +40,10 @@
 - Các bạn có thể tham khảo thêm các bài viết so sánh giữa Fluentd và Logstash ở đây: https://www.openlogic.com/blog/fluentd-vs-logstash#:~:text=FluentD and Logstash are both,offers many benefits over Logstash.
 
 ## EFK components
-### Fluentbit/Fluentd: Cả Fluentbit và Fluentd đều có thể thu thập log từ Targets trên K8s. Khác biệt lớn nhất là
-- Fluentbit chuyên dùng để thu thập logs. (tương đương Filebeat của ELK)
-- Fluentd chuyện dùng để xử lý và tổng hợp logs. (tương đương Logstash của ELK)
+### Fluentbit/Fluentd: 
+- Cả Fluentbit và Fluentd đều có thể thu thập log từ Targets trên K8s. Khác biệt lớn nhất là
+  - Fluentbit chuyên dùng để thu thập logs. (tương đương Filebeat của ELK)
+  - Fluentd chuyện dùng để xử lý và tổng hợp logs. (tương đương Logstash của ELK)
 
 ### ElasticSearch:
 - Chịu trách nhiệm lưu trữ log (Database lưu log) để phục vụ cho việc query logs sau này
