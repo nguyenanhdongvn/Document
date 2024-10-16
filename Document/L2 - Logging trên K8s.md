@@ -9,9 +9,9 @@ Ta đặt ra bài toán logging cho hệ thống như sau:
 - Thực hiện khai báo các template để query dữ liệu log của từng application trên Kibana
 
 # Idea để deploy ELK
-- Deploy dongna-order application bằng K8s deployment với 5 Replicas (5 Pods)
-- Deploy dongna-billing application bằng K8s deployment với 3 Replicas (3 Pods)
-- Mỗi container của application trên, mỗi giây sẽ gửi log ra output các thông tin về Node, Pod Name, Pod IP, Namespace, ...
+- Deploy `dongna-order` application bằng K8s deployment với 5 Replicas (5 Pods)
+- Deploy `dongna-billing` application bằng K8s deployment với 3 Replicas (3 Pods)
+- Mỗi container của application trên, mỗi giây sẽ gửi log ra Output các thông tin về Node, Pod Name, Pod IP, Namespace, ...
 - Cài đặt opensource service gồm vernemq, kafka/zookeeper
 
 ## FileBeat
