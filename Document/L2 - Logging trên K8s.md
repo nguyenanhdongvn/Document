@@ -65,8 +65,8 @@ Ta đặt ra bài toán logging cho hệ thống như sau:
 mkdir -p /home/sysadmin/open-sources/vernemq && cd /home/sysadmin/open-sources/vernemq
 helm repo add vernemq https://vernemq.github.io/docker-vernemq
 helm search repo vernemq
-helm pull vernemq/vernemq --version 
-tar -xzf vernemq-.tgz
+helm pull vernemq/vernemq --version 2.0.1
+tar -xzf vernemq-2.0.1.tgz
 cp vernemq/values.yaml value-vernemq.yaml
 ```
 - Cấu hình file helm-value (value-vernemq.yaml):
@@ -115,8 +115,9 @@ NOTES:
 ```
 mkdir -p /home/sysadmin/open-sources/bitnami-zookeeper && cd /home/sysadmin/open-sources/bitnami-zookeeper
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm pull bitnami/zookeeper --version
-tar -xzf zookeeper-.tgz
+helm search repo bitnami | grep zookeeper
+helm pull bitnami/zookeeper --version 13.4.14
+tar -xzf zookeeper-13.4.14.tgz 
 cp zookeeper/values.yaml value-zookeeper.yaml
 ```
 - Cấu hình file helm-value (value-zookeeper.yaml):
@@ -164,8 +165,8 @@ To connect to your ZooKeeper server from outside the cluster execute the followi
 ```
 mkdir -p /home/sysadmin/open-sources/bitnami-kafka && cd /home/sysadmin/open-sources/bitnami-kafka
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm pull bitnami/kafka --version 
-tar -xzf kafka-.tgz
+helm pull bitnami/kafka --version 30.1.5
+tar -xzf kafka-30.1.5.tgz
 cp kafka/values.yaml value-kafka.yaml
 ```
 - Cấu hình file helm-value (value-kafka.yaml):
@@ -285,7 +286,9 @@ spec:
         - name: order
           image: busybox
           imagePullPolicy: IfNotPresent
-          args: [/bin/sh, -c, while true; do echo "$(date) mynode=$MY_NODE_NAME podName=$MY_POD_NAME namespace=$MY_POD_NAMESPACE podIp=$MY_POD_IP serviceAccountName=$MY_POD_SERVICE_ACCOUNT";  sleep 1;  done]
+          command: [ "sh", "-c"]
+          args:
+          - while true; do echo "\$(date) mynode=\$MY_NODE_NAME podName=\$MY_POD_NAME namespace=\$MY_POD_NAMESPACE podIp=\$MY_POD_IP serviceAccountName=\$MY_POD_SERVICE_ACCOUNT"; sleep 1; done
           env:
           - name: MY_NODE_NAME
             valueFrom:
@@ -307,11 +310,12 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.serviceAccountName
-  ```
+EOF
+```
 
 - Tạo deployment file cho `dongna-billing` application
 ```
-cat << EOF > /home/sysadmin/myapplication/dongna-billing-deployment.yaml
+cat << EOF > /home/sysadmin/myapplication/dongna-billing-deployment.yaml.test
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -340,7 +344,9 @@ spec:
         - name: billing
           image: busybox
           imagePullPolicy: IfNotPresent
-          args: [/bin/sh, -c, while true; do echo "$(date) mynode=$MY_NODE_NAME podName=$MY_POD_NAME namespace=$MY_POD_NAMESPACE podIp=$MY_POD_IP serviceAccountName=$MY_POD_SERVICE_ACCOUNT";  sleep 1;  done]
+          command: [ "sh", "-c"]
+          args:
+          - while true; do echo "\$(date) mynode=\$MY_NODE_NAME podName=\$MY_POD_NAME namespace=\$MY_POD_NAMESPACE podIp=\$MY_POD_IP serviceAccountName=\$MY_POD_SERVICE_ACCOUNT"; sleep 1; done
           env:
           - name: MY_NODE_NAME
             valueFrom:
@@ -373,11 +379,25 @@ kubectl -n prod apply -f dongna-billing-deployment.yaml
 
 - Kiểm tra lại kết quả
 ```
-kubectl -n prod get pods -owide
+kubectl -n prod get pods -o wide
 ```
 - Output
 ```
-
+NAME                             READY   STATUS    RESTARTS   AGE    IP             NODE      NOMINATED NODE   READINESS GATES
+dongna-billing-5d896fb79-472sx   1/1     Running   0          22s    10.233.68.50   worker3   <none>           <none>
+dongna-billing-5d896fb79-5r44j   1/1     Running   0          22s    10.233.69.33   worker1   <none>           <none>
+dongna-billing-5d896fb79-lmczs   1/1     Running   0          22s    10.233.67.22   worker2   <none>           <none>
+dongna-order-796c7f7bd-4d5xg     1/1     Running   0          22s    10.233.68.49   worker3   <none>           <none>
+dongna-order-796c7f7bd-88frr     1/1     Running   0          22s    10.233.69.31   worker1   <none>           <none>
+dongna-order-796c7f7bd-ppdcc     1/1     Running   0          22s    10.233.68.51   worker3   <none>           <none>
+dongna-order-796c7f7bd-r6dvz     1/1     Running   0          22s    10.233.67.21   worker2   <none>           <none>
+dongna-order-796c7f7bd-sj84x     1/1     Running   0          22s    10.233.69.32   worker1   <none>           <none>
+kafka-broker-0                   1/1     Running   0          25m    10.233.69.30   worker1   <none>           <none>
+kafka-broker-1                   1/1     Running   0          25m    10.233.68.48   worker3   <none>           <none>
+kafka-broker-2                   1/1     Running   0          25m    10.233.67.20   worker2   <none>           <none>
+kafka-client                     1/1     Running   0          148m   10.233.68.47   worker3   <none>           <none>
+vernemq-0                        1/1     Running   0          3h7m   10.233.68.44   worker3   <none>           <none>
+zookeeper-0                      1/1     Running   0          3h7m   10.233.68.45   worker3   <none>           <none>
 ```
 
 - Check log của một Pod ta thấy nó đã in ra được các thông tin của Pod đang chạy như Pod Name, Pod Ip, Namespace...
