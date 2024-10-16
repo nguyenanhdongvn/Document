@@ -8,8 +8,8 @@
 mkdir /home/sysadmin/open-sources/ELK && cd /home/sysadmin/open-sources/ELK
 helm repo add elastic https://Helm.elastic.co
 helm search repo elastic/elasticsearch
-helm pull elastic/elasticsearch --version
-tar -xzf elasticsearch-.tgz
+helm pull elastic/elasticsearch --version 8.5.1
+tar -xzf elasticsearch-8.5.1.tgz
 cp elasticsearch/values.yaml value-elasticsearch.yaml
 ```
 
