@@ -15,8 +15,7 @@ cp elasticsearch/values.yaml value-elasticsearch.yaml
 
 - Cấu hình file value-elasticsearch.yaml
 ```
-# Config resource cho ES Pod
-  esJavaOpts: "" # example: "-Xmx1g -Xms1g"
+########################### Config resource cho ES Pod
   resources:
     requests:
      cpu: "1000m"
@@ -25,19 +24,12 @@ cp elasticsearch/values.yaml value-elasticsearch.yaml
       cpu: "1000m"
      memory: "2Gi"
 
-# Config antiAffinity (chính sách phân bổ pod trên worker node):
-  # Changing this to a region would allow you to spread pods across regions
-  antiAffinityTopologyKey: "kubernetes.io/hostname"
-
+########################### Config antiAffinity (chính sách phân bổ pod trên worker node):
   # Hard means that by default pods will only be scheduled if there are enough nodes for them
   # and that they will never end up on the same node. Setting this to soft will do this "best effort"
  antiAffinity: "soft"
 
-  # This is the node affinity settings as defined in
-  # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#node-affinity-beta-feature
-  nodeAffinity: {}
-
-# Config Ingress
+########################### Config Ingress
  ingress:
    enabled: true
     annotations: {}
@@ -46,11 +38,11 @@ cp elasticsearch/values.yaml value-elasticsearch.yaml
     className: "nginx"
     pathtype: ImplementationSpecific
     hosts:
-     - host: elasticsearch.prod.viettq.com
+     - host: elasticsearch.dongna.com
         paths:
           - path: /
 
-# Config PV
+########################### Config PV
 persistence:
   enabled: true
   labels:
@@ -58,7 +50,7 @@ persistence:
     enabled: false
   annotations: {}
 
-# Config PVC
+########################### Config PVC
 volumeClaimTemplate:
   accessModes: ["ReadWriteOnce"]
   resources:
@@ -66,4 +58,47 @@ volumeClaimTemplate:
       storage: 30Gi
 
 ``` 
+
+Trong đó:
+`antiAffinity: "soft"`: mặc định là "hard". Khi set "hard", K8s sẽ bắt buộc các Pod của ElasticSearch không được schedule trên cùng một Node. Trong trường hợp lab chỉ có 2 Worker Node nhưng lại muốn chạy ElasticSearch Cluster với 3 Replicas thì set "hard" sẽ bị lỗi. Do đó trong môi trường lab thì nên set là "soft"
+
+Nếu muốn lưu data ra Node thì enable persistence lên. NOTE: ElasticSearch không có cấu hình chọn Storage Class, nó sẽ dùng Storage Class default của K8s. Nếu muốn ElasticSearch sử dụng Storage Class nào thì phải set Storage Class default cho K8s trước khi cài đặt ElasticSearch helm chart
+
+Ví dụ hệ thống của mình đang có sẵn 6 storage class như sau:
+```
+NAME                                PROVISIONER                             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+dongna-nfs-delete                   dongna-nfs-storage-delete-provisioner   Delete          Immediate           true                   8d
+dongna-nfs-retain                   dongna-nfs-storage-retain-provisioner   Retain          Immediate           true                   8d
+longhorn (default)                  driver.longhorn.io                      Delete          Immediate           true                   8d
+longhorn-static                     driver.longhorn.io                      Delete          Immediate           true                   42m
+longhorn-storage-delete (default)   driver.longhorn.io                      Delete          Immediate           true                   8d
+longhorn-storage-retain             driver.longhorn.io                      Retain          Immediate           true                   8d
+```
+Hiện tại Storage Class default đang là `longhorn-storage-delete` và `longhorn`. Nếu ta muốn sử dụng `dongna-nfs-retain` Storage Class cho ElasticSearch thì: 
+
+- Set `dongna-nfs-retain` Storage Class thành default
+```
+kubectl patch storageclass dongna-nfs-retain -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+```
+- Set `longhorn-storage-delete` và `longhorn` Storage Class thành non-default
+```
+kubectl patch storageclass longhorn-storage-delete -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+```
+
+- Kết quả là `dongna-nfs-retain` Storage Class đã thành default Storage Class
+```
+NAME                          PROVISIONER                             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+dongna-nfs-delete             dongna-nfs-storage-delete-provisioner   Delete          Immediate           true                   8d
+dongna-nfs-retain (default)   dongna-nfs-storage-retain-provisioner   Retain          Immediate           true                   8d
+longhorn                      driver.longhorn.io                      Delete          Immediate           true                   8d
+longhorn-static               driver.longhorn.io                      Delete          Immediate           true                   47m
+longhorn-storage-delete       driver.longhorn.io                      Delete          Immediate           true                   8d
+longhorn-storage-retain       driver.longhorn.io                      Retain          Immediate           true                   8d
+```
+
+- Cài đặt ElasticSearch
+```
+helm -n prod install elasticsearch -f value-elasticsearch.yaml elasticsearch
+```
 
