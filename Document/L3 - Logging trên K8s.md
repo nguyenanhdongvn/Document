@@ -1,5 +1,6 @@
 # Giới thiệu
 - Ở session này ta sẽ deploy ELK stack lên K8s
+**NOTE: ElasticSearch - Logstash - Kibana PHẢI CÙNG VERSION với nhau**
 
 # Deploy ELK stack
 - Tạo folder cài đặt cho ELK
