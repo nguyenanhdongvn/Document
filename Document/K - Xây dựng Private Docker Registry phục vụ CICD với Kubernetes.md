@@ -17,34 +17,34 @@ docker pull <image-name>:version
 ## Tạo folder chứa cert cho Harbor Registry
 ```
 sudo su -
-mkdir -p /home/sysadmin/open-sources/harbor_registry/certs
-cp /home/sysadmin/ssl/dongna_app.crt /home/sysadmin/open-sources/harbor_registry/certs/
-cp /home/sysadmin/ssl/dongna_app.key /home/sysadmin/open-sources/harbor_registry/certs/
+mkdir -p /home/sysadmin/harbor-registry/certs
+cp /home/sysadmin/ssl/dongna_app.crt /home/sysadmin/harbor-registry/certs/
+cp /home/sysadmin/ssl/dongna_app.key /home/sysadmin/harbor-registry/certs/
 ```
 ## Tạo folder cài đặt và folder chứa data của Harbor Registry
 ```
-mkdir -p /data/harbor_data
-mkdir -p /home/sysadmin/open-sources/harbor_registry
-cd /home/sysadmin/open-sources/harbor_registry
+mkdir -p /data/harbor-data
+mkdir -p /home/sysadmin/harbor-registry
+cd /home/sysadmin/harbor-registry
 curl -s https://api.github.com/repos/goharbor/harbor/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep '\.tgz$' | wget -i -
 tar xvzf harbor-offline-installer*.tgz
-cd /home/sysadmin/open-sources/harbor_registry/harbor
+cd /home/sysadmin/harbor-registry/harbor
 cp harbor.yml.tmpl harbor.yml
 ```
 ## Cấu hình file value.yaml của Harbor Registry helm chart
 ```
 hostname: harbor.dongna.com
-certificate: /home/sysadmin/open-sources/harbor_registry/certs/dongna_app.crt
-private_key: /home/sysadmin/open-sources/harbor_registry/certs/dongna_app.key
+certificate: /home/sysadmin/harbor-registry/certs/dongna_app.crt
+private_key: /home/sysadmin/harbor-registry/certs/dongna_app.key
 harbor_admin_password: P@ssw0rdP@ssw0rd
 password: P@ssw0rdP@ssw0rd
-data_volume: /data/harbor_data
+data_volume: /data/harbor-data
 ```
 
 # Cài đặt Harbor Registry
 - Cài đặt Harbor Registry bằng lệnh
 ```
-cd /home/sysadmin/open-sources/harbor_registry/harbor
+cd /home/sysadmin/harbor-registry/harbor
 ./install.sh
 ```
 
@@ -159,7 +159,7 @@ cd /etc/docker/certs.d/harbor.dongna.com/
 
 - Từ local host, login vào Harbor Registry
 ```
-docker login harbor.dongna.comc
+docker login harbor.dongna.com
 ```
 
 - Output
