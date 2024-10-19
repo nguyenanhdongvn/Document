@@ -814,7 +814,14 @@ pod-longhorn-retain            1/1     Running   0          81s
 ```
 
 Check trên Longhorn UI để thấy phân vùng được tạo và replicas theo cấu hình đã tạo (2 replicas):
+
 ![image](https://github.com/user-attachments/assets/c8b408f9-e72e-4188-89a1-315e61190231)
 
 **NOTE:**<br>
 Để pod trên các worker node có thể mount được longhorn thì các worker node phải cài nfs-client
+
+
+
+Longhorn best practice
+https://www.reddit.com/r/kubernetes/comments/1cojq13/longhorn_best_practices/
+https://longhorn.io/docs/1.7.1/best-practices/
