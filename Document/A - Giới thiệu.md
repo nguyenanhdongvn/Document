@@ -139,3 +139,23 @@ echo -e "
 "
 EOF
 ```
+
+* Tạo partition cho /data (longhorn) và /data2 (nfs)
+```
+sudo su -
+# Tạo partition cho ổ mới
+fdisk /dev/nvme0n2
+
+# Tạo file system cho ổ mới
+mkfs.xfs -f /dev/nvme0n2
+mkdir /data
+mount /dev/nvme0n2 /data 
+mount | grep /nvme0n2
+
+# Add fstab config để auto mount cho partition mới
+cat <<EOF >> /etc/fstab
+/dev/nvme0n2 /data                              xfs     defaults        0 0
+EOF
+
+mount -a && systemctl daemon-reload
+```
