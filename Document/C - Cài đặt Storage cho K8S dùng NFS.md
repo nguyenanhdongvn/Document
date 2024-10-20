@@ -505,7 +505,7 @@ sysadmin@rancher:~$ tree /data2
 /data2
 ├── delete
 └── retain
-    └── default-test-pvc-retain-pvc-edeaadf9-29ad-4186-9193-fe052a73449e
+    └── default-test-pvc-retain-pvc-07eacae9-9769-4ad6-b4c2-498431a30aee
 ```
 
 Giờ thì các bạn đã rõ sự khác biệt.<br>
