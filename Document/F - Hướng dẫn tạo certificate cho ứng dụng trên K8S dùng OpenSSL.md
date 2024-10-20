@@ -123,13 +123,13 @@ total 36
 # Import CA vừa tạo vào trình duyệt web(client)
 Trước hết các bạn tải file rootCA.pem đã tạo ở trên về máy client.
 
-Sau đó mở Chrome và vào địa chỉ này để vào mục setting: chrome://settings/security --> Chọn vào Manage certificates Trong hộp thoại hiện ra bạn vào tab Trusted Root Certification Authorities --> Import --> Next --> Browse --> Chọn file rootCA.pem --> Next --> Next --> Finish.
+Sau đó mở Chrome và vào địa chỉ này để vào mục setting: chrome://settings/security --> Chọn vào Manage certificates Trong hộp thoại hiện ra bạn vào tab Trusted Root Certification Authorities --> Import --> Next --> Browse --> Chọn file rootCA.pem --> Next --> Next --> Finish. <br>
 ![image](https://github.com/user-attachments/assets/1ae34569-2817-4d4c-b366-164d72908fc6)
 
-Khi warning box "Security Warning" hiện lên bạn chọn vào Yes.
+Khi warning box "Security Warning" hiện lên bạn chọn vào Yes. <br>
 ![image](https://github.com/user-attachments/assets/4b739381-4675-4cb5-b017-fdccdf5cff62)
 
-Lúc này thông tin CA đã được import vào Google Chrome.
+Lúc này thông tin CA đã được import vào Google Chrome. <br>
 ![image](https://github.com/user-attachments/assets/c7ea91cf-62c5-4a75-9e98-5b2b98be117c)
 
 Như vậy là ta đã tự trở thành một CA và được trình duyệt Google Chrome trên máy user (local) trust như các CA "Auth" khác.
