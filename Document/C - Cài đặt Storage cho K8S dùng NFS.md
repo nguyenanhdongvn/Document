@@ -465,9 +465,9 @@ kubectl get pvc
 ```
 Output
 ```
-NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS        AGE
-test-pvc-delete   Bound    pvc-96f5330a-c141-4623-b8c6-e56e05ff1832   10Mi       RWO            dongna-nfs-delete   6m5s
-test-pvc-retain   Bound    pvc-228aa21d-a480-4d4c-aa90-1329026ee8fe   10Mi       RWO            dongna-nfs-retain   6s
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS        VOLUMEATTRIBUTESCLASS   AGE
+test-pvc-delete   Bound    pvc-f14a3e7e-9846-466e-b5c3-9d859c86855a   10Mi       RWO            dongna-nfs-delete   <unset>                 5s
+test-pvc-retain   Bound    pvc-07eacae9-9769-4ad6-b4c2-498431a30aee   10Mi       RWO            dongna-nfs-retain   <unset>                 4s
 ```
 
 Như vậy PVC `test-pvc-delete` và `test-pvc-retain` đã được bound vào 2 PV như trên, 2 PV này tương ứng với 2 phân vùng được tạo trên NFS-Server. <br>
@@ -477,9 +477,9 @@ Login vào `rancher` server (NFS-Server) để kiểm tra phân vùng tạo trê
 sysadmin@rancher:~$ tree /data2
 /data2
 ├── delete
-│   └── default-test-pvc-delete-pvc-81132005-b7c3-4fc2-a29f-c351ab5dbc9c
+│   └── default-test-pvc-delete-pvc-f14a3e7e-9846-466e-b5c3-9d859c86855a
 └── retain
-    └── default-test-pvc-retain-pvc-edeaadf9-29ad-4186-9193-fe052a73449e
+    └── default-test-pvc-retain-pvc-07eacae9-9769-4ad6-b4c2-498431a30aee
 ```
 
 Như vậy ta thấy các phân vùng được tạo ở đúng các thư mục như cấu hình SC<br>
