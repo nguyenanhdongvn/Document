@@ -470,7 +470,7 @@ test-pvc-delete   Bound    pvc-96f5330a-c141-4623-b8c6-e56e05ff1832   10Mi      
 test-pvc-retain   Bound    pvc-228aa21d-a480-4d4c-aa90-1329026ee8fe   10Mi       RWO            dongna-nfs-retain   6s
 ```
 
-Như vậy PVC `test-pvc-delete` và `test-pvc-retain đã được bound vào 2 PV như trên, 2 PV này tương ứng với 2 phân vùng được tạo trên NFS-Server. <br>
+Như vậy PVC `test-pvc-delete` và `test-pvc-retain` đã được bound vào 2 PV như trên, 2 PV này tương ứng với 2 phân vùng được tạo trên NFS-Server. <br>
 Login vào `rancher` server (NFS-Server) để kiểm tra phân vùng tạo trên NFS-Server ra sao:
 
 ```
