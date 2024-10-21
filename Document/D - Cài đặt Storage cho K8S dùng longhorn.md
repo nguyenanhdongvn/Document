@@ -822,6 +822,6 @@ Check trên Longhorn UI để thấy phân vùng được tạo và replicas the
 
 
 
-Longhorn best practice
-https://www.reddit.com/r/kubernetes/comments/1cojq13/longhorn_best_practices/
+Longhorn best practice<br>
+https://www.reddit.com/r/kubernetes/comments/1cojq13/longhorn_best_practices/<br>
 https://longhorn.io/docs/1.7.1/best-practices/
