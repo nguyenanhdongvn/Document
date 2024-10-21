@@ -24,6 +24,11 @@ Tạo folder chứa file `server.pem` trêm 3 Master Node để cấu hình cho 
 su - sysadmin -c "mkdir /home/sysadmin/ssl/"
 ```
 
+Từ local host copy toàn bộ cert đã tạo ở phần trước vào `cicd` server 
+```
+scp /home/dong/ssl/* sysadmin@cicd:/home/sysadmin/ssl/
+```
+
 Từ `cicd` server Copy file `dongna_app.pem`  sang 3 Master Node và đổi tên thành `server.pem`
 ```
 scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.11:/home/sysadmin/ssl/server.pem
