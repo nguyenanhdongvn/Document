@@ -84,10 +84,145 @@ c8b886062a47: Pushed
 16fc2e3ca032: Pushed
 v1: digest: sha256:737185f38185c957df15cf54382eff72854e092075159a5db362e15c55999dcc size: 3052
 ```
-Deploy application lên K8s
+# Deploy application lên K8s
 - Để triển khai lên k8s thì ta sẽ dùng 3 resource chính là Deployment, Service và Ingress.
 - Trong cấu hình Deployment có gán các biến môi trường lấy từ thông tin metadata của Pod khi deploy lên K8s
 - Service cài đặt nodeport 31123 để kết nối trực tiếp qua IP của Node
 - Ingress cài đặt ở địa chỉ host là demo-node.dongna.com
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app-deployment
+  labels:
+    app: node-app-dongna
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: node-app-dongna
+  template:
+    metadata:
+      labels:
+        app: node-app-dongna
+    spec:
+      containers:
+        - name: node-app
+          image: harbor.dongna.com/demo/demo-app:v1
+          imagePullPolicy: Always
+          resources:
+            # Specifying the resourses that we might need for our application
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MY_POD_SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+```
+
+- service.yaml
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-service
+spec:
+  selector:
+    app: node-app-dongna
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 8080
+      nodePort: 31123
+```
+
+- ingress.yaml
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: node-app-ingress
+  labels:
+    name: node-app-ingress
+spec:
+  ingressClassName: local
+  rules:
+  - host: demo-node.dongna.com
+    http:
+      paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: node-app-service
+              port:
+                number: 5000
+```
+- Deploy application vào namespace `demo`
+```
+kubectl create ns demo
+kubectl -n demo apply -f deployment.yaml
+kubectl -n demo apply -f service.yaml
+kubectl -n demo apply -f ingress.yaml
+```
+
+**NOTE: Ta sẽ gặp phải error là POD không thể pull image từ Harbor Registry được vì trên Worker Node không resolve được hostname harbor.dongna.com và vì containerd không có config để trỏ về Private Registry là Harbor**
+```
+  Normal   Scheduled  108s                default-scheduler  Successfully assigned demo/node-app-deployment-bbc456648-ccwhp to worker3
+  Normal   BackOff    33s (x2 over 84s)   kubelet            Back-off pulling image "harbor.dongna.com/demo/demo-app:v1"
+  Warning  Failed     33s (x2 over 84s)   kubelet            Error: ImagePullBackOff
+  Normal   Pulling    22s (x3 over 107s)  kubelet            Pulling image "harbor.dongna.com/demo/demo-app:v1"
+  Warning  Failed     1s (x3 over 85s)    kubelet            Failed to pull image "harbor.dongna.com/demo/demo-app:v1": failed to pull and unpack image "harbor.dongna.com/demo/demo-app:v1": failed to resolve reference "harbor.dongna.com/demo/demo-app:v1": failed to do request: Head "https://harbor.dongna.com/v2/demo/demo-app/manifests/v1": dial tcp 125.235.4.59:443: connect: connection refused
+  Warning  Failed     1s (x3 over 85s)    kubelet            Error: ErrImagePull
+```
+
+**Để giải quyết vấn đề này ta sẽ add host và thêm config cho containerd trỏ về Harbor Registry**
+```
+sudo su -
+
+# Add host record for K8s Node to resolve harbor.dongna.com
+cat << EOF >> /etc/hosts
+
+# Harbor Registry
+192.168.10.20 harbor.dongna.com
+EOF
+
+# Setup Harbor Registry for connecting from K8s
+cat <<EOF >> /etc/containerd/config.toml
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."harbor.dongna.com"]
+           endpoint = ["https://harbor.dongna.com"]
+      [plugins."io.containerd.grpc.v1.cri".registry.configs."harbor.dongna.com".tls]
+           insecure_skip_verify = true
+      [plugins."io.containerd.grpc.v1.cri".registry.configs."harbor.dongna.com".auth]
+           username = "dongna"
+           password = "P@ssw0rdP@ssw0rd"
+EOF
+
+# Restart containerd for applying Harbor Registry config
+systemctl restart containerd
+```
+
 
 
