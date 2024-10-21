@@ -190,7 +190,7 @@ ssh sysadmin@master2 'sudo chmod o+w /etc/haproxy/ssl/'
 ssh sysadmin@master3 'sudo chmod o+w /etc/haproxy/ssl/'
 
 # Copy Certificates from Local Host to cicd and Master Node
-scp /home/dong/ssl/* sysadmin@cicd:/home/sysadmin/ssl/*
+scp /home/dong/ssl/* sysadmin@cicd:/home/sysadmin/ssl/
 scp /home/dong/ssl/dongna_app.pem sysadmin@master1:/etc/haproxy/ssl/server.pem
 scp /home/dong/ssl/dongna_app.pem sysadmin@master2:/etc/haproxy/ssl/server.pem
 scp /home/dong/ssl/dongna_app.pem sysadmin@master3:/etc/haproxy/ssl/server.pem
