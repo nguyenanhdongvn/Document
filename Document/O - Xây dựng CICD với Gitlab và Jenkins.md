@@ -87,6 +87,8 @@ sudo service jenkins restart
 # Add file /etc/hosts
 cat << EOF >> /etc/hosts
 
+# Gitlab Repository
+192.168.10.18   gitlab.dongna.com
 # Harbor Registry
 192.168.10.20   harbor.dongna.com
 EOF
