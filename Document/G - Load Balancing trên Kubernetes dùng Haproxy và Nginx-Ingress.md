@@ -36,7 +36,7 @@ scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.12:/home/sysadmin/ssl/
 scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.13:/home/sysadmin/ssl/server.pem
 ```
 
-## Cài đặt Haproxy và KeepAlived
+## Cài đặt Haproxy và KeepAlived trên 3 Master Node
 Trên 3 Master Node, chạy lệnh:
 ```
 yum install haproxy keepalived -y
