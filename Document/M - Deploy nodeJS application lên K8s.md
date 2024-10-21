@@ -39,7 +39,7 @@ npm install
 - Build Image
 ```
 cd ~/nodejs-demo-k8s
-docker build -t harbor.dongna.com/dongna_project/demo-app:v1 .
+docker build -t harbor.dongna.com/demo/demo-app:v1 .
 ```
 - Output
 ```
@@ -64,7 +64,7 @@ docker build -t harbor.dongna.com/dongna_project/demo-app:v1 .
 
 - Push Image lên Harbor Registry
 ```
-docker push harbor.dongna.com/dongna_project/demo-app:v1
+docker push harbor.dongna.com/demo/demo-app:v1
 ```
 - Output
 ```
@@ -94,21 +94,21 @@ v1: digest: sha256:737185f38185c957df15cf54382eff72854e092075159a5db362e15c55999
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-app-deployment
+  name: nodejs-app-deployment
   labels:
-    app: node-app-dongna
+    app: nodejs-app-dongna
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: node-app-dongna
+      app: nodejs-app-dongna
   template:
     metadata:
       labels:
-        app: node-app-dongna
+        app: nodejs-app-dongna
     spec:
       containers:
-        - name: node-app
+        - name: nodejs-app
           image: harbor.dongna.com/demo/demo-app:v1
           imagePullPolicy: Always
           resources:
@@ -146,10 +146,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node-app-service
+  name: nodejs-app-service
 spec:
   selector:
-    app: node-app-dongna
+    app: nodejs-app-dongna
   type: LoadBalancer
   ports:
     - protocol: TCP
@@ -163,20 +163,20 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: node-app-ingress
+  name: nodejs-app-ingress
   labels:
-    name: node-app-ingress
+    name: nodejs-app-ingress
 spec:
-  ingressClassName: local
+  ingressClassName: nginx
   rules:
-  - host: demo-node.dongna.com
+  - host: nodejs-demo.dongna.com
     http:
       paths:
         - pathType: Prefix
           path: "/"
           backend:
             service:
-              name: node-app-service
+              name: nodejs-app-service
               port:
                 number: 5000
 ```
@@ -190,7 +190,7 @@ kubectl -n demo apply -f ingress.yaml
 
 **NOTE: Ta sẽ gặp phải error là POD không thể pull image từ Harbor Registry được vì trên Worker Node không resolve được hostname harbor.dongna.com và vì containerd không có config để trỏ về Private Registry là Harbor**
 ```
-  Normal   Scheduled  108s                default-scheduler  Successfully assigned demo/node-app-deployment-bbc456648-ccwhp to worker3
+  Normal   Scheduled  108s                default-scheduler  Successfully assigned demo/nodejs-app-deployment-bbc456648-ccwhp to worker3
   Normal   BackOff    33s (x2 over 84s)   kubelet            Back-off pulling image "harbor.dongna.com/demo/demo-app:v1"
   Warning  Failed     33s (x2 over 84s)   kubelet            Error: ImagePullBackOff
   Normal   Pulling    22s (x3 over 107s)  kubelet            Pulling image "harbor.dongna.com/demo/demo-app:v1"
@@ -198,7 +198,7 @@ kubectl -n demo apply -f ingress.yaml
   Warning  Failed     1s (x3 over 85s)    kubelet            Error: ErrImagePull
 ```
 
-**Để giải quyết vấn đề này ta sẽ add host và thêm config cho containerd trỏ về Harbor Registry**
+**Để giải quyết vấn đề này ta sẽ add host và thêm config cho containerd trỏ về Harbor Registry trên các Worker Node**
 ```
 sudo su -
 
