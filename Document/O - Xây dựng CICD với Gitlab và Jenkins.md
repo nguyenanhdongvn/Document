@@ -27,6 +27,7 @@ docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 
 
 Test login gitlab
+```
 ssh -T git@gitlab.dongna.com
 The authenticity of host 'gitlab.dongna.com (192.168.10.18)' can't be established.
 ED25519 key fingerprint is SHA256:eaYNCrGx1BpkxW0eT3bfqRACfW8+C9sgzQEG5C0ThhU.
@@ -34,3 +35,4 @@ This key is not known by any other names.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 Warning: Permanently added 'gitlab.dongna.com' (ED25519) to the list of known hosts.
 Welcome to GitLab, @dongna!
+```
