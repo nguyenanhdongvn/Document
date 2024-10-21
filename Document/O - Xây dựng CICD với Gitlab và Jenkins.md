@@ -72,3 +72,69 @@ sudo systemctl status jenkins
 ```
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
+
+# Cài đặt cấu hình Jenkins
+- Cài đặt plugin: git, Docker pipline
+- Tạo Credential `jenkins_gitlab` để Jenkins connect vào Gitlab Repository (nhập ID trùng với Username)
+- Tạo Credential `jenkins_harbor` để Jenkins connect vào Harbor Registry (nhập ID trùng với Username)
+- Cấu hình cho `jenkins` user có quyền chạy docker without sudo
+```
+sudo usermod -aG docker jenkins
+sudo service jenkins restart
+```
+- Cấu hình cho Jenkins `cicd` server connect tới Harbor Registry (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
+```
+# Add file /etc/hosts
+cat << EOF >> /etc/hosts
+
+# Harbor Registry
+192.168.10.20   harbor.dongna.com
+EOF
+
+# Put CA cert into /etc/docker/certs.d/harbor.dongna.com/
+mkdir -p /etc/docker/certs.d/harbor.dongna.com/
+scp sysadmin@cicd:/home/sysadmin/ssl/rootCA.pem /etc/docker/certs.d/harbor.dongna.com/rootCA.pem
+```
+
+- Test thử push image lên Harbor bằng user `jenkins`
+```
+docker login harbor.dongna.com -u jenkins
+docker push harbor.dongna.com/demo/hello-world:v1
+```
+
+- Cấu hình user `jenkins` kết nối tới K8s, để `jenkins` có thể deploy/upgrade application bằng lệnh kubectl/helm trên K8S
+    - Cài đặt kubectl/helm
+      ```
+      # Install kubectl ver 1.30.4
+      curl -LO https://dl.k8s.io/release/v1.30.4/bin/linux/amd64/kubectl
+      sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      kubectl version --client
+
+      # Install helm
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      sudo chmod 700 get_helm.sh
+      ./get_helm.sh
+      ```
+    - Khi cài Jenkins thì user `jenkins` cũng được tạo ra nhưng không ssh bằng user này được. Ta phải cấu hình server `gitlab` có thể ssh vào bằng user `jenkins`
+      ```
+      vim /etc/passwd
+
+      from   "jenkins:x:992:988:Jenkins Automation Server:/var/lib/jenkins:/bin/false"
+      to     "jenkins:x:992:988:Jenkins Automation Server:/var/lib/jenkins:/bin/bash"
+      ```
+    - Login vào user `jenkins` và tạo file config ở đường dẫn /home/jenkins/.kube/config tương tự với lúc cấu hình kubectl trên Master vậy
+      ```
+      su - jenkins
+      mkdir -p $HOME/.kube/
+      scp sysadmin@master1:~/.kube/config  $HOME/.kube/
+      sed -i 's/127.0.0.1/192.168.10.11/g' $HOME/.kube/config
+      ```
+    - Từ user `jenkins` thử chạy command kubectl và helm xem ok chưa
+      ```
+      kubectl get node
+      helm list
+      ```
+
+- **Như vậy, ta đã cấu hình cho Jenkins có thể chạy các command `docker/kubectl/helm` để build/deploy và để có thể kết nối vào Gitlab Repo, Harbor Registry, K8S.**
+
+## Tạo Jenkins Job
