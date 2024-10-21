@@ -16,6 +16,7 @@ docker pull <image-name>:version
 - Ta sẽ cài Harbor Registry và sử dụng domain name là harbor.dongna.com
 ## Tạo folder chứa cert cho Harbor Registry
 ```
+sudo su -
 mkdir -p /home/sysadmin/harbor-registry/certs
 cp /home/sysadmin/ssl/dongna_app.crt /home/sysadmin/harbor-registry/certs/
 cp /home/sysadmin/ssl/dongna_app.key /home/sysadmin/harbor-registry/certs/
