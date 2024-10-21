@@ -479,7 +479,7 @@ ingress:
   ingressClassName: longhorn-storage-ingress
 
   # -- Hostname of the Layer 7 load balancer.
-  host: longhorn-ui.dongna.com
+  host: longhorn.dongna.com
 
   # -- Setting that allows you to enable TLS on ingress records.
   tls: false
