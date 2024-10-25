@@ -4,7 +4,7 @@
 ssh-keygen
 ```
 
-* Từ `cicd` server, copy ssh key tới các server sẽ cài K8S (nhập mật khẩu của server đích khi được hỏi):
+* Từ `local machine`, copy ssh public key tới các server sẽ cài K8S (nhập mật khẩu của destination server khi được yêu cầu):
 ```
 ssh-copy-id master1
 ssh-copy-id master2
@@ -14,24 +14,24 @@ ssh-copy-id worker2
 ssh-copy-id worker3
 ```
 
-* Tạo folder chứa kubespray trên `cicd` server
+* Tạo folder chứa kubespray trên `local machine`
 ```
- mkdir /home/sysadmin/kubernetes_installation/ && cd /home/sysadmin/kubernetes_installation/
+ mkdir $HOME/k8s/ && cd $HOME/k8s/
 ```
 
-* Clone kubesrpay 2.26 về folder kubernetes_installation vừa tạo
+* Clone kubesrpay repo v2.26 về folder `k8s` vừa tạo
 ```
 git clone https://github.com/kubernetes-sigs/kubespray.git --branch release-2.26
 ```
 
 * Copy folder `sample` ra folder `dongna-cluster`
 ```
-cp -rf /home/sysadmin/kubernetes_installation/kubespray/inventory/sample /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster
+cp -rf $HOME/k8s/kubespray/inventory/sample $HOME/k8s/kubespray/inventory/dongna-cluster
 ```
 
 * Cấu hình file inventory `inventory.ini` cho Ansible
 ```
-cat <<EOF > /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/inventory.ini
+cat <<EOF > $HOME/k8s/kubespray/inventory/dongna-cluster/inventory.ini
 [all]
 master1  ansible_host=192.168.10.11      ip=192.168.10.11
 master2  ansible_host=192.168.10.12      ip=192.168.10.12
@@ -66,14 +66,14 @@ EOF
 
 * Đổi CNI từ Calico sang Flannel (Optional)
 ```
-sed -i 's/kube_network_plugin: calico/kube_network_plugin: flannel/g' /home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster/group_vars/k8s_cluster/k8s-cluster.yml
+sed -i 's/kube_network_plugin: calico/kube_network_plugin: flannel/g' $HOME/k8s/kubespray/inventory/dongna-cluster/group_vars/k8s_cluster/k8s-cluster.yml
 ```
 
 * Chạy container đã cài sẵn Ansible để chạy Kubespray
 ```
-docker run --rm -it --mount type=bind,source=/home/sysadmin/kubernetes_installation/kubespray/inventory/dongna-cluster,dst=/inventory \
-  --mount type=bind,source=/home/sysadmin/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
-  --mount type=bind,source=/home/sysadmin/.ssh/id_rsa,dst=/home/sysadmin/.ssh/id_rsa \
+docker run --rm -it --mount type=bind,source=$HOME/k8s/kubespray/inventory/dongna-cluster,dst=/inventory \
+  --mount type=bind,source=$HOME/k8s/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
+  --mount type=bind,source=$HOME/k8s/.ssh/id_rsa,dst=$HOME/k8s/.ssh/id_rsa \
   quay.io/kubespray/kubespray:v2.26.0 bash
 ```
 
