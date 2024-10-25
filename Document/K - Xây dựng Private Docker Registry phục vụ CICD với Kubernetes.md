@@ -156,21 +156,21 @@ C:\Windows\System32\drivers\etc
 ![image](https://github.com/user-attachments/assets/54787ad7-6cc0-41a2-b8e9-5b98275054cd)
 
 - Tạo User: Administration > User > New User <br>
-![image](https://github.com/user-attachments/assets/a71bcc2c-3c3b-44f1-a3b5-8ead36012570)
+![image](https://github.com/user-attachments/assets/8e0d7ed7-9b53-4031-bc66-3e2f93e18e54)
 
 - Gán quyền: Projects > Chọn `demo-harbor` > Members > + Users <br>
 ![image](https://github.com/user-attachments/assets/daea3d5c-3b0d-43fc-aa08-3cac533d27f1)
 
 
 ## Cấu hình kết nối cho Developer (local host) để pull/push/ image lên Harbor Registry
-- Trên local host, tạo folder chứa cert của Harbor Registry
+- Trên `local machine`, tạo folder chứa cert của Harbor Registry
 ```
 sudo su -
 mkdir -p /etc/docker/certs.d/harbor.dongna.com/
 cd /etc/docker/certs.d/harbor.dongna.com/
 ```
 
-- Từ local host, login vào Harbor Registry
+- Trên `local machine`, login vào Harbor Registry
 ```
 docker login harbor.dongna.com
 ```
@@ -186,17 +186,17 @@ https://docs.docker.com/engine/reference/commandline/login/#credential-stores
 Login Succeeded
 ```
 
-- Từ local host, ta thử pull image `hello-world` từ dockerhub về rồi đánh tag mới cho image này và push image này lên lại Harbor Registry
+- Từ `local machine`, thử pull image `hello-world` từ dockerhub về rồi đánh tag mới cho image này và push image này lên lại Harbor Registry
 ```
 docker pull hello-world
-docker tag hello-world:latest harbor.dongna.com/demo/hello-world:latest
-docker push harbor.dongna.com/demo/hello-world:latest
+docker tag hello-world:latest harbor.dongna.com/demo-harbor/hello-world:latest
+docker push harbor.dongna.com/demo-harbor/hello-world:latest
 ```
 
 - Output
 ```
 Using default tag: latest
-The push refers to repository [harbor.dongna.com/dongna_project/hello-world]
+The push refers to repository [harbor.dongna.com/demo-harbor/hello-world]
 ac28800ec8bb: Pushed
 latest: digest: sha256:d37ada95d47ad12224c205a938129df7a3e52345828b4fa27b03a98825d1e2e7 size: 524
 ```
