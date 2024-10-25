@@ -1,5 +1,5 @@
 # Tạo SSH keys và cấu hình SSH 
-* Tạo ssh key trên tất cả các server (Master Nodes/Worker Nodes và `cicd` sever) với tùy chọn mặc định
+* Tạo ssh key `local machine` tùy chọn mặc định
 ```
 ssh-keygen
 ```
