@@ -151,13 +151,14 @@ C:\Windows\System32\drivers\etc
 ![image](https://github.com/user-attachments/assets/f2632e12-cfa2-423b-8a62-33351161fb23)
 
 ## Tạo Project, User và phân quyền User
-- Tạo Project: Projects > New Project
+
+- Tạo Project: Projects > New Project <br>
 ![image](https://github.com/user-attachments/assets/54787ad7-6cc0-41a2-b8e9-5b98275054cd)
 
-- Tạo User: Administration > User > New User
+- Tạo User: Administration > User > New User <br>
 ![image](https://github.com/user-attachments/assets/a71bcc2c-3c3b-44f1-a3b5-8ead36012570)
 
-- Gán quyền: Projects > Chọn `demo-harbor` > Members > + Users
+- Gán quyền: Projects > Chọn `demo-harbor` > Members > + Users <br>
 ![image](https://github.com/user-attachments/assets/daea3d5c-3b0d-43fc-aa08-3cac533d27f1)
 
 
