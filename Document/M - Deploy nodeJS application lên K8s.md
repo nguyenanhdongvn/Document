@@ -39,37 +39,37 @@ npm install
 - Build Image
 ```
 cd ~/nodejs-demo-k8s
-docker build -t harbor.dongna.com/demo/demo-app:v1 .
+docker build -t harbor.dongna.com/demo-nodejs/demo-nodejs:v1 .
 ```
 - Output
 ```
-[+] Building 2.6s (10/10) FINISHED                                                                                                                                                             docker:default
+[+] Building 1.1s (10/10) FINISHED                                                                                                                                                             docker:default
  => [internal] load build definition from Dockerfile                                                                                                                                                     0.0s
  => => transferring dockerfile: 153B                                                                                                                                                                     0.0s
- => [internal] load metadata for docker.io/library/node:10                                                                                                                                               2.0s
+ => [internal] load metadata for docker.io/library/node:10                                                                                                                                               0.9s
  => [internal] load .dockerignore                                                                                                                                                                        0.0s
  => => transferring context: 2B                                                                                                                                                                          0.0s
  => [1/5] FROM docker.io/library/node:10@sha256:59531d2835edd5161c8f9512f9e095b1836f7a1fcb0ab73e005ec46047384911                                                                                         0.0s
- => [internal] load build context                                                                                                                                                                        0.1s
- => => transferring context: 25.05kB                                                                                                                                                                     0.0s
+ => [internal] load build context                                                                                                                                                                        0.0s
+ => => transferring context: 31.88kB                                                                                                                                                                     0.0s
  => CACHED [2/5] WORKDIR /usr/src/app                                                                                                                                                                    0.0s
  => CACHED [3/5] COPY package*.json ./                                                                                                                                                                   0.0s
  => CACHED [4/5] RUN npm install                                                                                                                                                                         0.0s
- => [5/5] COPY . .                                                                                                                                                                                       0.2s
- => exporting to image                                                                                                                                                                                   0.1s
- => => exporting layers                                                                                                                                                                                  0.1s
- => => writing image sha256:ca40775b2ddded16ab356d9efd97a03fc435a9a4a3635ee1cdf7594a16550dbb                                                                                                             0.0s
- => => naming to harbor.dongna.com/demo/demo-app:v1                      
+ => CACHED [5/5] COPY . .                                                                                                                                                                                0.0s
+ => exporting to image                                                                                                                                                                                   0.0s
+ => => exporting layers                                                                                                                                                                                  0.0s
+ => => writing image sha256:a0f9c226a055b64138c2165216bcc21d6da8f2d9caa37cb0289122672a0c0de5                                                                                                             0.0s
+ => => naming to harbor.dongna.com/demo-nodejs/demo-nodejs:v1  
 ```
 
 - Push Image lên Harbor Registry
 ```
-docker push harbor.dongna.com/demo/demo-app:v1
+docker push harbor.dongna.com/demo-nodejs/demo-nodejs:v1
 ```
 - Output
 ```
-The push refers to repository [harbor.dongna.com/demo/demo-app]
-afc306924d32: Pushed
+The push refers to repository [harbor.dongna.com/demo-nodejs/demo-nodejs]
+2ee2ff9ba892: Pushed
 c5efb49a5aee: Pushed
 eaaa5a4d1436: Pushed
 34ece8f00e48: Pushed
@@ -82,13 +82,13 @@ c98dc9a94132: Pushed
 8abfe7e7c816: Pushed
 c8b886062a47: Pushed
 16fc2e3ca032: Pushed
-v1: digest: sha256:737185f38185c957df15cf54382eff72854e092075159a5db362e15c55999dcc size: 3052
+v1: digest: sha256:5c103e0445f9319e7a3056d52f1e03183240b92b24dbf7e8a13c96091c23fea2 size: 3052
 ```
 # Deploy application lên K8s
-- Để triển khai lên k8s thì ta sẽ dùng 3 resource chính là Deployment, Service và Ingress.
+- Để triển khai lên k8s thì ta sẽ dùng 3 resource chính là `Deployment`, `Service` và `Ingress`.
 - Trong cấu hình Deployment có gán các biến môi trường lấy từ thông tin metadata của Pod khi deploy lên K8s
 - Service cài đặt nodeport 31123 để kết nối trực tiếp qua IP của Node
-- Ingress cài đặt ở địa chỉ host là demo-node.dongna.com
+- Ingress cài đặt ở địa chỉ host là demo-nodejs.dongna.com
 
 ```
 apiVersion: apps/v1
