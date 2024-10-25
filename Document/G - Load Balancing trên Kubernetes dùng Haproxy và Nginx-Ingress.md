@@ -527,7 +527,7 @@ backend backend_rancher
 ```
 
 - Khai báo host trên client `local machine`
-Trong bài viết trước mình đã mô tả bước này, cần add host cho apple application ở client `local machine` như sau:
+Trong bài viết trước mình đã mô tả bước này, cần add host cho apple application ở client `local machine` như sau <br>
 C:\Windows\System32\drivers\etc\hosts (window)
 ```
 192.168.10.10 apple.dongna.com
