@@ -13,14 +13,23 @@ docker pull <image-name>:version
 ![image](https://github.com/user-attachments/assets/a8ca3b99-c28c-4e8a-96d4-38650afca7ab)
 
 # Harbor Registry
-- Ta sẽ cài Harbor Registry và sử dụng domain name là harbor.dongna.com
+- Ta sẽ cài Harbor Registry trên `cicd` server và sử dụng domain name là harbor.dongna.com
 ## Tạo folder chứa cert cho Harbor Registry
+- Trên `local machine`, ssh copy certs lên `cicd` server
+```
+ssh sysadmin@cicd 'sudo mkdir /home/sysadmin/ssl/'
+ssh sysadmin@cicd 'sudo chmod o+w /home/sysadmin/ssl/'
+scp $HOME/ssl/* sysadmin@cicd:/home/sysadmin/ssl/
+```
+
+- Trên `cicd` server, tạo folder chứa cert cho Harbor Registry
 ```
 sudo su -
 mkdir -p /home/sysadmin/harbor-registry/certs
 cp /home/sysadmin/ssl/dongna_app.crt /home/sysadmin/harbor-registry/certs/
 cp /home/sysadmin/ssl/dongna_app.key /home/sysadmin/harbor-registry/certs/
 ```
+
 ## Tạo folder cài đặt và folder chứa data của Harbor Registry
 ```
 mkdir -p /data/harbor-data
