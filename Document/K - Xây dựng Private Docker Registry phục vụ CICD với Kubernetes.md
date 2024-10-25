@@ -40,7 +40,7 @@ tar xvzf harbor-offline-installer*.tgz
 cd /home/sysadmin/harbor-registry/harbor
 cp harbor.yml.tmpl harbor.yml
 ```
-## Cấu hình file value.yaml của Harbor Registry helm chart
+## Cấu hình file harbor.yml của Harbor Registry docker compose file
 ```
 hostname: harbor.dongna.com
 certificate: /home/sysadmin/harbor-registry/certs/dongna_app.crt
@@ -147,15 +147,18 @@ C:\Windows\System32\drivers\etc
 192.168.10.20 harbor.dongna.com
 ```
 
-- Truy cập vào url https://harbor.dongna.com/, đăng nhập bằng user `admin` và password đã cấu hình trong value.yaml trước đó
+- Truy cập vào url https://harbor.dongna.com/, đăng nhập bằng user `admin` và password đã cấu hình trong harbor.yml trước đó
 ![image](https://github.com/user-attachments/assets/f2632e12-cfa2-423b-8a62-33351161fb23)
 
 ## Tạo Project, User và phân quyền User
-- User > New User -> nhập thông tin User (dongna/P@ssw0rdP@ssw0rd)
-![image](https://github.com/user-attachments/assets/6e2d491d-d1fd-457d-a97d-d46ed4685546)
+- Tạo Project: Projects > New Project
+![image](https://github.com/user-attachments/assets/54787ad7-6cc0-41a2-b8e9-5b98275054cd)
 
-- Gán quyền cho user `dongna` vào project `dongna_project`
-![image](https://github.com/user-attachments/assets/29c9701f-9740-4b00-bf41-d3718d56e756)
+- Tạo User: Administration > User > New User
+![image](https://github.com/user-attachments/assets/a71bcc2c-3c3b-44f1-a3b5-8ead36012570)
+
+- Gán quyền: Projects > Chọn `demo-harbor` > Members > + Users
+![image](https://github.com/user-attachments/assets/daea3d5c-3b0d-43fc-aa08-3cac533d27f1)
 
 
 ## Cấu hình kết nối cho Developer (local host) để pull/push/ image lên Harbor Registry
