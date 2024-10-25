@@ -8,12 +8,13 @@ Helm giải quyết được vấn đề trên, Helm Chart có các file resourc
 # Cách tạo Helm Chart
 - Trước khi tạo được helm ta cần phải cài helm và kubectl sau đó cấu hình kube config connect đến K8s cluster
 ```
-helm create chart-name
+mkdir -p $HOME/k8s/helm-chart
+helm create demo-helmchart
 ```
 
 - Output
 ```
-sysadmin@cicd:~$ ll app-demo/
+ll $HOME/k8s/helm-chart/demo-helmchart/
 total 12
 drwxr-xr-x 2 sysadmin sysadmin    6 Oct 21 13:53 charts
 -rw-r--r-- 1 sysadmin sysadmin 1144 Oct 21 13:53 Chart.yaml
