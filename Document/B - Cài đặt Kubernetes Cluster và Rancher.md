@@ -1,10 +1,10 @@
 # Tạo SSH keys và cấu hình SSH 
-* Tạo ssh key `local machine` tùy chọn mặc định
+* Trên `local machine`, tạo cặp ssh key với defaul option
 ```
 ssh-keygen
 ```
 
-* Từ `local machine`, copy ssh public key tới các server sẽ cài K8S (nhập mật khẩu của destination server khi được yêu cầu):
+* Từ `local machine`, copy ssh public key tới các Destination Server sẽ cài K8S (nhập password của user dùng để access đến Destination Server khi được yêu cầu):
 ```
 ssh-copy-id master1
 ssh-copy-id master2
@@ -14,7 +14,7 @@ ssh-copy-id worker2
 ssh-copy-id worker3
 ```
 
-* Tạo folder chứa kubespray trên `local machine`
+* Tạo folder chứa kubespray
 ```
  mkdir $HOME/k8s/ && cd $HOME/k8s/
 ```
