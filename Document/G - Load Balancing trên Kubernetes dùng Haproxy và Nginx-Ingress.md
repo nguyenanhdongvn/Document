@@ -1,35 +1,34 @@
 # Giới thiệu
-Thông thường các service trên K8S muốn expose được ra bên ngoài có 2 cách: Node Port hoặc Nginx-Ingress.<br>
-Ingress phù hợp với các service dạng http/https, Node Port cũng dùng được cho http/https nhưng thường sử dụng cho các trường hợp còn lại. Ví dụ bạn muốn expose Kafka, VerneMQ ra ngoài thì bạn sẽ dùng Node Port chứ ko nhất thiết phải qua Nginx-Ingress vì cấu hình Node Port đơn giản hơn. <br>
-Service trên K8S khi được expose ra sẽ có entry-point là các IP của các node. Do đó để đảm bảo được Load Balancing thì ta sẽ cần một service làm nhiệm vụ LB cho các node đó, thường là Haproxy hoặc Nginx (sẽ được cài trên các K8S node đó). Như vậy Haproxy giải quyết được bài toán LB (Load Balancing). Còn vấn đề HA (High Availability) thì chưa. <br>
-Để giải quyết bài toán HA, thì ta sẽ nghĩ đến giải pháp dùng VIP, khi một node down thì sẽ vẫn còn node khác xử lý để không ảnh hưởng service. VIP mình sử dụng là Keepalived, hoặc có thể tham khảo PCS.
+- Thông thường các service trên K8s muốn expose được ra bên ngoài có 2 cách: Node Port hoặc Nginx-Ingress.<br>
+- Ingress phù hợp với các service dạng http/https, Node Port cũng dùng được cho http/https nhưng thường sử dụng cho các trường hợp còn lại. Ví dụ bạn muốn expose Kafka, VerneMQ ra ngoài thì bạn sẽ dùng Node Port chứ ko nhất thiết phải qua Nginx-Ingress vì cấu hình Node Port đơn giản hơn. <br>
+- Service trên K8s khi được expose ra sẽ có Entry Point là các IP của các Master Node và Worker Node. Do đó để đảm bảo được Load Balancing thì ta sẽ cần một service làm nhiệm vụ LB cho các node đó, thường là Haproxy hoặc Nginx (sẽ được cài trên các K8s node đó). Như vậy Haproxy giải quyết được bài toán LB (Load Balancing). Còn vấn đề HA (High Availability) thì chưa. <br>
+- Để giải quyết bài toán HA, thì ta sẽ nghĩ đến giải pháp dùng VIP, khi một node down thì sẽ vẫn còn node khác xử lý để không ảnh hưởng service. VIP mình sử dụng là Keepalived, hoặc có thể tham khảo PCS.
 
 ## Nginx-Ingress
-Nginx-Ingress cài trên K8S được gọi Ingress-Controller, và service của nó thì sẽ được expose ra ngoài K8S bằng Node Port. Ingress Controller đóng vai trò là cầu nối từ bên ngoài internet vào các service bên trong K8S.<br>
-Trên K8S có khai báo các Ingress rule, các rule này cấu hình để Nginx-Ingress biết được khi request đến một URL cụ thể thì sẽ cần forward request tới service nào trong K8S.
+- Nginx-Ingress cài trên K8s được gọi Ingress-Controller, và service của nó thì sẽ được expose ra ngoài K8S bằng Node Port. Ingress Controller đóng vai trò là cầu nối từ bên ngoài internet vào các service bên trong K8S.<br>
+- Trên K8S có khai báo các Ingress rule, các rule này cấu hình để Nginx-Ingress biết được khi request đến một URL cụ thể thì sẽ cần forward request tới service nào trong K8s.
 
 ## Haproxy
-Đóng vai trò là LB của hệ thống, đây là sẽ nơi nhận request tới các service, ta sẽ cấu hình cho Haproxy để nó hiểu là với các request nào thì forward tới đâu. Trong trường hợp này thì user (local host) cần truy cập URL http://grafana.dongna.com thì Haproxy sẽ forward request tới Nginx-Ingress, sau đó Nginx-Ingress sẽ xử lý tiếp
+- Đóng vai trò là LB của hệ thống, đây là sẽ nơi nhận request tới các service, ta sẽ cấu hình cho Haproxy để nó hiểu là với các request nào thì forward tới đâu. Trong trường hợp này thì user (local host) cần truy cập URL http://grafana.dongna.com thì Haproxy sẽ forward request tới Nginx-Ingress, sau đó Nginx-Ingress sẽ xử lý tiếp
 
 ## Keepalived
-Ta có 3 server cùng có chạy một service, khi 1 server bị down thì user vẫn truy cập được service.<br>
+- Ta có 3 server cùng có chạy một service, khi 1 server bị down thì user vẫn truy cập được service.<br>
 
-Như trong mô hình lab này, nếu mình chỉ cài Haproxy trên `master1` để làm LB. Khi đó user sẽ cần kết nối tới IP của `master1` để truy cập service. Nếu `master1` down thì service cũng down. Để giải quyết, ta sẽ cài Keepalive trên cả 3 master node và cấu hình một VIP (Virtual IP), tại một thời điểm sẽ chỉ có 1 trong 3 node đứng lên nhận VIP. User sẽ chỉ biết VIP để truy cập service mà không cần quan tâm tới 3 IP của 3 node phía sau là gì. Khi 1 node bị down thì KeepAlived sẽ tự động kiểm tra và chuyển VIP sang một node khác còn active. Như vậy thì Haproxy sẽ cần được cài và cấu hình trên tất cả các node cài keepalive.
+- Như trong mô hình lab này, nếu mình chỉ cài Haproxy trên `master1` để làm LB. Khi đó user sẽ cần kết nối tới IP của `master1` để truy cập service. Nếu `master1` down thì service cũng down. Để giải quyết, ta sẽ cài Keepalive trên cả 3 master node và cấu hình một VIP (Virtual IP), tại một thời điểm sẽ chỉ có 1 trong 3 node đứng lên nhận VIP. User sẽ chỉ biết VIP để truy cập service mà không cần quan tâm tới 3 IP của 3 node phía sau là gì. Khi 1 node bị down thì KeepAlived sẽ tự động kiểm tra và chuyển VIP sang một node khác còn active. Như vậy thì Haproxy sẽ cần được cài và cấu hình trên tất cả các node cài keepalive.
 
 # Cài đặt
-
 ## Chuẩn bị file server.pem để cấu hình cho haproxy
-Tạo folder chứa file `server.pem` trêm 3 Master Node để cấu hình cho haproxy
+- Tạo folder chứa file `server.pem` trêm 3 Master Node để cấu hình cho haproxy
 ```
-su - sysadmin -c "mkdir /home/sysadmin/ssl/"
-```
-
-Từ local host copy toàn bộ cert đã tạo ở phần trước vào `cicd` server 
-```
-scp /home/dong/ssl/* sysadmin@cicd:/home/sysadmin/ssl/
+su - sysadmin -c "mkdir $HOME/ssl/"
 ```
 
-Từ `cicd` server Copy file `dongna_app.pem`  sang 3 Master Node và đổi tên thành `server.pem`
+- Từ `local machine` copy toàn bộ cert đã tạo ở phần trước vào `cicd` server 
+```
+scp $HOME/ssl/* sysadmin@cicd:/home/sysadmin/ssl/
+```
+
+- Từ `cicd` server Copy file `dongna_app.pem`  sang 3 Master Node và đổi tên thành `server.pem`
 ```
 scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.11:/home/sysadmin/ssl/server.pem
 scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.12:/home/sysadmin/ssl/server.pem
@@ -37,12 +36,12 @@ scp /home/sysadmin/ssl/dongna_app.pem sysadmin@192.168.10.13:/home/sysadmin/ssl/
 ```
 
 ## Cài đặt Haproxy và KeepAlived trên 3 Master Node
-Trên 3 Master Node, chạy lệnh:
+- Trên 3 Master Node, chạy lệnh:
 ```
 yum install haproxy keepalived -y
 ```
 
-Cấu hình rsyslog cho haproxy tại /etc/rsyslog.d/haproxy.conf để tiện cho việc debug sau này
+- Cấu hình rsyslog cho haproxy tại /etc/rsyslog.d/haproxy.conf để tiện cho việc debug sau này
 ```
 cat <<EOF > /etc/rsyslog.d/haproxy.conf
 # Collect log with UDP
@@ -62,16 +61,13 @@ systemctl restart rsyslog
 ```
 
 ## Cài đặt Nginx-Ingress bằng helm chart
-Trên `cicd` server, tạo thư mục cài đặt
-
+- Trên `local machine`, tạo folder cài đặt Nginx-Ingress
 ```
-mkdir /home/sysadmin/kubernetes_installation/nginx-ingress
+mkdir $HOME/k8s/nginx-ingress && cd $HOME/k8s/nginx-ingress
 ```
 
-Download bộ cài về và tạo file config:
-
+- Pull Helm Chart của Nginx Ingress về folder vừa tạo
 ```
-cd /home/sysadmin/kubernetes_installation/nginx-ingress
 helm repo add  nginx-stable https://helm.nginx.com/stable
 helm repo update
 helm search repo nginx
@@ -80,7 +76,7 @@ tar -xzf nginx-ingress-1.3.2.tgz
 cp nginx-ingress/values.yaml value-nginx-ingress.yaml
 ```
 
-Ta sửa lại các parameter của file value mặc định như sau để cho nó chạy Node Port ra 2 port là 30080 và 30443:
+- Edit file value để Nginx Ingress chạy Node Port ra 2 port là 30080 và 30443:
 
 ```
   service:
@@ -94,27 +90,26 @@ Ta sửa lại các parameter của file value mặc định như sau để cho 
       nodePort: 30443
 ```
 
-Tạo namespace dành riêng cho nginx-ingress và cài đặt
+- Tạo namespace `ingress` cho nginx-ingress và cài đặt
+```
+kubectl create ns ingress
+helm -n ingress install nginx-ingress -f value-nginx-ingress.yaml nginx-ingress
+```
 
+- Kiểm tra pod vừa tạo trong namespace "nginx-ingress"
 ```
-kubectl create ns nginx-ingress
-helm -n nginx-ingress install nginx-ingress -f value-nginx-ingress.yaml nginx-ingress
-```
-
-Kiểm tra pod vừa tạo trong namespace "nginx-ingress"
-```
-kubectl get pods -n nginx-ingress
+kubectl -n nginx-ingress get pods
 ```
 
 Output
 ```
 NAME                                          READY   STATUS    RESTARTS   AGE
-nginx-ingress-nginx-ingress-f5b87cc54-hs2lp   1/1     Running   0          7m39s
+nginx-ingress-controller-68b5866648-m5fhl   1/1     Running   0          47s
 ```
 
 Deploy 1 service `apple_app` để tí nữa test LB và HA
 ```
-cat <<EOF > /home/sysadmin/kubernetes_installation/nginx-ingress/apple.yaml
+cat <<EOF > $HOME/k8s/test/apple.yaml
 kind: Pod
 apiVersion: v1
 metadata:
@@ -142,23 +137,24 @@ spec:
 EOF
 ```
 
-Deploy lên K8s
+- Tạo namespace `test` và deploy lên K8s
 ```
-kubectl -n nginx-ingress apply -f apple.yaml
+kubectl create ns test
+kubectl -n test apply -f apple.yaml
 ```
 
-Tạo file yaml cho ingress rule để trỏ URL `apple.prod.dongna.com` đến apple app bên trong K8s
+- Tạo file yaml cho ingress rule để trỏ URL `apple.dongna.com` đến apple app bên trong K8s
 ```
-cat <<EOF > /home/sysadmin/kubernetes_installation/nginx-ingress/app.ingress.yaml
+cat <<EOF > $HOME/k8s/nginx-ingress/apple.ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:    
-  name: apple.prod.dongna.com  
+  name: apple.dongna.com  
 spec:
   ingressClassName: nginx
   rules:
-  - host: apple.prod.dongna.com
+  - host: apple.dongna.com
     http:
       paths:
       - backend:
@@ -171,16 +167,15 @@ spec:
 EOF
 ```
 
-Tạo ingress rule
+- Tạo ingress rule
 ```
-kubectl -n nginx-ingress apply -f app.ingress.yaml
+kubectl -n ingress apply -f apple.ingress.yaml
 ```
 
-Như vậy, khi user truy cập tới URL http://apple.prod.dongna.com/ thì nó sẽ kết nối tới Apple app qua service `apple-service`
-
+- Như vậy, khi user truy cập tới URL `apple.dongna.com` thì nó sẽ kết nối tới Apple application qua service `apple-service`
 
 # Copy Certificate trong /home/dong/ssl/ từ Local Host lên các Master Node và `cicd` server
-Từ Local Host
+Từ `local machine`
 ```
 # Create /home/sysadmin/ssl/ folder
 ssh sysadmin@cicd 'sudo mkdir /home/sysadmin/ssl/'
@@ -204,7 +199,7 @@ scp /home/dong/ssl/dongna_app.pem sysadmin@master3:/etc/haproxy/ssl/server.pem
 
 # Cấu hình
 ## Cấu hình VIP cho Keepalived
-Cấu hình 1 VIP cho cả 3 Master Node, mỗi node sẽ có 1 giá trị priority khác nhau và Keepalived sẽ định kỳ check Haproxy trên từng Master Node xem có bị down không, nếu Haproxy trên Master Node đang làm VIP bị down thì giá trị priority sẽ bị giảm xuống => Master Node khác sẽ đứng lên làm VIP
+- Cấu hình 1 VIP cho cả 3 Master Node, mỗi node sẽ có 1 giá trị priority khác nhau và Keepalived sẽ định kỳ check Haproxy trên từng Master Node xem có bị down không, nếu Haproxy trên Master Node đang làm VIP bị down thì giá trị priority sẽ bị giảm xuống => Master Node khác sẽ đứng lên làm VIP
 
 | Node    |	IP            |	VIP           |	State  | priority |
 |---------|---------------|---------------|--------|----------|
