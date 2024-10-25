@@ -568,8 +568,7 @@ openshift:
 enableGoCoverDir: false
 
 ```
-**NOTE: <br>
-** - Do ta chưa cài đặt `HAproxy` và `nginx-ingress` nên tạm thời ta expose service bằng cách dùng Node Port** <br>
+**NOTE: Do ta chưa cài đặt `HAproxy` và `nginx-ingress` nên tạm thời ta expose service bằng cách dùng NodePort**
 
 - Trên các `Worker Node `, cài đặt và start `open-iscsi` để `Worker Node` có thể mount được phân vùng từ Longhorn Storage
 ```
