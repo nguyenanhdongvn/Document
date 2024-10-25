@@ -92,7 +92,7 @@ kubectl version --client
 Cấu hình kubectl để kết nối tới cụm K8S của mình:
 ```
 mkdir -p $HOME/.kube
-scp master1:~/.kube/config  $HOME/.kube/
+scp sysadmin@master1:~/.kube/config  $HOME/.kube/
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
