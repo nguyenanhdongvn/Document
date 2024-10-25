@@ -136,13 +136,12 @@ NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 Kết quả như trên là helm kết nối K8S ok
 
 ## Cài đặt NFS Storage Class
-Tạo thư mục cài đặt để lưu helm-chart và các file config:
+- Tạo thư mục cài đặt để lưu Helm Chart và các file config:
 ```
-mkdir /home/sysadmin/kubernetes_installation/nfs-storage
-cd /home/sysadmin/kubernetes_installation/nfs-storage
+mkdir $HOME/k8s/nfs-storage && cd $HOME/k8s/nfs-storage
 ```
 
-Download helm chart nfs-client-provisioner về để cài offline:
+- Pull Helm Chart `nfs-client-provisioner` về để cài offline:
 ```
 helm repo add stable https://charts.helm.sh/stable
 helm search repo nfs-client-provisioner
@@ -152,13 +151,13 @@ tar -xzf nfs-client-provisioner-1.2.11.tgz
 
 Trước khi cài đặt cần thay đổi tham số mặc định của helm chart này. Mình sẽ tạo 2 storage class khác nhau tương ứng với `reclaim policy` là `delete` và `retain`--> Cần 2 file value tương ứng để cài đặt 2 storage class này. Tạo file value cho storage class có `reclaim policy` là `delete` và `retain`:
 ```
-cp /home/sysadmin/kubernetes_installation/nfs-storage/nfs-client-provisioner/values.yaml /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
-cp /home/sysadmin/kubernetes_installation/nfs-storage/nfs-client-provisioner/values.yaml /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
+cp $HOME/k8s/nfs-storage/nfs-client-provisioner/values.yaml $HOME/k8s/nfs-storage/values-nfs-delete.yaml
+cp $HOME/k8s/nfs-storage/nfs-client-provisioner/values.yaml $HOME/k8s/nfs-storage/values-nfs-retain.yaml
 ```
 
 Thay đổi các tham số trong file `values-nfs-delete.yaml` như sau:
 ```
-cat << EOF > /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
+cat << EOF > $HOME/k8s/nfs-storage/values-nfs-delete.yaml
 # Default values for nfs-client-provisioner.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -244,7 +243,7 @@ EOF
 
 Thay đổi các tham số trong file `values-nfs-retain.yaml` như sau:
 ```
-cat << EOF > /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
+cat << EOF > $HOME/k8s/nfs-storage/values-nfs-retain.yaml
 # Default values for nfs-client-provisioner.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -332,8 +331,8 @@ Tạo một namespace riêng cho phần storage để dễ quản lý rồi cài
 
 ```
 kubectl create namespace "storage"
-helm install nfs-storage-delete --namespace storage -f /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml nfs-client-provisioner
-helm install nfs-storage-retain --namespace storage -f /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml nfs-client-provisioner
+helm install nfs-storage-delete --namespace storage -f $HOME/k8s/nfs-storage/values-nfs-delete.yaml nfs-client-provisioner
+helm install nfs-storage-retain --namespace storage -f $HOME/k8s/nfs-storage/values-nfs-retain.yaml nfs-client-provisioner
 ```
 
 Kết quả:
@@ -365,7 +364,7 @@ Giờ tạo 1 PVC xem SC nfs-storageclass nó có tự động tạo PV không, 
 
 Tạo yaml file cho PVC
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-delete.yaml
+cat <<EOF >> $HOME/k8s/nfs-storage/test-pvc-delete.yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -382,7 +381,7 @@ EOF
 
 Tạo PVC bằng yaml file ở trên vừa tạo
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-delete.yaml
+kubectl apply -f $HOME/k8s/nfs-storage/test-pvc-delete.yaml
 ```
 
 ```
@@ -401,8 +400,8 @@ Tại sao PVC vẫn ở trạng thái `Pending` mà không phải là `Bound`? <
 **Solution:** <br>
 Chỉnh sửa 2 file value `values-nfs-delete.yaml` và `values-nfs-retain.yaml`
 ```
-vim /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-delete.yaml
-vim /home/sysadmin/kubernetes_installation/nfs-storage/values-nfs-retain.yaml
+vim $HOME/k8s/nfs-storage/values-nfs-delete.yaml
+vim $HOME/k8s/nfs-storage/values-nfs-retain.yaml
 ```
 
 Thay thế value của repository và tag như sau
@@ -439,7 +438,7 @@ kubectl delete pvc test-pvc-delete
 
 Tạo thêm một yaml file cho PVC có relaim policy là retain:
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-retain.yaml
+cat <<EOF >> $HOME/k8s/nfs-storage/test-pvc-retain.yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -456,8 +455,8 @@ EOF
 
 Giờ tạo 2 PVC, một qua SC có relaim policy là `delete`, một qua SC có reclaim policy là `retain`:
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-delete.yaml
-kubectl apply -f /home/sysadmin/kubernetes_installation/nfs-storage/test-pvc-retain.yaml
+kubectl apply -f $HOME/k8s/nfs-storage/test-pvc-delete.yaml
+kubectl apply -f $HOME/k8s/nfs-storage/test-pvc-retain.yaml
 ```
 
 ```
