@@ -1,37 +1,34 @@
 # Giới thiệu
-Ý tưởng cài đặt longhorn hiểu đơn giản như sau:
-- Cấu hình cho longhorn biết thư mục mặc định lưu data của longhorn `/data/longhorn-storage` trên các Worker Node 
-- Longhorn sẽ chạy trên tất cả các Worker Node thỏa mãn điều kiện là có phân vùng lưu trữ như cấu hình bên trên
-- Mỗi Worker Node sẽ được coi là một Node của longhorn, trên mỗi Node này có thể có 1 hoặc nhiều Disk mà ta có thể cấu hình thêm sau khi đã cài đặt longhorn
+Ý tưởng cài đặt Longhorn hiểu đơn giản như sau:
+- Cấu hình cho Longhorn trỏ đến folder mặc định lưu data của longhorn `/data/longhorn-storage` trên các `Worker Node`
+- Longhorn sẽ chạy trên tất cả các `Worker Node` mà có phân vùng lưu trữ như cấu hình bên trên
+- Mỗi `Worker Node` được xem là 1 `Longhorn Node`, trên mỗi `Longhorn Node` có thể có 1 hoặc nhiều Disk mà ta có thể cấu hình thêm sau khi đã cài đặt Longhorn
 
 Ta sẽ có 2 phần:
-- **Longhorn Storage:** Là storage quản lý thiết bị lưu trữ, nó có vai trò giống như NFS Server vậy
-- **Longhorn Storage Class:** Là một object trên K8S đảm nhiệm việc nhận các yêu cầu tạo Volume trên K8S (PV/PVC) sau đó kết nối với Longhorn Storage để tạo ra phân vùng lưu trữ trên thiết bị lưu trữ
+- `Longhorn Storage:` Là storage quản lý thiết bị lưu trữ, nó có vai trò giống như NFS Server vậy
+- `Longhorn Storage Class:` Là một object trên K8S đảm nhiệm việc nhận các yêu cầu tạo Volume trên K8S (PV/PVC) sau đó kết nối với Longhorn Storage để tạo ra phân vùng lưu trữ trên thiết bị lưu trữ
 
 Các bước thực hiện trong bài lab này như sau:
-- Chuẩn bị phân vùng lưu dữ liệu (đĩa) trên các Worker Node
-- Cài đặt Longhorn Storage trên K8S bằng helm chart
+- Chuẩn bị partition lưu data (disk) trên các Worker Node
+- Cài đặt Longhorn Storage trên K8S bằng Helm Chart
 - Tạo Longhorn SC trên K8S
 - Test thử tạo PV/PVC và tạo Pod dùng Longhorn SC
 
-**NOTE: xin nhắc lại là việc cài đặt đều được thực hiện trên server `cicd` để quản lý tập trung các file cấu hình cài đặt được dễ dàng**
-
 # Cài đặt Longhorn Storage
-## Tạo phân vùng lưu trữ
-Ta sẽ tạo folder lưu dữ liệu của Longhorn là `/data/longhorn-storage` trên các Worker Node:
+## Tạo folder lưu data
+- Trên các `Worker Node`, tạo folder lưu data của Longhorn là `/data/longhorn-storage`
 ```
 sudo mkdir -p /data/longhorn-storage
 ```
 
 ## Cài đặt Longhorn Storage
-Tạo folder lưu helm chart và các file cấu hình Longhorn:
+- Trên `local machine`, tạo folder lưu Helm Chart và các file cấu hình Longhorn:
 ```
-mkdir /home/sysadmin/kubernetes_installation/longhorn-storage
+mkdir $HOME/k8s/longhorn-storage && cd $HOME/k8s/longhorn-storage
 ```
 
-Add repo và download helm chart của Longhorn về folder đã tạo:
+- Pull Helm Chart của Longhorn
 ```
-cd /home/sysadmin/kubernetes_installation/longhorn-storage
 helm repo add longhorn https://charts.longhorn.io
 helm repo update
 helm search repo longhorn
@@ -39,11 +36,9 @@ helm pull longhorn/longhorn --version 1.7.1
 tar -xzf longhorn-1.7.1.tgz
 ```
 
-Ở đây mình đang dùng bản 1.7.1, các bạn nếu cài version khác nên chú ý xem cấu hình có khác thì update tương ứng <br>
-Sau bước trên mình đã down về và giải nén thư mục helm chart của longhorn ở thư mục `/home/sysadmin/kubernetes_installation/longhorn-storage` <br>
-Copy file value mặc định của helmchart ra ngoài để tùy biến theo môi trường của mình: <br>
+- Copy file value default của Longhorn Helm Chart ra 1 file value khác
 ```
-cp /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn/values.yaml /home/sysadmin/kubernetes_installation/longhorn-storage/values-longhorn.yaml
+cp $HOME/k8s/longhorn-storage/longhorn/values.yaml $HOME/k8s/longhorn-storage/values-longhorn.yaml
 ```
 Sửa file values-longhorn.yaml và cập nhật một số tham số như sau:
 ```
@@ -574,20 +569,21 @@ enableGoCoverDir: false
 
 ```
 **NOTE: <br>
-Ở đây mình chưa động gì tới haproxy với nginx-ingress nên để expose service ra bên ngoài thì trước mắt tạm thời sẽ dùng Node Port<br>
-Phải cài thêm và start open-iscsi cho các Worker Node để nó có thể mount được phân vùng từ longhorn storage**
+** - Do ta chưa cài đặt `HAproxy` và `nginx-ingress` nên tạm thời ta expose service bằng cách dùng Node Port** <br>
+
+- Trên các `Worker Node `, cài đặt và start `open-iscsi` để `Worker Node` có thể mount được phân vùng từ Longhorn Storage
 ```
 sudo yum -y install iscsi-initiator-utils
 sudo systemctl start iscsid.service
 sudo systemctl enable iscsid.service
 ```
 
-Trở lại `cicd` server, chạy helm install để cài đặt Longhorn:
+- Trên `local machine`, cài đặt Longhorn Storage
 ```
 helm install longhorn-storage -f values-longhorn.yaml longhorn --namespace storage
 ```
 
-Output:
+- Output:
 ```
 [sysadmin@cicd ~]$ kubectl -n storage get pods
 NAME                                                         READY   STATUS    RESTARTS   AGE
@@ -636,9 +632,9 @@ Longhorn UI có thể access qua IP của các K8s Nodes: http://192.168.10.11:3
 # Tạo Longhorn SC trên K8s
 Tạo 2 yaml file `longhorn-storageclass-delete.yaml` và `longhorn-storageclass-retain.yaml` tương ứng với 2 loại reclaim policy là `delete` và `retain`
 
-- /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-delete.yaml
+- $HOME/k8s/longhorn-storage/longhorn-storageclass-delete.yaml
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-delete.yaml
+cat <<EOF >> $HOME/k8s/longhorn-storage/longhorn-storageclass-delete.yaml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -657,9 +653,9 @@ parameters:
 EOF
 ```
 
-- /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-retain.yaml
+- $HOME/k8s/longhorn-storage/longhorn-storageclass-retain.yaml
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-retain.yaml
+cat <<EOF >> $HOME/k8s/longhorn-storage/longhorn-storageclass-retain.yaml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -678,8 +674,8 @@ EOF
 
 Tạo 2 SC từ 2 yaml file bên trên
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-delete.yaml
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-storageclass-retain.yaml
+kubectl apply -f $HOME/k8s/longhorn-storage/longhorn-storageclass-delete.yaml
+kubectl apply -f $HOME/k8s/longhorn-storage/longhorn-storageclass-retain.yaml
 ```
 
 Output
@@ -696,9 +692,9 @@ longhorn-storage-retain             driver.longhorn.io                      Reta
 
 # Tạo PV/PVC và tạo POD để sử dụng 2 longhorn SC vừa tạo
 Tạo 2 yaml file cho 2 PVC
-- /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-delete.yaml
+- $HOME/k8s/longhorn-storage/longhorn-pvc-delete.yaml
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-delete.yaml
+cat <<EOF >> $HOME/k8s/longhorn-storage/longhorn-pvc-delete.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -714,9 +710,9 @@ spec:
 EOF
 ```
 
-- /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-delete.yaml
+- $HOME/k8s/longhorn-storage/longhorn-pvc-delete.yaml
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-retain.yaml
+cat <<EOF >> $HOME/k8s/longhorn-storage/longhorn-pvc-retain.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -733,8 +729,8 @@ EOF
 
 Tạo 2 PVC bằng yaml file bên trên
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-delete.yaml
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/longhorn-pvc-retain.yaml
+kubectl apply -f $HOME/k8s/longhorn-storage/longhorn-pvc-delete.yaml
+kubectl apply -f $HOME/k8s/longhorn-storage/longhorn-pvc-retain.yaml
 ```
 
 Output
@@ -747,9 +743,9 @@ longhorn-pvc-retain   Bound    pvc-b5beccd7-e6be-40b7-972b-44ab8f7400de   2Gi   
 
 Như vậy 2 PVC đều đã được longhorn storage class cấp PV cho rồi (STATUS là Bound)<br>
 Tạo 2 yaml file cho 2 POD sử dụng 2 PVC bên trên 
-- /home/sysadmin/kubernetes_installation/longhorn-storage/test-pod-longhorn-delete.yaml
+- $HOME/k8s/longhorn-storage/test-pod-longhorn-delete.yaml
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/longhorn-storage/test-pod-longhorn-delete.yaml
+cat <<EOF >> $HOME/k8s/longhorn-storage/test-pod-longhorn-delete.yaml
 kind: Pod
 apiVersion: v1
 metadata:
@@ -773,9 +769,9 @@ spec:
 EOF
 ```
 
-- /home/sysadmin/kubernetes_installation/longhorn-storage/test-pod-longhorn-retain.yaml
+- $HOME/k8s/longhorn-storage/test-pod-longhorn-retain.yaml
 ```
-cat <<EOF >> /home/sysadmin/kubernetes_installation/longhorn-storage/test-pod-longhorn-retain.yaml
+cat <<EOF >> $HOME/k8s/longhorn-storage/test-pod-longhorn-retain.yaml
 kind: Pod
 apiVersion: v1
 metadata:
@@ -801,8 +797,8 @@ EOF
 
 Tạo 2 POD từ 2 yaml file bên trên để sử dụng 2 PVC đã tạo
 ```
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/test-pod-longhorn-delete.yaml
-kubectl apply -f /home/sysadmin/kubernetes_installation/longhorn-storage/test-pod-longhorn-retain.yaml
+kubectl apply -f $HOME/k8s/longhorn-storage/test-pod-longhorn-delete.yaml
+kubectl apply -f $HOME/k8s/longhorn-storage/test-pod-longhorn-retain.yaml
 ```
 
 Output
