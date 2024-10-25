@@ -207,9 +207,9 @@ scp /home/dong/ssl/dongna_app.pem sysadmin@master3:/etc/haproxy/ssl/server.pem
 | master2 |	192.168.10.12 |	192.168.10.10	| Backup |	99      |
 | master3 |	192.168.10.13 |	192.168.10.10	| Backup |	98      |
 
-Như vậy, `master1` đang là VIP, `master2` và `master3` sẽ backup với priority thấp hơn
+- Như vậy, `master1` đang là VIP, `master2` và `master3` sẽ backup với priority thấp hơn
 
-Cấu hình keepalived trên `master1`
+- Cấu hình keepalived trên `master1`
 ```
 cat <<EOF > /etc/keepalived/keepalived.conf
 vrrp_script haproxy-check {
@@ -239,13 +239,13 @@ vrrp_instance kubernetes {
 EOF
 ```
 
-Restart service keepalived trên `master1` và kiểm tra có VIP mới được tạo ra chưa. Kiểm tra trạng thái của Keepalived
+- Restart service keepalived trên `master1` và kiểm tra có VIP mới được tạo ra chưa. Kiểm tra trạng thái của Keepalived
 ```
 systemctl restart keepalived
 systemctl status keepalived
 ```
 
-Output
+- Output
 ```
 systemctl status keepalived
 ● keepalived.service - LVS and VRRP High Availability Monitor
@@ -294,7 +294,7 @@ Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160
 Sep 27 17:13:58 master1 Keepalived_vrrp[25389]: Sending gratuitous ARP on ens160 for 192.168.10.10
 ```
 
-Lúc này check lại IP của node sẽ thấy VIP 192.168.10.10 mới được tạo ra:
+- Lúc này check lại IP của node sẽ thấy VIP 192.168.10.10 mới được tạo ra:
 ```
 2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
     link/ether 00:0c:29:8b:93:3d brd ff:ff:ff:ff:ff:ff
@@ -307,7 +307,7 @@ Lúc này check lại IP của node sẽ thấy VIP 192.168.10.10 mới được
        valid_lft forever preferred_lft forever
 ```
 
-Cấu hình keepalived trên `master2`
+- Cấu hình keepalived trên `master2`
 ```
 cat <<EOF > /etc/keepalived/keepalived.conf
 vrrp_script haproxy-check {
@@ -336,13 +336,14 @@ vrrp_instance kubernetes {
 }
 EOF
 ```
-Restart service keepalived trên `master2`. Kiểm tra trạng thái của Keepalived
+
+- Restart service keepalived trên `master2`. Kiểm tra trạng thái của Keepalived
 ```
 systemctl restart keepalived
 systemctl status keepalived
 ```
 
-Cấu hình keepalived trên `master3`
+- Cấu hình keepalived trên `master3`
 ```
 cat <<EOF > /etc/keepalived/keepalived.conf
 vrrp_script haproxy-check {
@@ -371,30 +372,21 @@ vrrp_instance kubernetes {
 }
 EOF
 ```
-Restart service keepalived trên `master3`. Kiểm tra trạng thái của Keepalived
+
+- Restart service keepalived trên `master3`. Kiểm tra trạng thái của Keepalived
 ```
 systemctl restart keepalived
 systemctl status keepalived
 ```
 
-Ta đã cấu hình 3 Master Node có chung VIP 192.168.10.10, khi Haproxy trên keepalived-master bị down (hoặc node keepalived-master bị down) thì VIP sẽ được chuyển sang keepalived-backup (dựa vào tham số priority trong cấu hình keepalived).
-
-
-
-
-
-
-
-
-
-
+- Ta đã cấu hình 3 Master Node có chung VIP 192.168.10.10, khi Haproxy trên keepalived-master bị down (hoặc node keepalived-master bị down) thì VIP sẽ được chuyển sang keepalived-backup (dựa vào tham số priority trong cấu hình keepalived).
 
 ## Cấu hình Haproxy làm SSL Termination (SSL Offload)
-Để cấu hình LB cho các Master Node trong K8s cluster thì ta tạo rule để round-robin các request tới các Master Node tại Node Port của Nginx-Ingress. Phần còn lại Nginx-Ingress sẽ phân tích URL của request và forward tiếp tới các service bên trong K8s dựa vào các ingress-rule.
+- Để cấu hình LB cho các Master Node trong K8s cluster thì ta tạo rule để round-robin các request tới các Master Node tại Node Port của Nginx-Ingress. Phần còn lại Nginx-Ingress sẽ phân tích URL của request và forward tiếp tới các service bên trong K8s dựa vào các ingress-rule.
 
-Ta cấu hình Haproxy cho cả 3 Master Node giống nhau vì chỉ node nào đang nhận VIP sẽ làm nhiệm vụ LB, còn các node còn lại ở trạng thái Backup sẵn sàng thay khi Master Node down.
+- Ta cấu hình Haproxy cho cả 3 Master Node giống nhau vì chỉ node nào đang nhận VIP sẽ làm nhiệm vụ LB, còn các node còn lại ở trạng thái Backup sẵn sàng thay khi Master Node down.
 
-Cấu hình Haproxy ở file config /etc/haproxy/haproxy.cfg. Ở đây mình có 2 backend, một default là trỏ mọi request tới Nginx-Ingress của K8s, một là check hostname nếu là rancher.monitor.dongna.com thì forward tới `rancher` server
+- Cấu hình Haproxy ở file config /etc/haproxy/haproxy.cfg. Ở đây mình có 2 backend, một default là trỏ mọi request tới Nginx-Ingress của K8s, một là check hostname nếu là rancher.monitor.dongna.com thì forward tới `rancher` server
 
 ```
 cat <<EOF > /etc/haproxy/haproxy.cfg
@@ -476,7 +468,7 @@ backend backend_rancher
 EOF
 ```
 
-Kiểm tra syntax và restart Haproxy trên 3 Master Node
+- Kiểm tra syntax và restart Haproxy trên 3 Master Node
 ```
 haproxy -c -f /etc/haproxy/haproxy.cfg
 systemctl restart haproxy.service
@@ -500,19 +492,19 @@ frontend frontend_ssl_443
 ...
 ```
 Trong đó:
-- **frontend frontend_ssl_443**: Chỉ ra một frontend có tên là frontend_ssl_443
-- **bind :80**: Chỉ ra frontend sẽ listen ở port 80
-- **bind *:443 ssl crt /home/sysadmin/ssl/server.pem**:
-  - **bind *:443**: Chỉ ra frontend sẽ listen ở port 443 ở tất cả các network interface (chú ý dấu * trước port 443)
-  - **SSL**: là bật tính năng SSL Termination cho listener này.
-  - **CRT**: chỉ ra đường dẫn tới file SSL-Certificate, ta đã thực hiện tạo ở bước trước cần copy lên máy chủ cài haproxy và cấu hình đường dẫn vào đây.
-- **http-request add-header X-Forwarded-Proto https**: Thêm https header và cuối HTTPS request
-- **default_backend backend_ingress**: Cấu hình mặc định request nếu ko match với rule ALC nào thì sẽ vào backend là backend_ingress, đây là rule để mặc định sẽ kết nối tới các app trên K8S thông qua Nginx-Ingress
-- **acl rancher hdr_dom(host) -i rancher.monitor.dongna.com**: Tạo điều kiện check rancher nếu host request tới trùng với địa chỉ "rancher.monitor.dongna.com"
-- **use_backend backend_rancher if rancher**: Nếu điều kiện rancher là đúng thì trỏ tới backend là backend_rancher
+- `frontend frontend_ssl_443`: Chỉ ra một frontend có tên là frontend_ssl_443
+- `bind :80`: Chỉ ra frontend sẽ listen ở port 80
+- `bind *:443 ssl crt /home/sysadmin/ssl/server.pem`:
+  - `bind *:443`: Chỉ ra frontend sẽ listen ở port 443 ở tất cả các network interface (chú ý dấu * trước port 443)
+  - `SSL`: là bật tính năng SSL Termination cho listener này.
+  - `CRT`: chỉ ra đường dẫn tới file SSL-Certificate, ta đã thực hiện tạo ở bước trước cần copy lên máy chủ cài haproxy và cấu hình đường dẫn vào đây.
+- `http-request add-header X-Forwarded-Proto https`: Thêm https header và cuối HTTPS request
+- `default_backend backend_ingress`: Cấu hình mặc định request nếu ko match với rule ALC nào thì sẽ vào backend là backend_ingress, đây là rule để mặc định sẽ kết nối tới các app trên K8S thông qua Nginx-Ingress
+- `acl rancher hdr_dom(host) -i rancher.monitor.dongna.com`: Tạo điều kiện check rancher nếu host request tới trùng với địa chỉ "rancher.monitor.dongna.com"
+- `use_backend backend_rancher if rancher`: Nếu điều kiện rancher là đúng thì trỏ tới backend là backend_rancher <br>
 
-Cấu hình backend_ingress: Thực hiện load balancing request tới 3 k8s worker node, port 30080 là Node Port của Nginx-Ingress
 
+- `backend_ingress`: Thực hiện load balancing request tới 3 k8s worker node, port 30080 là Node Port của Nginx-Ingress
 ```
 backend backend_ingress
         mode    http
@@ -524,7 +516,7 @@ backend backend_ingress
         server  worker3 192.168.10.16:30080 cookie p1 weight 1 check inter 2000
 ```
 
-Cấu hình backend_rancher: Thực hiện forward kết nối tới rancher-server cài trên trên rancher ở địa chỉ IP 192.168.10.19 và port là 6860 (lưu ý đây là port HTTP của rancher)
+- `backend_rancher`: Thực hiện forward kết nối tới rancher-server cài trên trên rancher ở địa chỉ IP 192.168.10.19 và port là 6860 (lưu ý đây là port HTTP của rancher)
 ```
 backend backend_rancher
         mode    http
@@ -534,59 +526,44 @@ backend backend_rancher
         server  rancher 192.168.10.19:6860 cookie p1 weight 1 check inter 2000
 ```
 
-Khai báo host trên client (local host)
-Trong bài viết trước mình đã mô tả bước này, cần khai host cho ứng dụng ở client như sau:
+- Khai báo host trên client `local machine`
+Trong bài viết trước mình đã mô tả bước này, cần add host cho apple application ở client `local machine` như sau:
+C:\Windows\System32\drivers\etc\hosts (window)
 ```
-192.168.10.10 apple.demo.dongna.com
+192.168.10.10 apple.dongna.com
 192.168.10.10 rancher.dongna.com
 ```
 
+- Ta cũng đã tạo SSL certificate cho các application bên trong K8s tại [đây](https://github.com/nguyenanhdongvn/Document/blob/main/Document/G%20-%20H%C6%B0%E1%BB%9Bng%20d%E1%BA%ABn%20t%E1%BA%A1o%20certificate%20cho%20%E1%BB%A9ng%20d%E1%BB%A5ng%20tr%C3%AAn%20K8S%20d%C3%B9ng%20OpenSSL.md)
 
+# Cấu hình ở client `local machine` và kiểm tra truy cập
+- Để truy cập được vào Rancher (https://rancher.dongna.com) và Apple application (https://apple.dongna.com/), user sẽ chỉ quan tâm tới VIP chứ ko cần biết IP của 3 Master Node
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Ta cũng đã tạo SSL certificate cho các application bên trong K8s tại [đây](https://github.com/nguyenanhdongvn/Document/blob/main/Document/G%20-%20H%C6%B0%E1%BB%9Bng%20d%E1%BA%ABn%20t%E1%BA%A1o%20certificate%20cho%20%E1%BB%A9ng%20d%E1%BB%A5ng%20tr%C3%AAn%20K8S%20d%C3%B9ng%20OpenSSL.md)
-
-# Cấu hình ở user (local host) và kiểm tra truy cập
-Để truy cập được vào Rancher (rancher.monitor.dongna.com/) và Apple app (apple.prod.dongna.com/), user sẽ chỉ quan tâm tới VIP chứ ko cần biết IP của 3 Master Node
-
-User sẽ cần cấu hình file host trên máy user<br>
+- User sẽ cần cấu hình file host trên máy user<br>
 C:\Windows\System32\drivers\etc\hosts (window)
 ```
 192.168.10.10 rancher.dongna.com
-192.168.10.10 apple.prod.dongna.com
+192.168.10.10 apple.dongna.com
 ```
 
 # Kiểm tra tính sẵn sàng (High Availability)
-Hiện tại `master1` đang là master của cụm VIP và đang nhận VIP là 192.168.10.10, cũng là server đang thực hiện load balancing cho hệ thống.
+- Hiện tại `master1` đang là master của cụm VIP và đang nhận VIP là 192.168.10.10, cũng là server đang thực hiện load balancing cho hệ thống.
 ```
 [root@master1 ssl]# ip a |grep 192.168.10.10
     inet 192.168.10.10/32 scope global ens160
 ```
 
-Stop Haproxy trên `master1` xem điều gì sẽ xảy ra
+- Stop Haproxy trên `master1` xem điều gì sẽ xảy ra
 ```
 systemctl stop haproxy.service
 ```
 
-Check status Keepalived trên `master1`
+- Check status Keepalived trên `master1`
 ```
 systemctl status keepalived
 ```
 
-Output
+- Output
 ```
 [root@master1 ~]# systemctl status keepalived
 ● keepalived.service - LVS and VRRP High Availability Monitor
@@ -612,17 +589,16 @@ Sep 27 17:27:09 master1 Keepalived_vrrp[25389]: VRRP_Script(haproxy-check) faile
 Sep 27 17:27:09 master1 Keepalived_vrrp[25389]: (kubernetes) Changing effective priority from 110 to 100
 ```
 
-Ta thấy output gồm "VRRP_Script(haproxy-check) failed" và "VRRP_Instance(kubernetes) Changing effective priority from 110 to 100".<br>
-Tham số Priority ban đâu trên 3 Node là 100, 99 và 98. Kèm theo đó, keepalived check service haproxy vẫn UP thì priority cộng thêm 10. Tức là trường hợp Haproxy trên 3 Node đều UP thì priority sẽ là 110, 109 và 108.
-Khi Haproxy trên `master1` bị down, thì priority chỉ còn 100, lúc này `master2` có priority là 109 sẽ dc đẩy lên làm master và sẽ nhận VIP.
+- Ta thấy output gồm "VRRP_Script(haproxy-check) failed" và "VRRP_Instance(kubernetes) Changing effective priority from 110 to 100".<br>
+- Tham số Priority ban đâu trên 3 Node là 100, 99 và 98. Kèm theo đó, keepalived check service haproxy vẫn UP thì priority cộng thêm 10. Tức là trường hợp Haproxy trên 3 Node đều UP thì priority sẽ là 110, 109 và 108.<br>
+- Khi Haproxy trên `master1` bị down, thì priority chỉ còn 100, lúc này `master2` có priority là 109 sẽ dc đẩy lên làm master và sẽ nhận VIP. <br>
 
-
-Check status Keepalived trên `master2`
+- Check status Keepalived trên `master2`
 ```
 systemctl status keepalived
 ```
 
-Output
+- Output
 ```
 ● keepalived.service - LVS and VRRP High Availability Monitor
      Loaded: loaded (/usr/lib/systemd/system/keepalived.service; disabled; preset: disabled)
@@ -647,10 +623,10 @@ Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens16
 Sep 29 04:08:11 master2 Keepalived_vrrp[158746]: Sending gratuitous ARP on ens160 for 192.168.10.10
 ```
 
-Check IP trên `master2`
+- Check IP trên `master2`
 ```
 [root@master2 ssl]# ip a |grep 192.168.10.10
     inet 192.168.10.10/32 scope global ens160
 ```
 
-Lúc này user truy cập vào VIP và vẫn truy cập application bình thường
+- Lúc này user truy cập vào VIP và vẫn truy cập application bình thường
