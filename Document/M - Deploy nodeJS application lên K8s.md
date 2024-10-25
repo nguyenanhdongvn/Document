@@ -90,26 +90,34 @@ v1: digest: sha256:5c103e0445f9319e7a3056d52f1e03183240b92b24dbf7e8a13c96091c23f
 - Service cài đặt nodeport 31123 để kết nối trực tiếp qua IP của Node
 - Ingress cài đặt ở địa chỉ host là demo-nodejs.dongna.com
 
+- Trên `local machine`, tạo folder chứa manifest file
 ```
+mkdir -p $HOME/k8s/manifest/
+mkdir -p $HOME/k8s/manifest/demo-nodejs && cd $HOME/k8s/manifest/demo-nodejs
+```
+
+- Tạo manifest file `deployment.yaml`
+```
+cat <<EOF > $HOME/k8s/manifest/demo-nodejs/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nodejs-app-deployment
+  name: demo-nodejs-deployment
   labels:
-    app: nodejs-app-dongna
+    app: demo-nodejs-dongna
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: nodejs-app-dongna
+      app: demo-nodejs-dongna
   template:
     metadata:
       labels:
-        app: nodejs-app-dongna
+        app: demo-nodejs-dongna
     spec:
       containers:
-        - name: nodejs-app
-          image: harbor.dongna.com/demo/demo-app:v1
+        - name: demo-nodejs
+          image: harbor.dongna.com/demo-nodejs/demo-nodejs:v1
           imagePullPolicy: Always
           resources:
             # Specifying the resourses that we might need for our application
@@ -139,53 +147,59 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
+EOF
 ```
 
-- service.yaml
+- Tạo manifest file `service.yaml`
 ```
+cat <<EOF > $HOME/k8s/manifest/demo-nodejs/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodejs-app-service
+  name: demo-nodejs-service
 spec:
   selector:
-    app: nodejs-app-dongna
+    app: demo-nodejs-dongna
   type: LoadBalancer
   ports:
     - protocol: TCP
       port: 5000
       targetPort: 8080
       nodePort: 31123
+EOF
 ```
 
-- ingress.yaml
+- Tạo manifest file `ingress.yaml`
 ```
+cat <<EOF > $HOME/k8s/manifest/demo-nodejs/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nodejs-app-ingress
+  name: demo-nodejs-ingress
   labels:
-    name: nodejs-app-ingress
+    name: demo-nodejs-dongna
 spec:
   ingressClassName: nginx
   rules:
-  - host: nodejs-demo.dongna.com
+  - host: demo-nodejs.dongna.com
     http:
       paths:
         - pathType: Prefix
           path: "/"
           backend:
             service:
-              name: nodejs-app-service
+              name: demo-nodejs-service
               port:
                 number: 5000
+EOF
 ```
-- Deploy application vào namespace `demo`
+
+- Deploy application vào namespace `demo-nodejs`
 ```
-kubectl create ns demo
-kubectl -n demo apply -f deployment.yaml
-kubectl -n demo apply -f service.yaml
-kubectl -n demo apply -f ingress.yaml
+kubectl create ns demo-nodejs
+kubectl -n demo-nodejs apply -f $HOME/k8s/manifest/demo-nodejs/deployment.yaml
+kubectl -n demo-nodejs apply -f $HOME/k8s/manifest/demo-nodejs/service.yaml
+kubectl -n demo-nodejs apply -f $HOME/k8s/manifest/demo-nodejs/ingress.yaml
 ```
 
 **NOTE: Ta sẽ gặp phải error là POD không thể pull image từ Harbor Registry được vì trên Worker Node không resolve được hostname harbor.dongna.com và vì containerd không có config để trỏ về Private Registry là Harbor**
@@ -217,12 +231,39 @@ cat <<EOF >> /etc/containerd/config.toml
            insecure_skip_verify = true
       [plugins."io.containerd.grpc.v1.cri".registry.configs."harbor.dongna.com".auth]
            username = "dongna"
-           password = "P@ssw0rdP@ssw0rd"
+           password = "Life'sg00d123qwe"
 EOF
 
 # Restart containerd for applying Harbor Registry config
 systemctl restart containerd
 ```
 
+- Kiểm tra
+```
+dong@DONG-PC:~/k8s/manifest/demo-nodejs$ k get all -n demo-nodejs
+NAME                                          READY   STATUS    RESTARTS   AGE
+pod/demo-nodejs-deployment-684f6fc5db-dlkrn   1/1     Running   0          16m
+pod/demo-nodejs-deployment-684f6fc5db-dllcz   1/1     Running   0          10m
+pod/demo-nodejs-deployment-684f6fc5db-gkqr6   1/1     Running   0          8m15s
+
+NAME                          TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
+service/demo-nodejs-service   LoadBalancer   10.233.9.97   <pending>     5000:31123/TCP   16m
+
+NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/demo-nodejs-deployment   3/3     3            3           16m
+
+NAME                                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/demo-nodejs-deployment-684f6fc5db   3         3         3       16m
 
 
+dong@DONG-PC:~/k8s/manifest/demo-nodejs$ k get ingress -n demo-nodejs
+NAME                  CLASS   HOSTS                    ADDRESS   PORTS   AGE
+demo-nodejs-ingress   nginx   demo-nodejs.dongna.com             80      17m
+```
+
+- Như vậy là mọi thứ đã hoàn thành, ta truy cập thử vào https://demo-nodejs.dongna.com để xem kết quả <br>
+![image](https://github.com/user-attachments/assets/4d79f097-5d31-49c9-899d-9c345da0c1c9) <br>
+![image](https://github.com/user-attachments/assets/4fae14f7-fd72-4aa1-86fd-836628391f34) <br>
+![image](https://github.com/user-attachments/assets/da1d1c57-3b21-4add-97a0-f30a605eedb9) <br>
+
+- Refresh web page thử thì ta thấy nodejs app được random chuyển sang pod khác
