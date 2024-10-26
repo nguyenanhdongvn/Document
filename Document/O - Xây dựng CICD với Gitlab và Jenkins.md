@@ -49,7 +49,7 @@ Warning: Permanently added 'gitlab.dongna.com' (ED25519) to the list of known ho
 Welcome to GitLab, @dongna!
 ```
 
-Trên Gitlab UI, tạo user `jenkins` để Jenkins có thể móc vào gitlab và pull source code, gán permission cho `jenkins` user có permission với project `demo`
+- Trên Gitlab UI, tạo user `jenkins_gitlab` để Jenkins có thể móc vào gitlab và pull source code, gán permission cho `jenkins` user có permission với project `demo`
 
 
 
