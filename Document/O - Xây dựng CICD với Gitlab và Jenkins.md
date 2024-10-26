@@ -85,7 +85,8 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 sudo usermod -aG docker jenkins
 sudo service jenkins restart
 ```
-- Cấu hình cho Jenkins `cicd` server connect tới Harbor Registry (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
+
+- Trên `cicd` server, cấu hình cho Jenkins có thể connect tới Harbor Registry (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
 ```
 # Add file /etc/hosts
 cat << EOF >> /etc/hosts
@@ -98,7 +99,7 @@ EOF
 
 # Put CA cert into /etc/docker/certs.d/harbor.dongna.com/
 mkdir -p /etc/docker/certs.d/harbor.dongna.com/
-scp sysadmin@cicd:/home/sysadmin/ssl/rootCA.pem /etc/docker/certs.d/harbor.dongna.com/rootCA.pem
+cp /home/sysadmin/ssl/rootCA.pem /etc/docker/certs.d/harbor.dongna.com/rootCA.pem
 ```
 
 - Test thử push image lên Harbor bằng user `jenkins`
