@@ -1,10 +1,11 @@
-Đổi port ssh của server vì gitlab chạy trên port 22
+-Đổi port ssh của server vì gitlab chạy trên port 22
 ```
 sudo sed -i 's/#Port 22/Port 23/g' /etc/ssh/sshd_config 
 sudo systemctl restart sshd
 ```
 
-Tạo folder chứa log, data, config cho gitlab
+# Cài đặt và cấu hình Gitlab
+- Tạo folder chứa log, data, config cho gitlab
 ```
 export GITLAB_HOME=/srv/gitlab
 sudo mkdir -p /srv/gitlab
@@ -49,11 +50,29 @@ Warning: Permanently added 'gitlab.dongna.com' (ED25519) to the list of known ho
 Welcome to GitLab, @dongna!
 ```
 
-- Trên Gitlab UI, tạo user `jenkins_gitlab` để Jenkins có thể móc vào gitlab và pull source code, gán permission cho `jenkins` user có permission với project `demo`
+# Các bước chuẩn bị với Gitlab
 
+- Khởi tạo local repo và push local repo lên gitlab repo
+```
+cd $HOME/argocd-demo/nodejs-demo/
+git init
+git remote add origin git@gitlab.dongna.com:dongna/nodejs-demo.git
+git add .
+git commit -m "Initinal commit"
+git push -u origin master
+```
 
+```
+cd $HOME/argocd-demo/helmchart-demo/
+git init
+git remote add origin git@gitlab.dongna.com:dongna/helmchart-demo.git
+git add .
+git commit -m "Initinal commit"
+git push -u origin master
+```
 
-
+- - Trên Gitlab UI, tạo user `jenkins_gitlab`, gán permission `developer` cho user `jenkins_gitlab` trong project (repo) `nodejs-demo` và `helmchart-demo` để Jenkins có thể móc vào Gitlab và pull source code
+![image](https://github.com/user-attachments/assets/b8a31351-6ca6-419c-b4a5-d676572534af)
 
 
 # Install Jenkins
@@ -78,8 +97,18 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 # Cài đặt cấu hình Jenkins
 - Cài đặt plugin: git, Docker pipline
-- Tạo Credential `jenkins_gitlab` để Jenkins connect vào Gitlab Repository (nhập ID trùng với Username)
-- Tạo Credential `jenkins_harbor` để Jenkins connect vào Harbor Registry (nhập ID trùng với Username)
+    - Dashboard > Manage > Plugins > Available Plugin
+    ![image](https://github.com/user-attachments/assets/afd60d2d-bbc8-46d6-857a-f7d2d5f16777)
+
+
+- Tạo Credential `jenkins_gitlab` và `jenkins_harbor` để Jenkins connect vào Gitlab Repository và Harbor Registry (nhập ID trùng với Username)
+    - Dashboard > Manage Jenkins > Credentials > Domains (global) > Add Credentials
+    - `jenkins_gitlab`<br>
+    ![image](https://github.com/user-attachments/assets/251e5638-dcae-4e5b-9474-f768e20f1a26)
+    - `jenkins_harbor` <br>
+    ![image](https://github.com/user-attachments/assets/053d9adb-9699-4523-bea7-4550cc35930b)
+
+
 - Cấu hình cho `jenkins` user có quyền chạy docker without sudo
 ```
 sudo usermod -aG docker jenkins
