@@ -38,10 +38,10 @@ drwxr-xr-x 3 sysadmin sysadmin  162 Oct 21 13:53 templates
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 2 # <=> số lượng replicas trong file deployment.yaml
+replicaCount: 3 # <=> số lượng replicas trong file deployment.yaml
 
 image:
-  repository: harbor.dongna.com/demo/my-app # <=> image trong file deployment.yaml
+  repository: harbor.dongna.com/demo-nodejs/demo-nodejs # <=> image trong file deployment.yaml
   pullPolicy: Always # <=> imagePullPolicy trong file deployment.yaml
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v1"
@@ -67,17 +67,19 @@ podSecurityContext: {}
 securityContext: {}
 
 service:
-  type: ClusterIP # <=> service/type trong file service.yaml
-  port: 80 # <=> service/port trong file service.yaml
+  type: LoadBalancer # <=> service/type trong file service.yaml
+  port: 5000 # <=> service/port trong file service.yaml
+  targetPort: 8080
+  NodePort:30888
 
 ingress:
   enabled: true
-  className: "local" # <=> ingressClass trong file ingress.yaml
+  className: "nginx" # <=> ingressClass trong file ingress.yaml
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: helm-demo.dong.com # <=> ingress/host trong file ingress.yaml
+    - host: demo-helmchart.dongna.com # <=> ingress/host trong file ingress.yaml
       paths:
         - path: / #Tương ứng ingress/path trong file ingress.yaml
           pathType: ImplementationSpecific
@@ -97,6 +99,12 @@ affinity: {}
 
 - Với template của deployment, cần bổ sung thêm phần cấu hình biến môi trường env:
 ```
+      containers:
+          ...
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           env:
             - name: MY_NODE_NAME
               valueFrom:
@@ -118,24 +126,46 @@ affinity: {}
               valueFrom:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
+        livenessProbe
+        ...
 ```
 
 - Sau khi cập nhật các tham số thì ta sẽ tiến hành cài đặt helmchart này lên k8s:
 ```
-kubectl create ns helm-demo
-helm -n helm-demo install my-app -f app-demo-value.yaml app-demo
+kubectl create ns demo-helmchart
+cd $HOME/k8s/helm-chart/
+helm -n demo-helmchart install demo-helmchart -f demo-helmchart/value-demo-helmchart.yaml demo-helmchart
 ```
+**NOTE: để install được helm chart, ta phải đứng ở đường dẫn chứa folder helm chart đó**
+
+- Truy cập thử https://demo-helmchart.dongna.com/ <br>
+![image](https://github.com/user-attachments/assets/360c8584-a84c-4461-824b-100c4cdc5e48)
+
 
 - Kiểm tra
 ```
-kubectl -n helm-demo get all
+kubectl -n demo-helmchart get all
 ```
 
 - Output
 ```
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/demo-helmchart-8597d6d7dc-bzqb2   1/1     Running   0          3m3s
+pod/demo-helmchart-8597d6d7dc-fwkn6   1/1     Running   0          3m3s
+pod/demo-helmchart-8597d6d7dc-s4lkl   1/1     Running   0          3m3s
 
+NAME                     TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/demo-helmchart   LoadBalancer   10.233.17.81   <pending>     5000:31210/TCP   3m3s
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/demo-helmchart   3/3     3            3           3m3s
+
+NAME                                        DESIRED   CURRENT   READY   AGE
+replicaset.apps/demo-helmchart-8597d6d7dc   3         3         3       3m3s
 ```
 
-Okela, vậy là mình đã hoàn thành đóng gói ứng dụng này bằng helm và ready cho việc mang đi triển khai trên các hệ thống K8S rồi. Việc tạo helmchart cho ứng dụng này hoàn toàn có thể tái sử dụng. Nghĩa là bạn có một nhóm ứng dụng tương đồng nhau về cách triển khai thì có thể dùng chung chart, chỉ khác nhau ở các customized values sẽ được set riêng cho từng ứng dụng khi triển khai.
 
-Mở rộng ra thêm bạn có thể tạo ra các template cho statefulset, daemonset để bổ sung vào helmchart của bạn. Bạn cũng có thể bổ sung thêm cấu hình về persistent, configmap hay secrete.. trong template của deployment. Một kinh nghiệm của mình là lấy các template trong các chart của các opensource phổ biến, hầu hết config ở đó đều rất đầy đủ, cần phần nào thì copy về tùy biến và dùng thôi.
+- Như vậy, ta đã hoàn thành đóng gói application nodejs bằng Helm Chart và sẵn sàng để deploy trên K8S
+- Helm Chart có thể tái sử dụng. Nếu có 1 application tương tự về các manifest file thì ta có thể tái sử dụng Chart cũ, chỉ cần customize file values.yaml để setup riêng paremeter cho từng application khác nhau khi deploy
+- Ta có thể tạo ra các template cho Statefulset, Daemonset để thêm vào Helm Chart. Ta cũng có thể customize thêm các config của Persistent, Configmap, Secrete, ... trong template của Deployment.
+- Một kinh nghiệm của mình là lấy các template trong các Helm Chart của các opensource phổ biến, hầu hết config ở đó đều rất đầy đủ, cần phần nào thì copy về customize và sử dụng
