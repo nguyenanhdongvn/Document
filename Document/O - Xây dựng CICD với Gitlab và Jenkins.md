@@ -13,15 +13,18 @@ sudo mkdir -p /srv/gitlab/data
 sudo mkdir -p /srv/gitlab/config
 ```
 
-Cài đặt gitlab
+- Cài đặt gitlab
 ```
 sudo docker run --detach --hostname gitlab.dongna.com --publish 443:443 --publish 80:80 --publish 22:22 --name gitlab --restart always --volume $GITLAB_HOME/config:/etc/gitlab --volume $GITLAB_HOME/logs:/var/log/gitlab --volume $GITLAB_HOME/data:/var/opt/gitlab --shm-size 256m gitlab/gitlab-ce:latest
 ```
 
-Lấy root password để login gitlab UI
+- Lấy root password để login gitlab UI
 ```
 docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 ```
+
+- Truy cập http://gitlab.dongna.com/ và đăng nhập bằng user `root`
+![image](https://github.com/user-attachments/assets/9919a924-dc05-47e6-aa78-5eab55daa9c1)
 
 
 Từ local host, copy nội dung file public key để nhập vào trong Gitlab UI
