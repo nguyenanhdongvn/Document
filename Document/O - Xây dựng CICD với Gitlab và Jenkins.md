@@ -100,22 +100,20 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
     - Dashboard > Manage > Plugins > Available Plugin
     ![image](https://github.com/user-attachments/assets/afd60d2d-bbc8-46d6-857a-f7d2d5f16777)
 
-
-- Tạo Credential `jenkins_gitlab` và `jenkins_harbor` để Jenkins connect vào Gitlab Repository và Harbor Registry (nhập ID trùng với Username)
-    - Dashboard > Manage Jenkins > Credentials > Domains (global) > Add Credentials
+- Tạo Credential `jenkins_gitlab` và `jenkins_harbor` để Jenkins connect vào Gitlab Repository và Harbor Registry (nhập ID trùng với Username): Dashboard > Manage Jenkins > Credentials > Domains (global) > Add Credentials
     - `jenkins_gitlab`<br>
     ![image](https://github.com/user-attachments/assets/251e5638-dcae-4e5b-9474-f768e20f1a26)
     - `jenkins_harbor` <br>
     ![image](https://github.com/user-attachments/assets/053d9adb-9699-4523-bea7-4550cc35930b)
 
-
-- Cấu hình cho `jenkins` user có quyền chạy docker without sudo
+- Trên `cicd` server, cấu hình cho `jenkins` user có quyền chạy docker without sudo
 ```
 sudo usermod -aG docker jenkins
 sudo service jenkins restart
 ```
 
-- Trên `cicd` server, cấu hình cho Jenkins có thể connect tới Harbor Registry (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
+- Trên `cicd` server, cấu hình cho Jenkins có thể connect vào Harbor Registry (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
+
 ```
 # Add file /etc/hosts
 cat << EOF >> /etc/hosts
@@ -129,11 +127,13 @@ EOF
 # Put CA cert into /etc/docker/certs.d/harbor.dongna.com/
 mkdir -p /etc/docker/certs.d/harbor.dongna.com/
 cp /home/sysadmin/ssl/rootCA.pem /etc/docker/certs.d/harbor.dongna.com/rootCA.pem
+
+sudo systemctl restart docker
 ```
 
-- Test thử push image lên Harbor bằng user `jenkins`
+- Test thử push image lên Harbor bằng user `jenkins_harbor`
 ```
-docker login harbor.dongna.com -u jenkins
+docker login harbor.dongna.com -u jenkins_harbor
 docker push harbor.dongna.com/demo/hello-world:v1
 ```
 
