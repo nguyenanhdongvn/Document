@@ -152,14 +152,17 @@ docker push harbor.dongna.com/demo/hello-world:v1
       
     - Sau khi cài Jenkins, mặc định user `jenkins` cũng được tạo ra nhưng không login bằng user này được. Ta phải cấu hình cho user `jenkins` có thể login vào được trên `cicd` server
       ```
-      vim /etc/passwd
-
+      sudo vim /etc/passwd
+      ```
+      
+      ```
       from   "jenkins:x:992:988:Jenkins Automation Server:/var/lib/jenkins:/bin/false"
       to     "jenkins:x:992:988:Jenkins Automation Server:/var/lib/jenkins:/bin/bash"
       ```
       
-    - Login vào user `jenkins` và tạo file kube config ở đường dẫn `/home/jenkins/.kube/config` tương tự với lúc cấu hình kubectl trên Master
+    - Login vào user `jenkins` từ user `root` và tạo file kube config ở đường dẫn `/home/jenkins/.kube/config` tương tự với lúc cấu hình kubectl trên Master
       ```
+      sudo su -
       su - jenkins
       mkdir -p $HOME/.kube/
       scp sysadmin@master1:~/.kube/config  $HOME/.kube/
