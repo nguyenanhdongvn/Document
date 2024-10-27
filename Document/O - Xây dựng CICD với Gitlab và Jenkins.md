@@ -214,14 +214,14 @@ kubectl patch svc -n argocd argocd-server --patch '{"spec": {"type": "NodePort"}
     - Commit changes lên Gitlab Repo (`helmchart-demo` repo)
 
 ```
-def appSourceRepo = 'https://gitlab.com/dongna/nodejs-demo.git'
+def appSourceRepo = 'http://gitlab.dongna.com/dongna/nodejs-demo.git'
 def appSourceBranch = 'master'
 
-def appConfigRepo = 'https://gitlab.com/dongna/helmchart-demo.git'
+def appConfigRepo = 'http://gitlab.dongna.com/dongna/helmchart-demo.git'
 def appConfigBranch = 'master'
 def helmRepo = "helmchart-demo"
 def helmChart = "helmchart-demo"
-def helmValueFile = "helmchart-demo/app-demo-value.yaml"
+def helmValueFile = "app-demo-value.yaml"
 
 def dockerhubAccount = 'jenkins_harbor'
 def gitlabAccount = 'jenkins_gitlab'
@@ -234,7 +234,7 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = 'https://harbor.dongna.com'
-        DOCKER_IMAGE_NAME = "/demo-helmchart"
+        DOCKER_IMAGE_NAME = "nodejs-demo/nodejs-demo"
         DOCKER_IMAGE = "harbor.dongna.com/${DOCKER_IMAGE_NAME}"
     }
 
@@ -267,12 +267,10 @@ pipeline {
                                 withCredentials([usernamePassword(credentialsId: 'jenkins_gitlab', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                                 sh """#!/bin/bash
                                            [[ -d ${helmRepo} ]] && rm -r ${helmRepo}
-                                           git config --global user.email "jenkins@gmail.com"
-                                           git config --global user.name "Jenkins"
-                                           git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab.dongna.com/dongna/app-helmchart.git --branch ${appConfigBranch}
+                                           git clone http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab.dongna.com/dongna/helmchart-demo.git --branch ${appConfigBranch}
                                            cd ${helmRepo}
                                            sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
-                                           git add . ; git commit -m "Update to version ${version}";git push https://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab.dongna.com/dongna/app-helmchart.git
+                                           git add . ; git commit -m "Update to version ${version}";git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab.dongna.com/dongna/helmchart-demo.git
                                            cd ..
                                            [[ -d ${helmRepo} ]] && rm -r ${helmRepo}
                                            """
@@ -281,5 +279,6 @@ pipeline {
         }
     }
 }
+
 ```
 - 
