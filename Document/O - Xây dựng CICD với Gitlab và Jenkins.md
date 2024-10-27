@@ -180,6 +180,7 @@ docker push harbor.dongna.com/demo/hello-world:v1
 # Cài đặt ArgoCD
 - Cài đặt ArgoCD
 ```
+mkdir $HOME/argocd && cd $HOME/argocd
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
@@ -187,6 +188,49 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 - Cấu hình service thành NodePort:
 ```
 kubectl patch svc -n argocd argocd-server --patch '{"spec": {"type": "NodePort"}}'
+```
+
+- Kết quả
+```
+k -n argocd get all
+
+NAME                                                   READY   STATUS    RESTARTS   AGE
+pod/argocd-application-controller-0                    1/1     Running   0          2m5s
+pod/argocd-applicationset-controller-75d8c9495-bj2hp   1/1     Running   0          2m31s
+pod/argocd-dex-server-7c9b44b9f9-fnn6d                 1/1     Running   0          2m31s
+pod/argocd-notifications-controller-77f49c7745-xkv2c   1/1     Running   0          2m27s
+pod/argocd-redis-575c96bc4f-n7js4                      1/1     Running   0          2m20s
+pod/argocd-repo-server-7f44b474d7-xgbcf                1/1     Running   0          2m17s
+pod/argocd-server-5f4dd5d648-2psxc                     1/1     Running   0          2m8s
+
+NAME                                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service/argocd-applicationset-controller          ClusterIP   10.233.24.253   <none>        7000/TCP,8080/TCP            3m9s
+service/argocd-dex-server                         ClusterIP   10.233.62.41    <none>        5556/TCP,5557/TCP,5558/TCP   3m9s
+service/argocd-metrics                            ClusterIP   10.233.52.42    <none>        8082/TCP                     3m8s
+service/argocd-notifications-controller-metrics   ClusterIP   10.233.34.179   <none>        9001/TCP                     3m6s
+service/argocd-redis                              ClusterIP   10.233.40.10    <none>        6379/TCP                     3m5s
+service/argocd-repo-server                        ClusterIP   10.233.41.36    <none>        8081/TCP,8084/TCP            3m5s
+service/argocd-server                             ClusterIP   10.233.34.204   <none>        80/TCP,443/TCP               3m4s
+service/argocd-server-metrics                     ClusterIP   10.233.5.81     <none>        8083/TCP                     2m57s
+
+NAME                                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/argocd-applicationset-controller   1/1     1            1           2m44s
+deployment.apps/argocd-dex-server                  1/1     1            1           2m39s
+deployment.apps/argocd-notifications-controller    1/1     1            1           2m30s
+deployment.apps/argocd-redis                       1/1     1            1           2m22s
+deployment.apps/argocd-repo-server                 1/1     1            1           2m19s
+deployment.apps/argocd-server                      1/1     1            1           2m11s
+
+NAME                                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/argocd-applicationset-controller-75d8c9495   1         1         1       2m33s
+replicaset.apps/argocd-dex-server-7c9b44b9f9                 1         1         1       2m33s
+replicaset.apps/argocd-notifications-controller-77f49c7745   1         1         1       2m28s
+replicaset.apps/argocd-redis-575c96bc4f                      1         1         1       2m21s
+replicaset.apps/argocd-repo-server-7f44b474d7                1         1         1       2m18s
+replicaset.apps/argocd-server-5f4dd5d648                     1         1         1       2m9s
+
+NAME                                             READY   AGE
+statefulset.apps/argocd-application-controller   1/1     2m6s
 ```
 
 - Để truy cập ArgoCD ta cần
@@ -198,6 +242,8 @@ kubectl patch svc -n argocd argocd-server --patch '{"spec": {"type": "NodePort"}
       ```
       kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
       ```
+- Truy cập vào IP bất kỳ của K8s Cluster (worker/master nodes) VD: http://[master/worker_IP]:[NodePort_port]
+
 
 **NOTE: Do ta chưa cài certificate cho ArgoCD nên khi đăng nhập sẽ báo invalid certificate**
 
