@@ -1,10 +1,11 @@
--Đổi port ssh của server vì gitlab chạy trên port 22
+# Cài đặt và cấu hình Gitlab trên `gitlab` server
+## Cài đặt Gitlab
+- Trên `gitlab` server, đổi port ssh của server thành port 23 vì gitlab chạy trên port 22
 ```
 sudo sed -i 's/#Port 22/Port 23/g' /etc/ssh/sshd_config 
 sudo systemctl restart sshd
 ```
 
-# Cài đặt và cấu hình Gitlab
 - Tạo folder chứa log, data, config cho gitlab
 ```
 export GITLAB_HOME=/srv/gitlab
@@ -28,18 +29,17 @@ docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 ![image](https://github.com/user-attachments/assets/9919a924-dc05-47e6-aa78-5eab55daa9c1)
 
 
-Từ local host, copy nội dung file public key để nhập vào trong Gitlab UI
+- Từ `local machine`, copy nội dung file public key để nhập vào trong Gitlab UI
 ```
 cat ~/.ssh/id_rsa.pub
 
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+Af66TOFI4gRFYmzB6ZWtCdSVw76MpBPXbnzvtmD7cvuB0gHl6dCyw+vThpsY4JqFflWKOB0vrbbWHHf1nSve0NEF+YakDj5BTSNVQztb8tYSZq50/GM0FP6/fSw9XXufjY1mkQg08jwnkiXqnm80Qf6wJm6k+b5ibNr/qX9UdgxFJSkdv18Eo2pXzD/aGW/WTXbYGN0WG5oXUt/lbcIjEg/fm4069iqIrqKGyOrxS7l/qRabo2CgC0S1/1C9fI12NEEisX/hOTn8UHwnqjVEYnYZQE6j2FuL0Dn4AqJfFh/Gc7PoaC6gVhElDJIk6IKn4dI8jjZ/t6MD6h+WYxYoxD97M5HrinTVDrJh1s4kdnFhgzS1yvVCsqNCPsUbi5dkS3Wiy1BFaHosCgOM3TZYogmcEuJc6SfOoYgbPXU2I1zeUzXFrksVTAyWQhwDFhYQc7JpdPnKoefUFF6Y6t2/EYB/uDP3NU9ySZ3RuLOtJuLdK67QXrw3mzXHOVTQYeM= dong@DONG-PC
 ```
 
-Nhập nội dung public key vào Gitlab UI
+- Nhập nội dung public key vào Gitlab UI
 ![image](https://github.com/user-attachments/assets/f59be020-2cd6-4b5d-92fc-6d785bc85a17)
 
-
-Test login gitlab
+- Test login Gitlab từ `local machine`
 ```
 ssh -T git@gitlab.dongna.com
 The authenticity of host 'gitlab.dongna.com (192.168.10.18)' can't be established.
@@ -50,32 +50,32 @@ Warning: Permanently added 'gitlab.dongna.com' (ED25519) to the list of known ho
 Welcome to GitLab, @dongna!
 ```
 
-# Các bước chuẩn bị với Gitlab
-
-- Khởi tạo local repo và push local repo lên gitlab repo
-```
-cd $HOME/argocd-demo/nodejs-demo/
-git init
-git remote add origin git@gitlab.dongna.com:dongna/nodejs-demo.git
-git add .
-git commit -m "Initinal commit"
-git push -u origin master
-```
-
-```
-cd $HOME/argocd-demo/helmchart-demo/
-git init
-git remote add origin git@gitlab.dongna.com:dongna/helmchart-demo.git
-git add .
-git commit -m "Initinal commit"
-git push -u origin master
-```
-
-- - Trên Gitlab UI, tạo user `jenkins_gitlab`, gán permission `developer` cho user `jenkins_gitlab` trong project (repo) `nodejs-demo` và `helmchart-demo` để Jenkins có thể móc vào Gitlab và pull source code
+## Cấu hình Gitlab
+- Từ `local machine`, khởi tạo local repo và push local repo lên gitlab repo
+    - `nodejs-demo` repository
+    ```
+    cd $HOME/argocd-demo/nodejs-demo/
+    git init
+    git remote add origin git@gitlab.dongna.com:dongna/nodejs-demo.git
+    git add .
+    git commit -m "Initinal commit"
+    git push -u origin master
+    ```
+    - `helmchart-demo` repository
+    ```
+    cd $HOME/argocd-demo/helmchart-demo/
+    git init
+    git remote add origin git@gitlab.dongna.com:dongna/helmchart-demo.git
+    git add .
+    git commit -m "Initinal commit"
+    git push -u origin master
+    ```
+- Trên Gitlab UI, tạo user `jenkins_gitlab`, gán permission `developer` cho user `jenkins_gitlab` trong project (repo) `nodejs-demo` và `helmchart-demo` để Jenkins có thể móc vào Gitlab và pull source code
 ![image](https://github.com/user-attachments/assets/b8a31351-6ca6-419c-b4a5-d676572534af)
 
-
-# Install Jenkins
+# Cài đặt và cấu hình Jenkins trên `cicd` server
+## Cài đặt Jenkins
+- Trên `cicd` server, cài đặt Jenkins như sau
 ```
 sudo wget -O /etc/yum.repos.d/jenkins.repo \
     https://pkg.jenkins.io/redhat-stable/jenkins.repo
@@ -95,7 +95,7 @@ sudo systemctl status jenkins
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
-# Cài đặt cấu hình Jenkins
+## Cấu hình Jenkins
 - Cài đặt plugin: git, Docker pipline
     - Dashboard > Manage > Plugins > Available Plugin
     ![image](https://github.com/user-attachments/assets/afd60d2d-bbc8-46d6-857a-f7d2d5f16777)
@@ -112,8 +112,7 @@ sudo usermod -aG docker jenkins
 sudo service jenkins restart
 ```
 
-- Trên `cicd` server, cấu hình cho Jenkins có thể connect vào Harbor Registry (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
-
+- Trên `cicd` server, cấu hình cho Jenkins có thể connect vào Harbor Registry bằng URL (add file hosts và cấu hình certificate cho docker connect đến Harbor Registry)
 ```
 # Add file /etc/hosts
 cat << EOF >> /etc/hosts
@@ -137,7 +136,7 @@ docker login harbor.dongna.com -u jenkins_harbor
 docker push harbor.dongna.com/demo/hello-world:v1
 ```
 
-- Cấu hình user `jenkins` kết nối tới K8s, để `jenkins` có thể deploy/upgrade application bằng lệnh kubectl/helm trên K8S
+- Cấu hình cho user `jenkins` có thể kết nối tới K8s, để `jenkins` có thể deploy/upgrade application bằng lệnh kubectl/helm trên K8S
     - Cài đặt kubectl/helm
       ```
       # Install kubectl ver 1.30.4
@@ -150,21 +149,23 @@ docker push harbor.dongna.com/demo/hello-world:v1
       sudo chmod 700 get_helm.sh
       ./get_helm.sh
       ```
-    - Khi cài Jenkins thì user `jenkins` cũng được tạo ra nhưng không ssh bằng user này được. Ta phải cấu hình server `gitlab` có thể ssh vào bằng user `jenkins`
+      
+    - Sau khi cài Jenkins, mặc định user `jenkins` cũng được tạo ra nhưng không login bằng user này được. Ta phải cấu hình cho user `jenkins` có thể login vào được trên `cicd` server
       ```
       vim /etc/passwd
 
       from   "jenkins:x:992:988:Jenkins Automation Server:/var/lib/jenkins:/bin/false"
       to     "jenkins:x:992:988:Jenkins Automation Server:/var/lib/jenkins:/bin/bash"
       ```
-    - Login vào user `jenkins` và tạo file config ở đường dẫn /home/jenkins/.kube/config tương tự với lúc cấu hình kubectl trên Master vậy
+      
+    - Login vào user `jenkins` và tạo file kube config ở đường dẫn `/home/jenkins/.kube/config` tương tự với lúc cấu hình kubectl trên Master
       ```
       su - jenkins
       mkdir -p $HOME/.kube/
       scp sysadmin@master1:~/.kube/config  $HOME/.kube/
       sed -i 's/127.0.0.1/192.168.10.11/g' $HOME/.kube/config
       ```
-    - Từ user `jenkins` thử chạy command kubectl và helm xem ok chưa
+    - Từ user `jenkins` thử chạy command `kubectl` và `helm`
       ```
       kubectl get node
       helm list
