@@ -176,4 +176,110 @@ docker push harbor.dongna.com/demo/hello-world:v1
 
 - **Như vậy, ta đã cấu hình cho Jenkins có thể chạy các command `docker/kubectl/helm` để build/deploy và để có thể kết nối vào Gitlab Repo, Harbor Registry, K8S.**
 
-## Tạo Jenkins Job
+
+# Cài đặt ArgoCD
+- Cài đặt ArgoCD
+```
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+- Cấu hình service thành NodePort:
+```
+kubectl patch svc -n argocd argocd-server --patch '{"spec": {"type": "NodePort"}}'
+```
+
+- Để truy cập ArgoCD ta cần
+    - Thông tin NodePort được config trên service `argocd-server`
+      ```
+      kubectl -n argocd get svc argocd-server
+      ```
+    - Thông tin default password để login ArgoCD lần đầu
+      ```
+      kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+      ```
+
+**NOTE: Do ta chưa cài certificate cho ArgoCD nên khi đăng nhập sẽ báo invalid certificate**
+
+# Tạo pipeline Job trên Jenkins
+- Ta cần define Job cho jenkins thực hiện các task như sau:
+    - Pull source code từ Gitlab Repo (`nodejs-demo` repo)
+    - Build source code
+    - Build Docker image
+    - Push Docker image lên Registry (Harbor)
+    - Update application version (image.tag) vào file Helm Chart values.yaml lưu trong Gitlab Repo (`helmchart-demo` repo)
+- Ý tưởng là mỗi lần build source code thành docker image, ta sẽ sử dụng variable `BUILD_NUMBER` của Jenkins (tăng lần sau mỗi lần build) gán tag cho Image. Do đó ta cũng cần update variable này cho file Helm Chart values.yaml (nằm trong `helmchart-demo` repo) để deploy lên K8s. Để thực hiện được ý tưởng này, ta có nhiều solution như sau:
+    - Pull Helm Chart từ Gitlab Repo (`helmchart-demo` repo)
+    - Update values image.tag theo đúng tag mới build
+    - Commit changes lên Gitlab Repo (`helmchart-demo` repo)
+
+```
+def appSourceRepo = 'https://gitlab.com/dongna/nodejs-demo.git'
+def appSourceBranch = 'master'
+
+def appConfigRepo = 'https://gitlab.com/dongna/helmchart-demo.git'
+def appConfigBranch = 'master'
+def helmRepo = "helmchart-demo"
+def helmChart = "helmchart-demo"
+def helmValueFile = "helmchart-demo/app-demo-value.yaml"
+
+def dockerhubAccount = 'jenkins_harbor'
+def gitlabAccount = 'jenkins_gitlab'
+
+dockerBuildCommand = './'
+def version = "v1.${BUILD_NUMBER}"
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'https://harbor.dongna.com'
+        DOCKER_IMAGE_NAME = "/demo-helmchart"
+        DOCKER_IMAGE = "harbor.dongna.com/${DOCKER_IMAGE_NAME}"
+    }
+
+    stages {
+        stage('Checkout project') {
+          steps {
+            git branch: appSourceBranch,
+                credentialsId: gitlabAccount,
+                url: appSourceRepo
+          }
+        }
+        stage('Build And Push Docker Image') {
+            steps {
+                script {
+                    sh "git reset --hard"
+                    sh "git clean -f"
+                    app = docker.build(DOCKER_IMAGE_NAME, dockerBuildCommand)
+                    docker.withRegistry( DOCKER_REGISTRY, dockerhubAccount ) {
+                       app.push(version)
+                    }
+
+                    sh "docker rmi ${DOCKER_IMAGE_NAME} -f"
+                    sh "docker rmi ${DOCKER_IMAGE}:${version} -f"
+                }
+            }
+        }
+
+        stage('Update value in helm-chart') {
+            steps {
+                                withCredentials([usernamePassword(credentialsId: 'jenkins_gitlab', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                                sh """#!/bin/bash
+                                           [[ -d ${helmRepo} ]] && rm -r ${helmRepo}
+                                           git config --global user.email "jenkins@gmail.com"
+                                           git config --global user.name "Jenkins"
+                                           git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab.dongna.com/dongna/app-helmchart.git --branch ${appConfigBranch}
+                                           cd ${helmRepo}
+                                           sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
+                                           git add . ; git commit -m "Update to version ${version}";git push https://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab.dongna.com/dongna/app-helmchart.git
+                                           cd ..
+                                           [[ -d ${helmRepo} ]] && rm -r ${helmRepo}
+                                           """
+                                }
+            }
+        }
+    }
+}
+```
+- 
