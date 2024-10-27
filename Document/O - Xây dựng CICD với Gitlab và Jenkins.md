@@ -243,6 +243,7 @@ statefulset.apps/argocd-application-controller   1/1     2m6s
       kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
       ```
 - Truy cập vào IP bất kỳ của K8s Cluster (worker/master nodes) VD: http://[master/worker_IP]:[NodePort_port]
+![image](https://github.com/user-attachments/assets/e7780a0a-f19b-43d3-8367-a1f32019d23e)
 
 
 **NOTE: Do ta chưa cài certificate cho ArgoCD nên khi đăng nhập sẽ báo invalid certificate**
