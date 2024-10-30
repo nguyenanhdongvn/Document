@@ -15,6 +15,40 @@ sudo mkdir -p /srv/gitlab/data
 sudo mkdir -p /srv/gitlab/config
 ```
 
+- Enable HTTPS cho gitlab
+    - Từ `local machine`, tạo folder `/home/sysadmin/ssl` và copy cert lên `gitlab` server
+    ```
+    ssh -p 23 sysadmin@gitlab "mkdir -p /home/sysadmin/ssl"
+    scp -P 23 /home/dong/ssl/dongna_app.crt /home/sysadmin/ssl/server.crt
+    scp -P 23 /home/dong/ssl/dongna_app.key /home/sysadmin/ssl/server.key
+    ```
+
+    - Trên `gitlab` server, tạo đường dẫn chứa ssl certificate trong gitlab config folder, copy file cert+key vào
+      ```
+      sudo mkdir -p $GITLAB_HOME/config/ssl/gitlab.dongna.com/
+      mv /home/sysadmin/ssl/server.* $GITLAB_HOME/config/ssl/gitlab.dongna.com/
+      ```
+
+    - Cấu hình enable https cho gitlab trong file `$GITLAB_HOME/config/gitlab.rb`    
+    ```
+    ## Gitlab URL
+    external_url 'https://gitlab.dongna.com:443'
+    ...
+    ################################################################################
+    ## GitLab NGINX
+    ##! Docs: https://docs.gitlab.com/omnibus/settings/nginx.html
+    ################################################################################
+    nginx['enable'] = true
+    nginx['client_max_body_size'] = '250m'
+    nginx['redirect_http_to_https'] = true
+    nginx['redirect_http_to_https_port'] = 80
+    ...
+    nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.dongna.com/server.crt"           # /etc/gitlab/ssl  is the path in docker container
+    nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.dongna.com/server.key"
+    ...
+    nginx['listen_addresses'] = ['*', '[::]']
+    ```
+
 - Cài đặt gitlab
 ```
 sudo docker run --detach --hostname gitlab.dongna.com --publish 443:443 --publish 80:80 --publish 22:22 --name gitlab --restart always --volume $GITLAB_HOME/config:/etc/gitlab --volume $GITLAB_HOME/logs:/var/log/gitlab --volume $GITLAB_HOME/data:/var/opt/gitlab --shm-size 256m gitlab/gitlab-ce:latest
@@ -61,6 +95,7 @@ Welcome to GitLab, @dongna!
     git commit -m "Initinal commit"
     git push -u origin master
     ```
+    
     - `helmchart-demo` repository
     ```
     cd $HOME/argocd-demo/helmchart-demo/
