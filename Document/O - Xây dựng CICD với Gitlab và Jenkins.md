@@ -213,12 +213,53 @@ docker push harbor.dongna.com/demo/hello-world:v1
 
 
 # Cài đặt ArgoCD
-- Cài đặt ArgoCD
+- Tạo folder chứa ArgoCD Helm Chart
 ```
-mkdir $HOME/argocd && cd $HOME/argocd
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+mkdir $HOME/k8s/argocd && cd $HOME/k8s/argocd
 ```
+
+- Tải ArgoCD Helm Chart
+```
+helm repo add argo https://argoproj.github.io/argo-helm
+helm search repo argo-cd
+helm pull argo/argo-cd --version 7.6.12
+tar -xzf argo-cd-7.6.12.tgz
+cp argo-cd/values.yaml values-argocd.yaml
+```
+
+- Cấu hình ArgoCD Helm Chart bằng cách sửa file values-argocd.yaml
+```
+global:
+  domain: argo.dongna.com
+...
+configs:
+  params:
+    server.insecure: true
+...
+server:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    hostname: argocd.dongna.com
+```
+
+- Tạo namespace `argocd` và cài đặt ArgoCD Helm Chart
+```
+kubectl create ns argocd
+helm -n argocd install argocd -f values-argocd.yaml argo/argo-cd 
+```
+
+**NOTE: Nếu gặp phải error với CRDs, sửa `crds.install` value trong file values.yaml thành `false`**
+    - Error message
+    ```
+    Error: INSTALLATION FAILED: Unable to continue with install: CustomResourceDefinition "applications.argoproj.io" in namespace "" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key "meta.helm.sh/release-namespace" must equal "argocd": current value is "default"
+    ```
+    - sửa file values-argocd.yaml
+    ```
+    crds:
+      # -- Install and upgrade CRDs
+      install: false
+    ```
 
 - Cấu hình service thành NodePort:
 ```
@@ -279,9 +320,6 @@ statefulset.apps/argocd-application-controller   1/1     2m6s
       ```
 - Truy cập vào IP bất kỳ của K8s Cluster (worker/master nodes) VD: http://[master/worker_IP]:[NodePort_port]
 ![image](https://github.com/user-attachments/assets/e7780a0a-f19b-43d3-8367-a1f32019d23e)
-
-
-**NOTE: Do ta chưa cài certificate cho ArgoCD nên khi đăng nhập sẽ báo invalid certificate**
 
 # Tạo pipeline Job trên Jenkins
 - Ta cần define Job cho jenkins thực hiện các task như sau:
