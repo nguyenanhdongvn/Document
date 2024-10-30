@@ -15,7 +15,7 @@ sudo mkdir -p /srv/gitlab/data
 sudo mkdir -p /srv/gitlab/config
 ```
 
-- Enable HTTPS cho gitlab
+- Enable HTTPS cho gitlab (REF: https://blog.programster.org/dockerized-gitlab-configure-ssl)
     - Từ `local machine`, tạo folder `/home/sysadmin/ssl` và copy cert lên `gitlab` server
     ```
     ssh -p 23 sysadmin@gitlab "mkdir -p /home/sysadmin/ssl"
