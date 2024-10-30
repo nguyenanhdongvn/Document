@@ -24,10 +24,10 @@ sudo mkdir -p /srv/gitlab/config
     ```
 
     - Trên `gitlab` server, tạo đường dẫn chứa ssl certificate trong gitlab config folder, copy file cert+key vào
-      ```
-      sudo mkdir -p $GITLAB_HOME/config/ssl/gitlab.dongna.com/
-      mv /home/sysadmin/ssl/server.* $GITLAB_HOME/config/ssl/gitlab.dongna.com/
-      ```
+    ```
+    sudo mkdir -p $GITLAB_HOME/config/ssl/gitlab.dongna.com/
+    mv /home/sysadmin/ssl/server.* $GITLAB_HOME/config/ssl/gitlab.dongna.com/
+    ```
 
     - Cấu hình enable https cho gitlab trong file `$GITLAB_HOME/config/gitlab.rb`    
     ```
