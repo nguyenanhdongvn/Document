@@ -135,7 +135,7 @@ sudo systemctl status jenkins
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
-## Configure Reverse Proxy với SSL cho Jenkins
+## Cấu hình Reverse Proxy với SSL cho Jenkins
 - Cài đặt nginx
 ```
 sudo yum install nginx -y
