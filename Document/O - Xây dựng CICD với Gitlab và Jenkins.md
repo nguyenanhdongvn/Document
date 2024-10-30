@@ -54,6 +54,11 @@ sudo mkdir -p /srv/gitlab/config
     nginx['listen_addresses'] = ['*', '[::]']
     ```
 
+    - Restart gitlab bên trong container để apply config mới
+    ```
+    docker exec -it gitlab bash -c 'gitlab-ctl reconfigure && gitlab-ctl restart'
+    ```
+
 - Lấy root password để login gitlab UI
 ```
 docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
