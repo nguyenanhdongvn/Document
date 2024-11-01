@@ -1,4 +1,4 @@
-# Cài đặt Node Exporter
+# Cài đặt Node Exporter (trên các target node)
 - Tạo user và group `node-exporter`
 ```
 groupadd node-exporter && useradd -s /sbin/nologin --system -g node-exporter node-exporter
