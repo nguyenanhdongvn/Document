@@ -1,3 +1,50 @@
+# Cài đặt Node Exporter
+- Tạo user và group `node-exporter`
+```
+groupadd node-exporter && useradd -s /sbin/nologin --system -g node-exporter node-exporter
+```
+
+- Trên 3 server `server1`, `server2`, `server3`, cài đặt node_exporter
+```
+mkdir -p /tmp/node-exporter/ && cd /tmp/node-exporter/
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+tar -xzvf node_exporter*.tar.gz
+mv node_exporter-*.linux-amd64/node_exporter /usr/local/bin/
+chown node-exporter: /usr/local/bin/node_exporter
+```
+
+- Kiểm tra version của node_exporter
+```
+node_exporter --version
+```
+
+- Tạo Systemd Service cho node_exporter 
+```
+cat << EOF > /etc/systemd/system/node-exporter.service
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node-exporter
+Group=node-exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --collector.systemd
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+- Start node_exporter
+```
+systemctl daemon-reload
+systemctl enable node-exporter.service
+systemctl start node-exporter.service
+systemctl status node-exporter.service
+```
+
+
 - Tạo `prometheus` user and group
 ```
 sudo groupadd prometheus && sudo useradd -s /sbin/nologin --system -g prometheus prometheus
