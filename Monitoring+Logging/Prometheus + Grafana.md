@@ -44,7 +44,7 @@ systemctl start node-exporter.service
 systemctl status node-exporter.service
 ```
 
-
+# Cài đặt Prometheus
 - Tạo `prometheus` user and group
 ```
 sudo groupadd prometheus && sudo useradd -s /sbin/nologin --system -g prometheus prometheus
