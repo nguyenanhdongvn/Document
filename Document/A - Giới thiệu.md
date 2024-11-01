@@ -71,7 +71,7 @@ EOF
 * Patching và cài đặt các package tool cần thiết cho tất cả node
 ```
 sudo yum update -y
-sudo yum install vim git telnet net-tools bind-utils bash-completion wget tree -y
+sudo yum install vim git telnet net-tools bind-utils bash-completion wget curl tree -y
 source /etc/profile.d/bash_completion.sh
 ```
 
