@@ -29,10 +29,18 @@ After=network.target
 User=node-exporter
 Group=node-exporter
 Type=simple
-ExecStart=/usr/local/bin/node_exporter --collector.systemd
+ExecStart=/usr/local/bin/node_exporter --collector.systemd --web.config.file=/tmp/node-exporter/web.yml
 
 [Install]
 WantedBy=multi-user.target
+EOF
+```
+
+- Bảo mật cho Node Exporter API bằng basic authentication
+```
+cat <<EOF > /tmp/prometheus/web.yml
+basic_auth_users:
+  admin: '$2a$12$noyKAVjH4kV9JUwRVbki7.4PJxz2rhJ1kZrac8uaJ75Y0cm3lYz46'
 EOF
 ```
 
@@ -81,6 +89,15 @@ mv prometheus.yml /etc/prometheus/prometheus.yml
 mv consoles/ console_libraries/ /etc/prometheus/
 ```
 
+- Bảo mật Prometheus API và Prometheus UI bằng basic auth
+```
+cat <<EOF > /tmp/prometheus/web.yml
+basic_auth_users:
+  admin: '$2a$12$noyKAVjH4kV9JUwRVbki7.4PJxz2rhJ1kZrac8uaJ75Y0cm3lYz46'
+EOF
+```
+https://prometheus.io/docs/guides/basic-auth/#securing-prometheus-api-and-ui-endpoints-using-basic-auth
+
 - Tạo Systemd Service cho Prometheus
 ```
 cat << EOF > /etc/systemd/system/prometheus.service
@@ -101,7 +118,8 @@ ExecStart=/usr/local/bin/prometheus \
 --web.console.templates=/etc/prometheus/consoles \
 --web.console.libraries=/etc/prometheus/console_libraries \
 --web.listen-address=0.0.0.0:9090 \
---web.external-url=
+--web.external-url= \
+--web.config.file=/etc/prometheus/web.yml # require basic authentication for access metric url
 
 SyslogIdentifier=prometheus
 Restart=always
@@ -146,5 +164,4 @@ systemctl start grafana-server
 systemctl status grafana-server
 ```
 
-ll
 
