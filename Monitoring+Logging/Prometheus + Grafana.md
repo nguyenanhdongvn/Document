@@ -206,6 +206,7 @@ systemctl status alertmanager
 
 
 - Tạo bot telegram để nhận alert
+REF: https://www.youtube.com/watch?v=am5rT6WzZS4&ab_channel=NguyenHy%28HAPPY%29
 ![image](https://github.com/user-attachments/assets/e89ed675-dfe9-44da-84f9-b16643f2a9e3)
 
 ![image](https://github.com/user-attachments/assets/54d86652-5d9a-44d6-a18e-38fec1ee90f1)
