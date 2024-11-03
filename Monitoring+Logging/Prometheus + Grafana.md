@@ -164,4 +164,113 @@ systemctl start grafana-server
 systemctl status grafana-server
 ```
 
+# cài đặt Alert Manager
 
+```
+mkdir -p /tmp/alertmanager/ && cd /tmp/alertmanager/
+wget https://github.com/prometheus/alertmanager/releases/download/v0.28.0-rc.0/alertmanager-0.28.0-rc.0.linux-amd64.tar.gz
+tar -zxvf alertmanager-0.28.0-rc.0.linux-amd64.tar.gz
+mv alertmanager-0.28.0-rc.0.linux-amd64/alertmanager /usr/local/bin
+```
+
+
+- Tạo Systemd Service cho Alert Manager
+```
+cat << EOF > /etc/systemd/system/alertmanager.service
+[Unit]
+Description=AlertManager
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=alertmanager
+Group=alertmanager
+Type=simple
+ExecStart=/usr/local/bin/alertmanager \
+--config.file=/etc/alertmanager/alertmanager.yml
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+- Start Alert Manager
+```
+systemctl daemon-reload
+systemctl enable alertmanager
+systemctl start alertmanager
+systemctl status alertmanager
+```
+
+
+
+
+
+- Tạo bot telegram để nhận alert
+![image](https://github.com/user-attachments/assets/e89ed675-dfe9-44da-84f9-b16643f2a9e3)
+
+![image](https://github.com/user-attachments/assets/54d86652-5d9a-44d6-a18e-38fec1ee90f1)
+
+Tạo 1 groupchat và add con bot vừa tạo vào groupchat đó
+
+- Truy cập https://api.telegram.org/bot<telegram_token>/getUpdates
+![image](https://github.com/user-attachments/assets/1f723217-ed93-40b5-9b15-ba541b5794c5)
+
+- Quay lại Telegram và input `/start` với con bot
+
+- Refresh lại browser để hiển thị chat ID của con bot và lưu lại chat ID của nó
+![image](https://github.com/user-attachments/assets/1b738be1-26a0-41cc-90f9-52da22d48ccc)
+
+
+```
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 1m # interval each time alert manager push notification
+  repeat_interval: 1h
+  receiver: 'telegram'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+
+receivers:
+- name: 'telegram'
+  telegram_configs:
+  - bot_token: '7544633848:AAEL7m3KikeQchx_0XxXIi_62us5mgdIlVQ'
+    api_url: https://api.telegram.org
+    chat_id: -4523984414
+    message: '{{ template "telegram.yucca.message" . }}'
+
+templates:
+- '/etc/alertmanager/templates/telegram.tmpl'
+```
+
+telegram message template
+```
+{{ define "__yucca_text_alert_list" }}{{ range . }}
+---
+🪪 <b>{{ .Labels.alertname }}</b
+{{- if .Annotations.summary }}
+📝 {{ .Annotations.summary }}{{ end }}
+{{- if .Annotations.description }}
+📖 {{ .Annotations.description }}{{ end }}
+🏷  Labels:
+{{ range .Labels.SortedPairs }}  <i>{{ .Name }}</i>: <code>{{ .Value }}</code>
+{{ end }}{{ end }}
+🛠  <a href="https://yucca.app/">Grafana</a> 💊 <a href="https://yucca.app/">Alertmanager</a> 💊 <a href="https://yucca.app/">Prometheus</a> 🛠
+{{ end }}
+
+{{ define "telegram.yucca.message" }}
+{{ if gt (len .Alerts.Firing) 0 }}
+🔥 Alerts Firing 🔥
+{{ template "__yucca_text_alert_list" .Alerts.Firing }}
+{{ end }}
+{{ if gt (len .Alerts.Resolved) 0 }}
+✅ Alerts Resolved ✅
+{{ template "__yucca_text_alert_list" .Alerts.Resolved }}
+{{ end }}
+{{ end }}
+```
