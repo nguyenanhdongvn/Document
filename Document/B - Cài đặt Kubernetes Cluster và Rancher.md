@@ -72,8 +72,8 @@ sed -i 's/kube_network_plugin: calico/kube_network_plugin: flannel/g' $HOME/k8s/
 * Chạy container đã cài sẵn Ansible để chạy Kubespray
 ```
 docker run --rm -it --mount type=bind,source=$HOME/k8s/kubespray/inventory/dongna-cluster,dst=/inventory \
-  --mount type=bind,source=$HOME/k8s/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
-  --mount type=bind,source=$HOME/k8s/.ssh/id_rsa,dst=$HOME/k8s/.ssh/id_rsa \
+  --mount type=bind,source=$HOME/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
+  --mount type=bind,source=$HOME/.ssh/id_rsa,dst=$HOME/.ssh/id_rsa \
   quay.io/kubespray/kubespray:v2.26.0 bash
 ```
 
